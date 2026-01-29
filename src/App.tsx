@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useSimulationStore } from './store/simulationStore';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
@@ -7,6 +8,7 @@ import { ExportPanel } from './components/export/ExportPanel';
 
 function App() {
   const { activeTab } = useSimulationStore();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -23,10 +25,19 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[#F6F6F8]">
-      <Header />
+      <Header
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        showMenuButton={activeTab === 'input'}
+      />
       <div className="flex">
-        {activeTab === 'input' && <Sidebar />}
-        <main className={`flex-1 p-6 ${activeTab === 'input' ? '' : 'max-w-7xl mx-auto'}`}>
+        {activeTab === 'input' && (
+          <Sidebar
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+          />
+        )}
+        <main className={`flex-1 p-4 sm:p-6 ${activeTab === 'input' ? 'lg:ml-0' : 'max-w-7xl mx-auto'}`}>
           {renderContent()}
         </main>
       </div>

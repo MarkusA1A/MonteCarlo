@@ -1,8 +1,14 @@
-import { Building2, BarChart3, FileText, Settings } from 'lucide-react';
+import { Building2, BarChart3, FileText, Settings, Menu, X } from 'lucide-react';
 import { useSimulationStore } from '../../store/simulationStore';
 import type { ActiveTab } from '../../types';
 
-export function Header() {
+interface HeaderProps {
+  sidebarOpen?: boolean;
+  onToggleSidebar?: () => void;
+  showMenuButton?: boolean;
+}
+
+export function Header({ sidebarOpen, onToggleSidebar, showMenuButton }: HeaderProps) {
   const { activeTab, setActiveTab, status } = useSimulationStore();
 
   const tabs: { id: ActiveTab; label: string; icon: typeof Building2 }[] = [
@@ -14,13 +20,21 @@ export function Header() {
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-[#0066FF] rounded-lg flex items-center justify-center">
-              <Building2 className="w-6 h-6 text-white" />
+        <div className="flex items-center justify-between h-14 sm:h-16">
+          {/* Mobile Menu Button + Logo */}
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            {showMenuButton && (
+              <button
+                onClick={onToggleSidebar}
+                className="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            )}
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#0066FF] rounded-lg flex items-center justify-center">
+              <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <div>
+            <div className="hidden sm:block">
               <h1 className="text-lg font-semibold text-gray-900">ImmoValue</h1>
               <p className="text-xs text-gray-500">Monte-Carlo Bewertung</p>
             </div>
@@ -39,7 +53,7 @@ export function Header() {
                   onClick={() => !isDisabled && setActiveTab(tab.id)}
                   disabled={isDisabled}
                   className={`
-                    flex items-center space-x-2 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200
+                    flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-md transition-all duration-200
                     ${isActive
                       ? 'bg-white text-gray-900 shadow-sm'
                       : isDisabled
@@ -49,7 +63,7 @@ export function Header() {
                   `}
                 >
                   <Icon className="w-4 h-4" />
-                  <span>{tab.label}</span>
+                  <span className="hidden sm:inline">{tab.label}</span>
                 </button>
               );
             })}
