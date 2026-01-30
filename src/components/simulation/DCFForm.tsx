@@ -3,6 +3,7 @@ import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Switch } from '../ui/Switch';
 import { NumericInput } from '../ui/NumericInput';
 import { DistributionInput } from './DistributionInput';
+import { Info } from 'lucide-react';
 
 export function DCFForm() {
   const { params, setDCFParams, updateDCFDistribution } = useSimulationStore();
@@ -27,6 +28,22 @@ export function DCFForm() {
 
       {dcf.enabled && (
         <div className="space-y-4">
+          {/* Erklärung der Verteilungsarten */}
+          <div className="bg-gray-50 rounded-lg p-4 text-sm border border-gray-200">
+            <div className="flex items-start space-x-2">
+              <Info className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-gray-900 mb-2">Erläuterung der Verteilungsarten</h4>
+                <ul className="space-y-1.5 text-xs text-gray-600">
+                  <li><span className="font-medium text-gray-700">Normalverteilung:</span> Symmetrische Verteilung um den Erwartungswert. Ideal wenn Sie einen wahrscheinlichsten Wert mit gleichmäßiger Unsicherheit nach oben und unten kennen.</li>
+                  <li><span className="font-medium text-gray-700">Dreiecksverteilung:</span> Definiert durch Minimum, wahrscheinlichsten Wert und Maximum. Gut geeignet für Expertenschätzungen mit klaren Grenzen.</li>
+                  <li><span className="font-medium text-gray-700">Gleichverteilung:</span> Alle Werte im definierten Bereich sind gleich wahrscheinlich. Verwenden Sie diese bei hoher Unsicherheit ohne bevorzugten Wert.</li>
+                  <li><span className="font-medium text-gray-700">Log-Normalverteilung:</span> Rechtsschiefe Verteilung für Werte, die nicht negativ werden können (z.B. Preise, Kosten). Berücksichtigt Ausreißer nach oben.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           <DistributionInput
             label="Anfangs-Monatsmiete (gesamt)"
             value={dcf.initialMonthlyRent}
