@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { formatCurrency } from '../../lib/statistics';
 import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 export function ExportPanel() {
   const { results } = useSimulationStore();
@@ -157,11 +158,48 @@ export function ExportPanel() {
         });
       }
 
-      // Footer
-      y = doc.internal.pageSize.getHeight() - 20;
+      // Grafiken auf neuer Seite
+      const addChartToPage = async (elementId: string, title: string) => {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+
+        doc.addPage();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        // Titel
+        doc.setFontSize(14);
+        doc.setTextColor(26, 26, 26);
+        doc.text(title, 20, 20);
+
+        try {
+          const canvas = await html2canvas(element, {
+            scale: 2,
+            backgroundColor: '#ffffff',
+            logging: false,
+          });
+
+          const imgData = canvas.toDataURL('image/png');
+          const imgWidth = pageWidth - 40;
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          const maxHeight = pageHeight - 50;
+          const finalHeight = Math.min(imgHeight, maxHeight);
+
+          doc.addImage(imgData, 'PNG', 20, 30, imgWidth, finalHeight);
+        } catch (err) {
+          console.error(`Fehler beim Erfassen von ${elementId}:`, err);
+        }
+      };
+
+      // Charts hinzufügen
+      await addChartToPage('chart-histogram', 'Verteilung der Immobilienwerte');
+      await addChartToPage('chart-method-comparison', 'Methodenvergleich');
+      await addChartToPage('chart-tornado', 'Sensitivitätsanalyse');
+
+      // Footer auf letzter Seite
+      const lastPageHeight = doc.internal.pageSize.getHeight();
       doc.setFontSize(8);
       doc.setTextColor(156, 163, 175);
-      doc.text('Erstellt mit ImmoValue - Monte-Carlo Immobilienbewertung', pageWidth / 2, y, { align: 'center' });
+      doc.text('Erstellt mit ImmoValue - Monte-Carlo Immobilienbewertung', pageWidth / 2, lastPageHeight - 10, { align: 'center' });
 
       // Speichern
       doc.save(`Immobilienbewertung_${params.property.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);

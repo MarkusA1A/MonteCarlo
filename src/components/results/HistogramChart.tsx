@@ -39,7 +39,7 @@ export function HistogramChart({ data, stats, title = 'Verteilung der Immobilien
     <div className="bg-white rounded-xl border border-gray-200 p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
 
-      <div className="h-80">
+      <div className="h-64 sm:h-80">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
             <XAxis
@@ -111,7 +111,7 @@ export function HistogramChart({ data, stats, title = 'Verteilung der Immobilien
       </div>
 
       {/* Legende */}
-      <div className="flex items-center justify-center space-x-6 mt-4 text-xs">
+      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 mt-4 text-xs">
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-orange-200 rounded" />
           <span className="text-gray-600">Unter P10</span>

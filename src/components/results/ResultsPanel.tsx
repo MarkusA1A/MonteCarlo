@@ -64,7 +64,7 @@ export function ResultsPanel() {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Histogramm */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2" id="chart-histogram">
           <HistogramChart
             data={results.histogram}
             stats={results.combinedStats}
@@ -72,15 +72,19 @@ export function ResultsPanel() {
         </div>
 
         {/* Methodenvergleich */}
-        <MethodComparisonChart
-          mieteinnahmenStats={results.mieteinnahmenStats}
-          vergleichswertStats={results.vergleichswertStats}
-          dcfStats={results.dcfStats}
-          combinedStats={results.combinedStats}
-        />
+        <div id="chart-method-comparison">
+          <MethodComparisonChart
+            mieteinnahmenStats={results.mieteinnahmenStats}
+            vergleichswertStats={results.vergleichswertStats}
+            dcfStats={results.dcfStats}
+            combinedStats={results.combinedStats}
+          />
+        </div>
 
         {/* Tornado-Diagramm */}
-        <TornadoChart data={results.sensitivityAnalysis} />
+        <div id="chart-tornado">
+          <TornadoChart data={results.sensitivityAnalysis} />
+        </div>
       </div>
 
       {/* Einzelne Methoden-Statistiken */}

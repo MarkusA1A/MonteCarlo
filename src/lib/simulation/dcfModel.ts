@@ -18,8 +18,8 @@ export function calculateDCFValue(
   // Parameter samplen
   const initialMonthlyRent = sampleDistribution(params.initialMonthlyRent);
   const annualRentGrowth = sampleDistribution(params.annualRentGrowth) / 100;
-  const discountRate = sampleDistribution(params.discountRate) / 100;
-  const exitCapRate = sampleDistribution(params.exitCapRate) / 100;
+  const discountRate = Math.max(sampleDistribution(params.discountRate) / 100, 0.001); // Min 0.1%
+  const exitCapRate = Math.max(sampleDistribution(params.exitCapRate) / 100, 0.005); // Min 0.5%
   const operatingExpenseRatio = sampleDistribution(params.operatingExpenseRatio) / 100;
   const holdingPeriod = params.holdingPeriod;
 
@@ -83,7 +83,10 @@ export function calculateDCFDetailed(
   totalPresentValue: number;
   propertyValue: number;
 } {
-  const { initialMonthlyRent, annualRentGrowth, discountRate, exitCapRate, operatingExpenseRatio } = samples;
+  const { initialMonthlyRent, annualRentGrowth, operatingExpenseRatio } = samples;
+  // Validierung gegen Division durch Null
+  const discountRate = Math.max(samples.discountRate, 0.1); // Min 0.1%
+  const exitCapRate = Math.max(samples.exitCapRate, 0.5); // Min 0.5%
   const holdingPeriod = params.holdingPeriod;
 
   const annualCashflows: Array<{

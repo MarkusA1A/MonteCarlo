@@ -50,21 +50,33 @@ export function sampleDistribution(dist: Distribution): number {
   const { type, params } = dist;
 
   switch (type) {
-    case 'normal':
-      return sampleNormal(params.mean ?? 0, params.stdDev ?? 1);
+    case 'normal': {
+      const stdDev = Math.max(params.stdDev ?? 1, 0); // Keine negative Std.-Abw.
+      return sampleNormal(params.mean ?? 0, stdDev);
+    }
 
-    case 'uniform':
-      return sampleUniform(params.min ?? 0, params.max ?? 1);
+    case 'uniform': {
+      const min = params.min ?? 0;
+      const max = params.max ?? 1;
+      // Falls min > max, tausche die Werte
+      return min <= max ? sampleUniform(min, max) : sampleUniform(max, min);
+    }
 
-    case 'triangular':
-      return sampleTriangular(
-        params.min ?? 0,
-        params.mode ?? ((params.min ?? 0) + (params.max ?? 1)) / 2,
-        params.max ?? 1
-      );
+    case 'triangular': {
+      let min = params.min ?? 0;
+      let max = params.max ?? 1;
+      // Falls min > max, tausche die Werte
+      if (min > max) [min, max] = [max, min];
+      // Mode muss zwischen min und max liegen
+      const mode = Math.max(min, Math.min(params.mode ?? (min + max) / 2, max));
+      return sampleTriangular(min, mode, max);
+    }
 
-    case 'lognormal':
-      return sampleLognormal(params.mean ?? 1, params.stdDev ?? 0.5);
+    case 'lognormal': {
+      const mean = Math.max(params.mean ?? 1, 0.001); // Lognormal braucht positiven Mean
+      const stdDev = Math.max(params.stdDev ?? 0.5, 0.001); // Positive Std.-Abw.
+      return sampleLognormal(mean, stdDev);
+    }
 
     default:
       return params.mean ?? 0;

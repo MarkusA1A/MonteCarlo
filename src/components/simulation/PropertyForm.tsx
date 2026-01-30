@@ -24,13 +24,13 @@ export function PropertyForm() {
       </CardHeader>
 
       <div className="space-y-6">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="Objektbezeichnung"
             value={property.name}
             onChange={(e) => setPropertyData({ name: e.target.value })}
             placeholder="z.B. Wohnung Maxvorstadt"
-            className="col-span-2"
+            className="sm:col-span-2"
           />
 
           <Input
@@ -38,7 +38,7 @@ export function PropertyForm() {
             value={property.address}
             onChange={(e) => setPropertyData({ address: e.target.value })}
             placeholder="Straße, PLZ Ort"
-            className="col-span-2"
+            className="sm:col-span-2"
           />
 
           <Select
@@ -79,7 +79,7 @@ export function PropertyForm() {
         {/* Zusammenfassung */}
         <div className="bg-gray-50 rounded-lg p-4">
           <h4 className="text-sm font-medium text-gray-700 mb-2">Zusammenfassung</h4>
-          <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
             <div className="text-gray-500">Alter:</div>
             <div className="text-gray-900 font-medium">
               {new Date().getFullYear() - property.yearBuilt} Jahre

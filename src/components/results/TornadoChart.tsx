@@ -36,7 +36,7 @@ export function TornadoChart({ data, title = 'Sensitivitätsanalyse' }: TornadoC
         Einfluss der Parameter bei ±20% Variation
       </p>
 
-      <div className="h-80">
+      <div className="h-64 sm:h-80">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
@@ -107,14 +107,14 @@ export function TornadoChart({ data, title = 'Sensitivitätsanalyse' }: TornadoC
       </div>
 
       {/* Legende */}
-      <div className="flex items-center justify-center space-x-6 mt-4 text-xs">
+      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 mt-4 text-xs">
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-red-500 rounded opacity-70" />
-          <span className="text-gray-600">Negative Auswirkung (-20%)</span>
+          <span className="text-gray-600">-20%</span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-green-500 rounded opacity-70" />
-          <span className="text-gray-600">Positive Auswirkung (+20%)</span>
+          <span className="text-gray-600">+20%</span>
         </div>
       </div>
     </div>

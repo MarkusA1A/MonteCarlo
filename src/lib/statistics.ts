@@ -81,6 +81,17 @@ export function createHistogram(values: number[], bins: number = 50): HistogramB
 
   const { min, max } = minMax(values);
   const range = max - min;
+
+  // Edge Case: Alle Werte sind identisch
+  if (range === 0) {
+    return [{
+      rangeStart: min,
+      rangeEnd: min,
+      count: values.length,
+      percentage: 100,
+    }];
+  }
+
   const binWidth = range / bins;
 
   const histogram: HistogramBin[] = Array(bins).fill(null).map((_, i) => ({

@@ -71,7 +71,7 @@ export function MethodComparisonChart({
         Mittelwerte mit 80% Konfidenzintervall (P10-P90)
       </p>
 
-      <div className="h-64">
+      <div className="h-48 sm:h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}

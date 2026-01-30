@@ -67,17 +67,17 @@ export function DistributionInput({
 
   return (
     <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <span className="text-sm font-medium text-gray-700">{label}</span>
         <Select
           options={distributionOptions}
           value={value.type}
           onChange={(e) => handleTypeChange(e.target.value as DistributionType)}
-          className="w-44"
+          className="w-full sm:w-44"
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {(value.type === 'normal' || value.type === 'lognormal') && (
           <>
             <Input
@@ -138,7 +138,7 @@ export function DistributionInput({
               value={value.params.max ?? 0}
               onChange={(e) => handleParamChange('max', parseFloat(e.target.value) || 0)}
               suffix={unit}
-              className="col-span-2"
+              className="sm:col-span-2"
             />
           </>
         )}

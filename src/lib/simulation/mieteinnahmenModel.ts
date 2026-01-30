@@ -5,7 +5,8 @@ import { sampleDistribution } from '../distributions';
  * Ertragswertverfahren / Mieteinnahmen-Modell
  *
  * Berechnet den Immobilienwert basierend auf den zu erwartenden Mieteinnahmen.
- * Formel: Wert = Jahresreinertrag / Kapitalisierungszinssatz
+ * Verwendet das Gordon Growth Model für ewige Rente mit Wachstum:
+ * Formel: Wert = Jahresreinertrag / (Kapitalisierungszinssatz - Wachstumsrate)
  */
 export function calculateMieteinnahmenValue(
   property: PropertyData,
@@ -14,9 +15,14 @@ export function calculateMieteinnahmenValue(
   // Parameter samplen
   const monthlyRentPerSqm = sampleDistribution(params.monthlyRentPerSqm);
   const vacancyRate = sampleDistribution(params.vacancyRate) / 100; // In Dezimal
+  const annualRentIncrease = sampleDistribution(params.annualRentIncrease) / 100; // In Dezimal
   const maintenanceCostRate = sampleDistribution(params.maintenanceCosts) / 100;
   const managementCostRate = sampleDistribution(params.managementCosts) / 100;
   const capRate = sampleDistribution(params.capitalizationRate) / 100;
+
+  // Validierung: Cap Rate muss größer als Wachstumsrate sein (Gordon Growth Model)
+  // Minimum 0.5% effektive Rate um Division durch ~0 zu vermeiden
+  const effectiveCapRate = Math.max(capRate - annualRentIncrease, 0.005);
 
   // Brutto-Jahresmiete
   const grossAnnualRent = monthlyRentPerSqm * property.area * 12;
@@ -31,8 +37,8 @@ export function calculateMieteinnahmenValue(
   // Nettoertrag
   const netOperatingIncome = effectiveGrossIncome - maintenanceCosts - managementCosts;
 
-  // Kapitalisierung
-  const propertyValue = netOperatingIncome / capRate;
+  // Kapitalisierung mit Gordon Growth Model
+  const propertyValue = netOperatingIncome / effectiveCapRate;
 
   return Math.max(0, propertyValue);
 }
