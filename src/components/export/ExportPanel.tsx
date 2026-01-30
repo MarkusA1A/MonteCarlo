@@ -14,7 +14,7 @@ import html2canvas from 'html2canvas';
 const BUILD_INFO = {
   version: '1.0.0',
   buildDate: new Date().toISOString().split('T')[0],
-  commit: '044bd90',
+  commit: 'd2affe1',
 };
 
 export function ExportPanel() {
@@ -371,18 +371,26 @@ export function ExportPanel() {
 
       {/* Charts für PDF-Export - sichtbar während Export */}
       {showExportCharts && (
-        <div
-          className="fixed inset-0 bg-white z-[9999] overflow-auto"
-          style={{ left: '-9999px', width: '800px' }}
-        >
-          <ExportCharts
-            results={results}
-            combinedStats={combinedStats}
-            mieteinnahmenStats={mieteinnahmenStats}
-            vergleichswertStats={vergleichswertStats}
-            dcfStats={dcfStats}
-            onReady={handleExportReady}
-          />
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white">
+          <div className="text-center mb-4 absolute top-4 left-0 right-0">
+            <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-lg">
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              <span>PDF wird erstellt...</span>
+            </div>
+          </div>
+          <div className="overflow-auto max-h-screen pt-16 pb-8">
+            <ExportCharts
+              results={results}
+              combinedStats={combinedStats}
+              mieteinnahmenStats={mieteinnahmenStats}
+              vergleichswertStats={vergleichswertStats}
+              dcfStats={dcfStats}
+              onReady={handleExportReady}
+            />
+          </div>
         </div>
       )}
     </div>
@@ -406,10 +414,15 @@ function ExportCharts({
   onReady: () => void;
 }) {
   useEffect(() => {
-    // Warte bis Charts gerendert sind
+    // Warte bis Charts vollständig gerendert sind
+    // requestAnimationFrame stellt sicher, dass der Browser gerendert hat
     const timer = setTimeout(() => {
-      onReady();
-    }, 1000);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          onReady();
+        });
+      });
+    }, 1500);
     return () => clearTimeout(timer);
   }, [onReady]);
 
