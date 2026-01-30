@@ -12,7 +12,7 @@ import html2canvas from 'html2canvas';
 const BUILD_INFO = {
   version: '1.0.0',
   buildDate: new Date().toISOString().split('T')[0],
-  commit: 'd673722',
+  commit: '02bbb37',
 };
 
 export function ExportPanel() {
