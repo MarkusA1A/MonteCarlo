@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { FileText, Download, Printer, FileSpreadsheet } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { FileText, Download, Printer, FileSpreadsheet, Info } from 'lucide-react';
 import { useSimulationStore } from '../../store/simulationStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Button } from '../ui/Button';
@@ -10,9 +10,36 @@ import { TornadoChart } from '../results/TornadoChart';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
+// Build-Information
+const BUILD_INFO = {
+  version: '1.0.0',
+  buildDate: new Date().toISOString().split('T')[0],
+  commit: '044bd90',
+};
+
 export function ExportPanel() {
   const { results } = useSimulationStore();
   const [isExporting, setIsExporting] = useState(false);
+  const [showExportCharts, setShowExportCharts] = useState(false);
+  const [exportReady, setExportReady] = useState(false);
+
+  // Callback wenn Charts bereit sind
+  const handleExportReady = useCallback(() => {
+    setExportReady(true);
+  }, []);
+
+  // Effect der den Export ausführt wenn Charts sichtbar sind
+  useEffect(() => {
+    if (showExportCharts && exportReady && results) {
+      const runExport = async () => {
+        await performPDFExport();
+        setShowExportCharts(false);
+        setExportReady(false);
+        setIsExporting(false);
+      };
+      runExport();
+    }
+  }, [showExportCharts, exportReady, results]);
 
   if (!results) {
     return (
@@ -34,9 +61,7 @@ export function ExportPanel() {
 
   const { params, combinedStats, mieteinnahmenStats, vergleichswertStats, dcfStats } = results;
 
-  const exportToPDF = async () => {
-    setIsExporting(true);
-
+  const performPDFExport = async () => {
     try {
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
@@ -86,6 +111,7 @@ export function ExportPanel() {
         ['Mittelwert:', formatCurrency(combinedStats.mean)],
         ['Median:', formatCurrency(combinedStats.median)],
         ['Standardabweichung:', formatCurrency(combinedStats.stdDev)],
+        ['Variationskoeffizient:', `${combinedStats.coefficientOfVariation.toFixed(1)}%`],
         ['10. Perzentil (pessimistisch):', formatCurrency(combinedStats.percentile10)],
         ['90. Perzentil (optimistisch):', formatCurrency(combinedStats.percentile90)],
         ['Minimum:', formatCurrency(combinedStats.min)],
@@ -161,20 +187,13 @@ export function ExportPanel() {
         });
       }
 
-      // Container für Charts temporär sichtbar machen
-      const chartContainer = document.getElementById('export-charts-container');
-      if (chartContainer) {
-        chartContainer.style.transform = 'translateX(0)';
-        chartContainer.style.zIndex = '9999';
-      }
-
-      // Warten, damit das Layout und die Charts vollständig gerendert werden
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Grafiken auf neuer Seite
+      // Grafiken auf neuen Seiten
       const addChartToPage = async (elementId: string, title: string) => {
         const element = document.getElementById(elementId);
-        if (!element) return;
+        if (!element) {
+          console.warn(`Element ${elementId} nicht gefunden`);
+          return;
+        }
 
         doc.addPage();
         const pageHeight = doc.internal.pageSize.getHeight();
@@ -191,7 +210,8 @@ export function ExportPanel() {
             logging: false,
             useCORS: true,
             allowTaint: true,
-            foreignObjectRendering: false,
+            windowWidth: 800,
+            windowHeight: 400,
           });
 
           const imgData = canvas.toDataURL('image/png');
@@ -206,30 +226,28 @@ export function ExportPanel() {
         }
       };
 
-      // Charts hinzufügen (verwende export-spezifische IDs)
+      // Charts hinzufügen
       await addChartToPage('export-chart-histogram', 'Verteilung der Immobilienwerte');
       await addChartToPage('export-chart-method-comparison', 'Methodenvergleich');
       await addChartToPage('export-chart-tornado', 'Sensitivitätsanalyse');
-
-      // Container wieder verstecken
-      if (chartContainer) {
-        chartContainer.style.transform = 'translateX(-9999px)';
-        chartContainer.style.zIndex = '-1';
-      }
 
       // Footer auf letzter Seite
       const lastPageHeight = doc.internal.pageSize.getHeight();
       doc.setFontSize(8);
       doc.setTextColor(156, 163, 175);
-      doc.text('Erstellt mit Monte-Carlo Immobilienbewertung', pageWidth / 2, lastPageHeight - 10, { align: 'center' });
+      doc.text(`Erstellt mit Monte-Carlo Immobilienbewertung v${BUILD_INFO.version}`, pageWidth / 2, lastPageHeight - 10, { align: 'center' });
 
       // Speichern
       doc.save(`Immobilienbewertung_${params.property.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
     } catch (error) {
       console.error('PDF Export Fehler:', error);
-    } finally {
-      setIsExporting(false);
     }
+  };
+
+  const startPDFExport = () => {
+    setIsExporting(true);
+    setShowExportCharts(true);
+    // Export wird über useEffect gestartet wenn Charts bereit sind
   };
 
   const exportToCSV = () => {
@@ -270,9 +288,9 @@ export function ExportPanel() {
           <ExportOption
             icon={FileText}
             title="PDF-Bericht"
-            description="Professioneller Bericht mit allen Ergebnissen"
+            description="Professioneller Bericht mit allen Ergebnissen und Grafiken"
             buttonText="PDF erstellen"
-            onClick={exportToPDF}
+            onClick={startPDFExport}
             isLoading={isExporting}
           />
 
@@ -327,28 +345,90 @@ export function ExportPanel() {
         </div>
       </Card>
 
-      {/* Versteckte Charts für PDF-Export */}
-      <div
-        id="export-charts-container"
-        className="fixed left-0 top-0 w-[800px] bg-white pointer-events-none"
-        style={{ transform: 'translateX(-9999px)', zIndex: -1 }}
-        aria-hidden="true"
-      >
-        <div id="export-chart-histogram" className="p-4" style={{ width: '800px', height: '400px' }}>
-          <HistogramChart data={results.histogram} stats={combinedStats} exportMode={true} />
+      {/* Build-Information */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center space-x-2">
+            <Info className="w-4 h-4 text-gray-400" />
+            <CardTitle className="text-sm">Build-Information</CardTitle>
+          </div>
+        </CardHeader>
+        <div className="grid grid-cols-3 gap-4 text-sm">
+          <div>
+            <p className="text-gray-500">Version</p>
+            <p className="font-medium text-gray-900">{BUILD_INFO.version}</p>
+          </div>
+          <div>
+            <p className="text-gray-500">Build-Datum</p>
+            <p className="font-medium text-gray-900">{BUILD_INFO.buildDate}</p>
+          </div>
+          <div>
+            <p className="text-gray-500">Commit</p>
+            <p className="font-medium text-gray-900 font-mono">{BUILD_INFO.commit}</p>
+          </div>
         </div>
-        <div id="export-chart-method-comparison" className="p-4" style={{ width: '800px', height: '400px' }}>
-          <MethodComparisonChart
+      </Card>
+
+      {/* Charts für PDF-Export - sichtbar während Export */}
+      {showExportCharts && (
+        <div
+          className="fixed inset-0 bg-white z-[9999] overflow-auto"
+          style={{ left: '-9999px', width: '800px' }}
+        >
+          <ExportCharts
+            results={results}
+            combinedStats={combinedStats}
             mieteinnahmenStats={mieteinnahmenStats}
             vergleichswertStats={vergleichswertStats}
             dcfStats={dcfStats}
-            combinedStats={combinedStats}
-            exportMode={true}
+            onReady={handleExportReady}
           />
         </div>
-        <div id="export-chart-tornado" className="p-4" style={{ width: '800px', height: '400px' }}>
-          <TornadoChart data={results.sensitivityAnalysis} exportMode={true} />
-        </div>
+      )}
+    </div>
+  );
+}
+
+// Separate Komponente für Export-Charts
+function ExportCharts({
+  results,
+  combinedStats,
+  mieteinnahmenStats,
+  vergleichswertStats,
+  dcfStats,
+  onReady,
+}: {
+  results: any;
+  combinedStats: any;
+  mieteinnahmenStats: any;
+  vergleichswertStats: any;
+  dcfStats: any;
+  onReady: () => void;
+}) {
+  useEffect(() => {
+    // Warte bis Charts gerendert sind
+    const timer = setTimeout(() => {
+      onReady();
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [onReady]);
+
+  return (
+    <div className="p-4 space-y-4 bg-white">
+      <div id="export-chart-histogram" className="bg-white" style={{ width: '760px', height: '380px' }}>
+        <HistogramChart data={results.histogram} stats={combinedStats} exportMode={true} />
+      </div>
+      <div id="export-chart-method-comparison" className="bg-white" style={{ width: '760px', height: '350px' }}>
+        <MethodComparisonChart
+          mieteinnahmenStats={mieteinnahmenStats}
+          vergleichswertStats={vergleichswertStats}
+          dcfStats={dcfStats}
+          combinedStats={combinedStats}
+          exportMode={true}
+        />
+      </div>
+      <div id="export-chart-tornado" className="bg-white" style={{ width: '760px', height: '380px' }}>
+        <TornadoChart data={results.sensitivityAnalysis} exportMode={true} />
       </div>
     </div>
   );
