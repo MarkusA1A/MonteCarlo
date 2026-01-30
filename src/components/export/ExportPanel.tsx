@@ -8,6 +8,7 @@ import { PrintableReport } from './PrintableReport';
 import { Statistics, HistogramBin, SensitivityResult, SimulationResults, SimulationParams } from '../../types';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import * as XLSX from 'xlsx';
 
 // Build-Information
 const BUILD_INFO = {
@@ -107,11 +108,87 @@ export function ExportPanel() {
     }
   }, [results]);
 
-  const exportToCSV = useCallback(() => {
+  const exportToExcel = useCallback(() => {
     if (!results) return;
-    const { params } = results;
-    const rows = [
-      ['Simulation Nr.', 'Ertragswert', 'Vergleichswert', 'DCF', 'Kombiniert'],
+    const { params, combinedStats } = results;
+
+    // Erstelle Workbook
+    const wb = XLSX.utils.book_new();
+
+    // Blatt 1: Zusammenfassung
+    const summaryData = [
+      ['Monte-Carlo Immobilienbewertung - Zusammenfassung'],
+      [],
+      ['Objektdaten'],
+      ['Bezeichnung', params.property.name],
+      ['Adresse', params.property.address],
+      ['Fläche (m²)', params.property.area],
+      ['Baujahr', params.property.yearBuilt],
+      ['Objektart', params.property.propertyType],
+      [],
+      ['Simulationsparameter'],
+      ['Anzahl Simulationen', params.numberOfSimulations],
+      ['Ertragswertverfahren', params.mieteinnahmen.enabled ? 'Aktiviert' : 'Deaktiviert'],
+      ['Vergleichswertverfahren', params.vergleichswert.enabled ? 'Aktiviert' : 'Deaktiviert'],
+      ['DCF-Modell', params.dcf.enabled ? 'Aktiviert' : 'Deaktiviert'],
+      [],
+      ['Bewertungsergebnis'],
+      ['Mittelwert', combinedStats.mean],
+      ['Median', combinedStats.median],
+      ['Standardabweichung', combinedStats.stdDev],
+      ['Variationskoeffizient (%)', combinedStats.coefficientOfVariation],
+      ['Minimum', combinedStats.min],
+      ['Maximum', combinedStats.max],
+      ['10. Perzentil', combinedStats.percentile10],
+      ['25. Perzentil', combinedStats.percentile25],
+      ['75. Perzentil', combinedStats.percentile75],
+      ['90. Perzentil', combinedStats.percentile90],
+      ['95% Konfidenzintervall (unten)', combinedStats.confidenceInterval95[0]],
+      ['95% Konfidenzintervall (oben)', combinedStats.confidenceInterval95[1]],
+    ];
+    const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Zusammenfassung');
+
+    // Blatt 2: Methodenvergleich
+    type SheetRow = (string | number | boolean)[];
+    const methodsData: SheetRow[] = [
+      ['Methodenvergleich'],
+      [],
+      ['Methode', 'Mittelwert', 'Median', 'Std.Abw.', 'P10', 'P90', 'Min', 'Max'],
+    ];
+    if (results.mieteinnahmenStats) {
+      const s = results.mieteinnahmenStats;
+      methodsData.push(['Ertragswertverfahren', s.mean, s.median, s.stdDev, s.percentile10, s.percentile90, s.min, s.max]);
+    }
+    if (results.vergleichswertStats) {
+      const s = results.vergleichswertStats;
+      methodsData.push(['Vergleichswertverfahren', s.mean, s.median, s.stdDev, s.percentile10, s.percentile90, s.min, s.max]);
+    }
+    if (results.dcfStats) {
+      const s = results.dcfStats;
+      methodsData.push(['DCF-Modell', s.mean, s.median, s.stdDev, s.percentile10, s.percentile90, s.min, s.max]);
+    }
+    methodsData.push(['Kombiniert', combinedStats.mean, combinedStats.median, combinedStats.stdDev, combinedStats.percentile10, combinedStats.percentile90, combinedStats.min, combinedStats.max]);
+    const wsMethods = XLSX.utils.aoa_to_sheet(methodsData);
+    XLSX.utils.book_append_sheet(wb, wsMethods, 'Methodenvergleich');
+
+    // Blatt 3: Sensitivitätsanalyse
+    if (results.sensitivityAnalysis.length > 0) {
+      const sensitivityData = [
+        ['Sensitivitätsanalyse'],
+        [],
+        ['Parameter', 'Basiswert', '-20% Wert', '+20% Wert', 'Impact'],
+        ...results.sensitivityAnalysis.map(s => [s.label, s.baseValue, s.lowValue, s.highValue, s.impact]),
+      ];
+      const wsSensitivity = XLSX.utils.aoa_to_sheet(sensitivityData);
+      XLSX.utils.book_append_sheet(wb, wsSensitivity, 'Sensitivitätsanalyse');
+    }
+
+    // Blatt 4: Rohdaten
+    const rawData = [
+      ['Simulationsdaten'],
+      [],
+      ['Nr.', 'Ertragswert', 'Vergleichswert', 'DCF', 'Kombiniert'],
       ...results.rawResults.map((r, i) => [
         i + 1,
         r.mieteinnahmenValue ?? '',
@@ -120,13 +197,22 @@ export function ExportPanel() {
         r.combinedValue,
       ]),
     ];
+    const wsRaw = XLSX.utils.aoa_to_sheet(rawData);
+    XLSX.utils.book_append_sheet(wb, wsRaw, 'Rohdaten');
 
-    const csvContent = rows.map((row) => row.join(';')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `Simulation_${params.property.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
+    // Blatt 5: Histogramm
+    const histogramData = [
+      ['Histogramm'],
+      [],
+      ['Bereich Start', 'Bereich Ende', 'Anzahl', 'Prozent'],
+      ...results.histogram.map(h => [h.rangeStart, h.rangeEnd, h.count, h.percentage]),
+    ];
+    const wsHistogram = XLSX.utils.aoa_to_sheet(histogramData);
+    XLSX.utils.book_append_sheet(wb, wsHistogram, 'Histogramm');
+
+    // Speichern
+    const fileName = `Immobilienbewertung_${params.property.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
   }, [results]);
 
   const handlePrint = useCallback(() => {
@@ -573,10 +659,10 @@ export function ExportPanel() {
 
           <ExportOption
             icon={FileSpreadsheet}
-            title="CSV-Export"
-            description="Rohdaten für Excel"
-            buttonText="CSV herunterladen"
-            onClick={exportToCSV}
+            title="Excel-Export"
+            description="Vollständige Analyse mit mehreren Blättern"
+            buttonText="Excel herunterladen"
+            onClick={exportToExcel}
           />
 
           <ExportOption

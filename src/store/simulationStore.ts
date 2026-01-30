@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import {
   SimulationParams,
   SimulationResults,
@@ -52,19 +53,21 @@ interface SimulationStore {
   setActiveInputSection: (section: ActiveInputSection) => void;
 }
 
-export const useSimulationStore = create<SimulationStore>((set, get) => ({
-  // Initial State
-  params: defaultSimulationParams,
-  results: null,
-  status: 'idle',
-  progress: 0,
-  error: null,
-  activeTab: 'input',
-  activeInputSection: 'property',
+export const useSimulationStore = create<SimulationStore>()(
+  persist(
+    (set, get) => ({
+      // Initial State
+      params: defaultSimulationParams,
+      results: null,
+      status: 'idle',
+      progress: 0,
+      error: null,
+      activeTab: 'input',
+      activeInputSection: 'property',
 
-  // Live Feedback Initial State
-  currentPhase: null,
-  liveStats: null,
+      // Live Feedback Initial State
+      currentPhase: null,
+      liveStats: null,
 
   // Property Actions
   setPropertyData: (data) => {
@@ -204,12 +207,21 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     });
   },
 
-  // UI Actions
-  setActiveTab: (tab) => {
-    set({ activeTab: tab });
-  },
+      // UI Actions
+      setActiveTab: (tab) => {
+        set({ activeTab: tab });
+      },
 
-  setActiveInputSection: (section) => {
-    set({ activeInputSection: section });
-  },
-}));
+      setActiveInputSection: (section) => {
+        set({ activeInputSection: section });
+      },
+    }),
+    {
+      name: 'monte-carlo-simulation',
+      // Nur Parameter persistieren, keine Ergebnisse oder temporären UI-States
+      partialize: (state) => ({
+        params: state.params,
+      }),
+    }
+  )
+);
