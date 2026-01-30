@@ -118,7 +118,7 @@ export interface SimulationResults {
 
 // UI-State
 export type SimulationStatus = 'idle' | 'running' | 'completed' | 'error';
-export type ActiveTab = 'input' | 'results' | 'export';
+export type ActiveTab = 'input' | 'results' | 'export' | 'info';
 export type ActiveInputSection = 'property' | 'mieteinnahmen' | 'vergleichswert' | 'dcf' | 'settings';
 
 // Default-Werte für Parameter

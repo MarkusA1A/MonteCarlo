@@ -161,6 +161,16 @@ export function ExportPanel() {
         });
       }
 
+      // Container für Charts temporär sichtbar machen
+      const chartContainer = document.getElementById('export-charts-container');
+      if (chartContainer) {
+        chartContainer.style.transform = 'translateX(0)';
+        chartContainer.style.zIndex = '9999';
+      }
+
+      // Warten, damit das Layout und die Charts vollständig gerendert werden
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       // Grafiken auf neuer Seite
       const addChartToPage = async (elementId: string, title: string) => {
         const element = document.getElementById(elementId);
@@ -179,6 +189,9 @@ export function ExportPanel() {
             scale: 2,
             backgroundColor: '#ffffff',
             logging: false,
+            useCORS: true,
+            allowTaint: true,
+            foreignObjectRendering: false,
           });
 
           const imgData = canvas.toDataURL('image/png');
@@ -198,11 +211,17 @@ export function ExportPanel() {
       await addChartToPage('export-chart-method-comparison', 'Methodenvergleich');
       await addChartToPage('export-chart-tornado', 'Sensitivitätsanalyse');
 
+      // Container wieder verstecken
+      if (chartContainer) {
+        chartContainer.style.transform = 'translateX(-9999px)';
+        chartContainer.style.zIndex = '-1';
+      }
+
       // Footer auf letzter Seite
       const lastPageHeight = doc.internal.pageSize.getHeight();
       doc.setFontSize(8);
       doc.setTextColor(156, 163, 175);
-      doc.text('Erstellt mit ImmoValue - Monte-Carlo Immobilienbewertung', pageWidth / 2, lastPageHeight - 10, { align: 'center' });
+      doc.text('Erstellt mit Monte-Carlo Immobilienbewertung', pageWidth / 2, lastPageHeight - 10, { align: 'center' });
 
       // Speichern
       doc.save(`Immobilienbewertung_${params.property.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -309,11 +328,16 @@ export function ExportPanel() {
       </Card>
 
       {/* Versteckte Charts für PDF-Export */}
-      <div className="absolute left-[-9999px] top-0 w-[800px]" aria-hidden="true">
-        <div id="export-chart-histogram">
+      <div
+        id="export-charts-container"
+        className="fixed left-0 top-0 w-[800px] bg-white pointer-events-none"
+        style={{ transform: 'translateX(-9999px)', zIndex: -1 }}
+        aria-hidden="true"
+      >
+        <div id="export-chart-histogram" className="p-4" style={{ width: '800px', height: '400px' }}>
           <HistogramChart data={results.histogram} stats={combinedStats} />
         </div>
-        <div id="export-chart-method-comparison">
+        <div id="export-chart-method-comparison" className="p-4" style={{ width: '800px', height: '400px' }}>
           <MethodComparisonChart
             mieteinnahmenStats={mieteinnahmenStats}
             vergleichswertStats={vergleichswertStats}
@@ -321,7 +345,7 @@ export function ExportPanel() {
             combinedStats={combinedStats}
           />
         </div>
-        <div id="export-chart-tornado">
+        <div id="export-chart-tornado" className="p-4" style={{ width: '800px', height: '400px' }}>
           <TornadoChart data={results.sensitivityAnalysis} />
         </div>
       </div>

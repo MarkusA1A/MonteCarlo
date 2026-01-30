@@ -5,6 +5,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { SimulationPanel } from './components/simulation/SimulationPanel';
 import { ResultsPanel } from './components/results/ResultsPanel';
 import { ExportPanel } from './components/export/ExportPanel';
+import { InfoPanel } from './components/info/InfoPanel';
 
 function App() {
   const { activeTab } = useSimulationStore();
@@ -18,6 +19,8 @@ function App() {
         return <ResultsPanel />;
       case 'export':
         return <ExportPanel />;
+      case 'info':
+        return <InfoPanel />;
       default:
         return <SimulationPanel />;
     }
