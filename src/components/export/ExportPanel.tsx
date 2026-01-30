@@ -429,6 +429,13 @@ export function ExportPanel() {
           </section>
 
           <section>
+            <h2>Interpretation</h2>
+            <div style="font-size:13px;line-height:1.6;color:#374151;">
+              ${generateInterpretationHTML(results, params, combinedStats)}
+            </div>
+          </section>
+
+          <section>
             <h2>Werteverteilung (Perzentile)</h2>
             ${generatePercentileHTML(combinedStats)}
           </section>
@@ -713,6 +720,91 @@ function generateSensitivityHTML(data: any[]) {
       <div><span style="display:inline-block;width:12px;height:12px;background:#ef4444;opacity:0.7;border-radius:2px;margin-right:5px;vertical-align:middle"></span>-20% Variation</div>
       <div><span style="display:inline-block;width:12px;height:12px;background:#10b981;opacity:0.7;border-radius:2px;margin-right:5px;vertical-align:middle"></span>+20% Variation</div>
     </div>
+  `;
+}
+
+function generateInterpretationHTML(results: any, params: any, combinedStats: any) {
+  const cv = combinedStats.coefficientOfVariation;
+  const range = combinedStats.percentile90 - combinedStats.percentile10;
+  const rangePercent = (range / combinedStats.mean * 100).toFixed(0);
+
+  // Bestimme Unsicherheitslevel
+  let uncertaintyLevel: string;
+  let uncertaintyColor: string;
+  if (cv < 15) {
+    uncertaintyLevel = 'gering';
+    uncertaintyColor = '#10B981';
+  } else if (cv < 25) {
+    uncertaintyLevel = 'moderat';
+    uncertaintyColor = '#F59E0B';
+  } else {
+    uncertaintyLevel = 'hoch';
+    uncertaintyColor = '#EF4444';
+  }
+
+  // Zähle aktive Methoden
+  const methods: string[] = [];
+  if (params.mieteinnahmen?.enabled) methods.push('Ertragswertverfahren');
+  if (params.vergleichswert?.enabled) methods.push('Vergleichswertverfahren');
+  if (params.dcf?.enabled) methods.push('DCF-Modell');
+
+  // Finde dominante Einflussfaktoren
+  const topFactors = results.sensitivityAnalysis?.slice(0, 3).map((s: any) => s.label) || [];
+
+  // Berechne Methodenabweichungen
+  let methodComparison = '';
+  const methodStats = [
+    { name: 'Ertragswertverfahren', stats: results.mieteinnahmenStats },
+    { name: 'Vergleichswertverfahren', stats: results.vergleichswertStats },
+    { name: 'DCF-Modell', stats: results.dcfStats },
+  ].filter(m => m.stats);
+
+  if (methodStats.length > 1) {
+    const means = methodStats.map(m => m.stats.mean);
+    const maxDiff = Math.max(...means) - Math.min(...means);
+    const maxDiffPercent = (maxDiff / combinedStats.mean * 100).toFixed(0);
+
+    if (Number(maxDiffPercent) > 20) {
+      methodComparison = `Die Bewertungsmethoden weichen um bis zu ${maxDiffPercent}% voneinander ab, was auf unterschiedliche Werttreiber hindeutet.`;
+    } else {
+      methodComparison = `Die verschiedenen Bewertungsmethoden liefern konsistente Ergebnisse mit einer maximalen Abweichung von ${maxDiffPercent}%.`;
+    }
+  }
+
+  return `
+    <p style="margin-bottom:10px;">
+      Basierend auf ${params.numberOfSimulations.toLocaleString('de-DE')} Monte-Carlo-Simulationen wird der
+      <strong>Marktwert der Immobilie "${params.property.name}"</strong> auf
+      <strong style="color:#0066FF">${formatCurrency(combinedStats.mean)}</strong> geschätzt.
+    </p>
+
+    <p style="margin-bottom:10px;">
+      Mit einer <strong>80%igen Wahrscheinlichkeit</strong> liegt der tatsächliche Wert zwischen
+      ${formatCurrency(combinedStats.percentile10)} und ${formatCurrency(combinedStats.percentile90)}
+      (Spanne: ${rangePercent}% des Mittelwerts).
+    </p>
+
+    <p style="margin-bottom:10px;">
+      Die Bewertungsunsicherheit ist
+      <strong style="color:${uncertaintyColor}">${uncertaintyLevel}</strong>
+      (Variationskoeffizient: ${cv.toFixed(1)}%).
+      ${cv >= 25 ? ' Bei einer hohen Unsicherheit empfiehlt sich eine detailliertere Analyse der Eingabeparameter.' : ''}
+    </p>
+
+    ${methods.length > 0 ? `
+    <p style="margin-bottom:10px;">
+      Die Bewertung basiert auf ${methods.length === 1 ? 'dem ' + methods[0] : methods.length === 2 ? methods.join(' und ') : methods.slice(0, -1).join(', ') + ' und ' + methods[methods.length - 1]}.
+      ${methodComparison}
+    </p>
+    ` : ''}
+
+    ${topFactors.length > 0 ? `
+    <p style="margin-bottom:0;">
+      Die <strong>wichtigsten Einflussfaktoren</strong> auf die Bewertungsunsicherheit sind:
+      ${topFactors.join(', ')}.
+      Eine genauere Bestimmung dieser Parameter würde die Bewertungsgenauigkeit erhöhen.
+    </p>
+    ` : ''}
   `;
 }
 
