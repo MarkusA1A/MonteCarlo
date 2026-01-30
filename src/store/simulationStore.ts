@@ -12,7 +12,7 @@ import {
   Distribution,
   defaultSimulationParams,
 } from '../types';
-import { runMonteCarloSimulation } from '../lib/simulation/monteCarloEngine';
+import { runMonteCarloSimulation, SimulationPhase, LiveStats } from '../lib/simulation/monteCarloEngine';
 
 interface SimulationStore {
   // State
@@ -23,6 +23,10 @@ interface SimulationStore {
   error: string | null;
   activeTab: ActiveTab;
   activeInputSection: ActiveInputSection;
+
+  // Live Feedback State
+  currentPhase: SimulationPhase | null;
+  liveStats: LiveStats | null;
 
   // Property Actions
   setPropertyData: (data: Partial<PropertyData>) => void;
@@ -57,6 +61,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   error: null,
   activeTab: 'input',
   activeInputSection: 'property',
+
+  // Live Feedback Initial State
+  currentPhase: null,
+  liveStats: null,
 
   // Property Actions
   setPropertyData: (data) => {
@@ -146,11 +154,11 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   runSimulation: async () => {
     const { params } = get();
 
-    set({ status: 'running', progress: 0, error: null });
+    set({ status: 'running', progress: 0, error: null, currentPhase: null, liveStats: null });
 
     try {
-      const results = await runMonteCarloSimulation(params, (progress) => {
-        set({ progress });
+      const results = await runMonteCarloSimulation(params, (progress, _iteration, phase, liveStats) => {
+        set({ progress, currentPhase: phase ?? null, liveStats: liveStats ?? null });
       });
 
       set({
@@ -158,11 +166,15 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         status: 'completed',
         progress: 100,
         activeTab: 'results',
+        currentPhase: null,
+        liveStats: null,
       });
     } catch (error) {
       set({
         status: 'error',
         error: error instanceof Error ? error.message : 'Unbekannter Fehler',
+        currentPhase: null,
+        liveStats: null,
       });
     }
   },
@@ -173,6 +185,8 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       status: 'idle',
       progress: 0,
       error: null,
+      currentPhase: null,
+      liveStats: null,
     });
   },
 
@@ -185,6 +199,8 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       error: null,
       activeTab: 'input',
       activeInputSection: 'property',
+      currentPhase: null,
+      liveStats: null,
     });
   },
 

@@ -10,6 +10,16 @@ import {
 import { Statistics } from '../../types';
 import { formatCurrency } from '../../lib/statistics';
 
+interface ChartDataItem {
+  name: string;
+  value: number;
+  errorLow: number;
+  errorHigh: number;
+  color: string;
+  p10: number;
+  p90: number;
+}
+
 interface MethodComparisonChartProps {
   mieteinnahmenStats: Statistics | null;
   vergleichswertStats: Statistics | null;
@@ -62,7 +72,7 @@ export function MethodComparisonChart({
       p10: combinedStats.percentile10,
       p90: combinedStats.percentile90,
     },
-  ].filter(Boolean);
+  ].filter((item): item is ChartDataItem => Boolean(item));
 
   const chartContent = (
     <BarChart
@@ -160,7 +170,7 @@ export function MethodComparisonChart({
               </tr>
             </thead>
             <tbody>
-              {chartData.map((item: any) => (
+              {chartData.map((item) => (
                 <tr key={item.name} className="border-b border-gray-100">
                   <td className="py-2 font-medium text-gray-900">{item.name}</td>
                   <td className="py-2 text-right">{formatCurrency(item.value)}</td>

@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { formatCurrency } from '../../lib/statistics';
 import { PrintableReport } from './PrintableReport';
+import { Statistics, HistogramBin, SensitivityResult, SimulationResults, SimulationParams } from '../../types';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -658,7 +659,7 @@ export function ExportPanel() {
 }
 
 // Helper-Funktionen für Print HTML
-function generatePercentileHTML(stats: any) {
+function generatePercentileHTML(stats: Statistics) {
   const range = stats.max - stats.min;
   const getPos = (val: number) => ((val - stats.min) / range) * 100;
 
@@ -678,12 +679,12 @@ function generatePercentileHTML(stats: any) {
   `;
 }
 
-function generateHistogramHTML(histogram: any[], stats: any) {
-  const maxCount = Math.max(...histogram.map((h: any) => h.count));
+function generateHistogramHTML(histogram: HistogramBin[], stats: Statistics) {
+  const maxCount = Math.max(...histogram.map((h) => h.count));
 
   return `
     <div style="display:flex;flex-direction:column;gap:3px;">
-      ${histogram.map((bin: any) => {
+      ${histogram.map((bin) => {
         const isInRange = bin.rangeStart >= stats.percentile10 && bin.rangeEnd <= stats.percentile90;
         const barWidth = (bin.count / maxCount) * 100;
         const color = isInRange ? '#60a5fa' : '#d1d5db';
@@ -706,12 +707,12 @@ function generateHistogramHTML(histogram: any[], stats: any) {
   `;
 }
 
-function generateSensitivityHTML(data: any[]) {
-  const maxImpact = Math.max(...data.map((d: any) => d.impact));
+function generateSensitivityHTML(data: SensitivityResult[]) {
+  const maxImpact = Math.max(...data.map((d) => d.impact));
 
   return `
     <div style="display:flex;flex-direction:column;gap:6px;">
-      ${data.map((item: any) => {
+      ${data.map((item) => {
         const barWidth = (item.impact / maxImpact) * 100;
         const lowDiff = item.lowValue - item.baseValue;
         const highDiff = item.highValue - item.baseValue;
@@ -743,7 +744,7 @@ function generateSensitivityHTML(data: any[]) {
   `;
 }
 
-function generateInterpretationHTML(results: any, params: any, combinedStats: any) {
+function generateInterpretationHTML(results: SimulationResults, params: SimulationParams, combinedStats: Statistics) {
   const cv = combinedStats.coefficientOfVariation;
   const range = combinedStats.percentile90 - combinedStats.percentile10;
   const rangePercent = (range / combinedStats.mean * 100).toFixed(0);
@@ -780,7 +781,7 @@ function generateInterpretationHTML(results: any, params: any, combinedStats: an
   if (params.dcf?.enabled) methods.push('DCF-Modell');
 
   // Finde dominante Einflussfaktoren
-  const topFactors = results.sensitivityAnalysis?.slice(0, 3).map((s: any) => s.label) || [];
+  const topFactors = results.sensitivityAnalysis?.slice(0, 3).map((s) => s.label) || [];
 
   // Berechne Methodenabweichungen
   let methodComparison = '';
@@ -788,7 +789,7 @@ function generateInterpretationHTML(results: any, params: any, combinedStats: an
     { name: 'Ertragswertverfahren', stats: results.mieteinnahmenStats },
     { name: 'Vergleichswertverfahren', stats: results.vergleichswertStats },
     { name: 'DCF-Modell', stats: results.dcfStats },
-  ].filter(m => m.stats);
+  ].filter((m): m is { name: string; stats: Statistics } => m.stats !== null);
 
   if (methodStats.length > 1) {
     const means = methodStats.map(m => m.stats.mean);

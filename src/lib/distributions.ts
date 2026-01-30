@@ -102,15 +102,16 @@ export function getDistributionStats(dist: Distribution): {
   const { type, params } = dist;
 
   switch (type) {
-    case 'normal':
+    case 'normal': {
       return {
         expectedMean: params.mean ?? 0,
         expectedStdDev: params.stdDev ?? 1,
         p5: (params.mean ?? 0) - 1.645 * (params.stdDev ?? 1),
         p95: (params.mean ?? 0) + 1.645 * (params.stdDev ?? 1),
       };
+    }
 
-    case 'uniform':
+    case 'uniform': {
       const uMin = params.min ?? 0;
       const uMax = params.max ?? 1;
       return {
@@ -119,8 +120,9 @@ export function getDistributionStats(dist: Distribution): {
         p5: uMin + 0.05 * (uMax - uMin),
         p95: uMin + 0.95 * (uMax - uMin),
       };
+    }
 
-    case 'triangular':
+    case 'triangular': {
       const tMin = params.min ?? 0;
       const tMode = params.mode ?? 0.5;
       const tMax = params.max ?? 1;
@@ -132,8 +134,9 @@ export function getDistributionStats(dist: Distribution): {
         p5: tMin + 0.1 * (tMax - tMin), // Approximation
         p95: tMax - 0.1 * (tMax - tMin), // Approximation
       };
+    }
 
-    case 'lognormal':
+    case 'lognormal': {
       const lMean = params.mean ?? 1;
       const lStd = params.stdDev ?? 0.5;
       return {
@@ -142,13 +145,15 @@ export function getDistributionStats(dist: Distribution): {
         p5: lMean * 0.5, // Approximation
         p95: lMean * 2, // Approximation
       };
+    }
 
-    default:
+    default: {
       return {
         expectedMean: params.mean ?? 0,
         expectedStdDev: params.stdDev ?? 1,
         p5: (params.mean ?? 0) * 0.9,
         p95: (params.mean ?? 0) * 1.1,
       };
+    }
   }
 }

@@ -8,9 +8,54 @@ import {
 import { calculateMieteinnahmenValue } from './mieteinnahmenModel';
 import { calculateVergleichswertValue } from './vergleichswertModel';
 import { calculateDCFValue } from './dcfModel';
-import { calculateStatistics, createHistogram, mean } from '../statistics';
+import { calculateStatistics, createHistogram, mean, standardDeviation } from '../statistics';
 
-export type SimulationProgressCallback = (progress: number, currentIteration: number) => void;
+// Typen für Live-Feedback
+export interface SimulationPhase {
+  current: number;
+  total: number;
+  name: string;
+  status: 'pending' | 'running' | 'completed';
+  models: Array<{
+    name: string;
+    status: 'pending' | 'running' | 'completed';
+  }>;
+}
+
+export interface LiveStats {
+  currentMean: number;
+  currentStdDev: number;
+  trend: 'rising' | 'falling' | 'stable';
+  lastValues: number[];
+}
+
+export type SimulationProgressCallback = (
+  progress: number,
+  currentIteration: number,
+  phase?: SimulationPhase,
+  liveStats?: LiveStats
+) => void;
+
+/**
+ * Berechnet Live-Statistiken während der Simulation
+ */
+function calculateLiveStats(values: number[], previousMean: number | null): LiveStats {
+  const currentMean = mean(values);
+  const currentStdDev = values.length > 1 ? standardDeviation(values) : 0;
+
+  // Trend berechnen (basierend auf Änderung des Mittelwerts)
+  let trend: 'rising' | 'falling' | 'stable' = 'stable';
+  if (previousMean !== null) {
+    const change = (currentMean - previousMean) / previousMean;
+    if (change > 0.001) trend = 'rising';
+    else if (change < -0.001) trend = 'falling';
+  }
+
+  // Letzte 20 Werte für Mini-Sparkline
+  const lastValues = values.slice(-20);
+
+  return { currentMean, currentStdDev, trend, lastValues };
+}
 
 /**
  * Führt eine einzelne Simulation durch
@@ -58,21 +103,56 @@ export async function runMonteCarloSimulation(
   const rawResults: SingleSimulationResult[] = [];
   const batchSize = 100;
 
+  // Aktive Modelle bestimmen
+  const activeModels: Array<{ name: string; status: 'pending' | 'running' | 'completed' }> = [];
+  if (params.mieteinnahmen.enabled) activeModels.push({ name: 'Ertragswert', status: 'running' });
+  if (params.vergleichswert.enabled) activeModels.push({ name: 'Vergleichswert', status: 'running' });
+  if (params.dcf.enabled) activeModels.push({ name: 'DCF', status: 'running' });
+
+  let previousMean: number | null = null;
+
   for (let i = 0; i < params.numberOfSimulations; i++) {
     rawResults.push(runSingleSimulation(params));
 
     // Progress-Update alle 100 Iterationen
     if (onProgress && (i + 1) % batchSize === 0) {
       const progress = ((i + 1) / params.numberOfSimulations) * 100;
-      onProgress(progress, i + 1);
+
+      // Live-Statistiken berechnen
+      const combinedValues = rawResults.map(r => r.combinedValue);
+      const liveStats = calculateLiveStats(combinedValues, previousMean);
+      previousMean = liveStats.currentMean;
+
+      // Phase-Information
+      const phase: SimulationPhase = {
+        current: 1,
+        total: 2,
+        name: 'Monte-Carlo-Simulation',
+        status: 'running',
+        models: activeModels,
+      };
+
+      onProgress(progress, i + 1, phase, liveStats);
       // Yield to UI thread
       await new Promise(resolve => setTimeout(resolve, 0));
     }
   }
 
-  // Finale Progress-Update
+  // Phase 1 abgeschlossen
   if (onProgress) {
-    onProgress(100, params.numberOfSimulations);
+    const combinedValues = rawResults.map(r => r.combinedValue);
+    const liveStats = calculateLiveStats(combinedValues, previousMean);
+
+    const phase: SimulationPhase = {
+      current: 2,
+      total: 2,
+      name: 'Sensitivitätsanalyse',
+      status: 'running',
+      models: activeModels.map(m => ({ ...m, status: 'completed' as const })),
+    };
+
+    onProgress(100, params.numberOfSimulations, phase, liveStats);
+    await new Promise(resolve => setTimeout(resolve, 0));
   }
 
   // Statistiken berechnen

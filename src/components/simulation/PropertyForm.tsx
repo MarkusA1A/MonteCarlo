@@ -1,12 +1,36 @@
+import { useMemo } from 'react';
 import { useSimulationStore } from '../../store/simulationStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { NumericInput } from '../ui/NumericInput';
 import { Select } from '../ui/Select';
+import { PropertyData } from '../../types';
+
+// Validierungsfunktion für Objektdaten
+function validateProperty(property: PropertyData): Record<string, string> {
+  const errors: Record<string, string> = {};
+  const currentYear = new Date().getFullYear();
+
+  if (!property.name.trim()) {
+    errors.name = 'Bezeichnung erforderlich';
+  }
+  if (property.area <= 0) {
+    errors.area = 'Muss > 0 sein';
+  }
+  if (property.yearBuilt < 1800 || property.yearBuilt > currentYear) {
+    errors.yearBuilt = `Muss zwischen 1800 und ${currentYear} liegen`;
+  }
+  if (property.numberOfUnits < 1) {
+    errors.numberOfUnits = 'Muss ≥ 1 sein';
+  }
+
+  return errors;
+}
 
 export function PropertyForm() {
   const { params, setPropertyData } = useSimulationStore();
   const { property } = params;
+  const errors = useMemo(() => validateProperty(property), [property]);
 
   const propertyTypes = [
     { value: 'wohnung', label: 'Eigentumswohnung' },
@@ -32,6 +56,7 @@ export function PropertyForm() {
             onChange={(e) => setPropertyData({ name: e.target.value })}
             placeholder="z.B. Wohnung Maxvorstadt"
             className="sm:col-span-2"
+            error={errors.name}
           />
 
           <Input
@@ -56,6 +81,7 @@ export function PropertyForm() {
             defaultValue={2000}
             min={1800}
             max={new Date().getFullYear()}
+            error={errors.yearBuilt}
           />
 
           <NumericInput
@@ -65,6 +91,7 @@ export function PropertyForm() {
             suffix="m²"
             defaultValue={1}
             min={1}
+            error={errors.area}
           />
 
           <NumericInput
@@ -74,6 +101,7 @@ export function PropertyForm() {
             defaultValue={1}
             min={1}
             hint="Bei Mehrfamilienhäusern"
+            error={errors.numberOfUnits}
           />
         </div>
 

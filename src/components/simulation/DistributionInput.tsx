@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Distribution, DistributionType } from '../../types';
 import { NumericInput } from '../ui/NumericInput';
 import { Select } from '../ui/Select';
@@ -11,6 +12,52 @@ interface DistributionInputProps {
   hint?: string;
 }
 
+// Validierungsfunktion für Verteilungsparameter
+function validateDistribution(dist: Distribution): Record<string, string> {
+  const errors: Record<string, string> = {};
+  const { type, params } = dist;
+
+  switch (type) {
+    case 'normal': {
+      if ((params.stdDev ?? 0) < 0) {
+        errors.stdDev = 'Muss ≥ 0 sein';
+      }
+      break;
+    }
+    case 'lognormal': {
+      if ((params.mean ?? 0) <= 0) {
+        errors.mean = 'Muss > 0 sein';
+      }
+      if ((params.stdDev ?? 0) <= 0) {
+        errors.stdDev = 'Muss > 0 sein';
+      }
+      break;
+    }
+    case 'uniform': {
+      if ((params.min ?? 0) >= (params.max ?? 0)) {
+        errors.min = 'Muss < Maximum sein';
+        errors.max = 'Muss > Minimum sein';
+      }
+      break;
+    }
+    case 'triangular': {
+      if ((params.min ?? 0) >= (params.max ?? 0)) {
+        errors.min = 'Muss < Maximum sein';
+        errors.max = 'Muss > Minimum sein';
+      }
+      if ((params.mode ?? 0) < (params.min ?? 0)) {
+        errors.mode = 'Muss ≥ Minimum sein';
+      }
+      if ((params.mode ?? 0) > (params.max ?? 0)) {
+        errors.mode = 'Muss ≤ Maximum sein';
+      }
+      break;
+    }
+  }
+
+  return errors;
+}
+
 export function DistributionInput({
   label,
   value,
@@ -19,6 +66,7 @@ export function DistributionInput({
   hint,
 }: DistributionInputProps) {
   const stats = getDistributionStats(value);
+  const errors = useMemo(() => validateDistribution(value), [value]);
 
   const distributionOptions = [
     { value: 'normal', label: 'Normalverteilung' },
@@ -85,6 +133,7 @@ export function DistributionInput({
               value={value.params.mean ?? 0}
               onChange={(val) => handleParamChange('mean', val)}
               suffix={unit}
+              error={errors.mean}
             />
             <NumericInput
               label="Std.-Abw."
@@ -92,6 +141,7 @@ export function DistributionInput({
               onChange={(val) => handleParamChange('stdDev', val)}
               suffix={unit}
               defaultValue={1}
+              error={errors.stdDev}
             />
           </>
         )}
@@ -103,12 +153,14 @@ export function DistributionInput({
               value={value.params.min ?? 0}
               onChange={(val) => handleParamChange('min', val)}
               suffix={unit}
+              error={errors.min}
             />
             <NumericInput
               label="Maximum"
               value={value.params.max ?? 0}
               onChange={(val) => handleParamChange('max', val)}
               suffix={unit}
+              error={errors.max}
             />
           </>
         )}
@@ -120,12 +172,14 @@ export function DistributionInput({
               value={value.params.min ?? 0}
               onChange={(val) => handleParamChange('min', val)}
               suffix={unit}
+              error={errors.min}
             />
             <NumericInput
               label="Modus"
               value={value.params.mode ?? 0}
               onChange={(val) => handleParamChange('mode', val)}
               suffix={unit}
+              error={errors.mode}
             />
             <NumericInput
               label="Maximum"
@@ -133,6 +187,7 @@ export function DistributionInput({
               onChange={(val) => handleParamChange('max', val)}
               suffix={unit}
               className="sm:col-span-2"
+              error={errors.max}
             />
           </>
         )}
