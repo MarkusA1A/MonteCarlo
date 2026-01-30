@@ -70,10 +70,15 @@ export function StatisticsCards({ stats, title = 'Kombinierter Wert' }: Statisti
       </div>
 
       {/* Zusätzliche Statistiken */}
-      <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="mt-4 grid grid-cols-2 lg:grid-cols-5 gap-4">
         <StatBox
           label="Standardabweichung"
           value={formatCurrency(stats.stdDev)}
+        />
+        <StatBox
+          label="Variationskoeffizient"
+          value={`${stats.coefficientOfVariation.toFixed(1)}%`}
+          highlight={stats.coefficientOfVariation > 20}
         />
         <StatBox
           label="Minimum"
@@ -92,11 +97,14 @@ export function StatisticsCards({ stats, title = 'Kombinierter Wert' }: Statisti
   );
 }
 
-function StatBox({ label, value }: { label: string; value: string }) {
+function StatBox({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className="bg-gray-50 rounded-lg p-3">
-      <p className="text-xs text-gray-500 mb-1">{label}</p>
-      <p className="text-sm font-medium text-gray-900">{value}</p>
+    <div className={`rounded-lg p-3 ${highlight ? 'bg-amber-50 border border-amber-200' : 'bg-gray-50'}`}>
+      <p className={`text-xs mb-1 ${highlight ? 'text-amber-700' : 'text-gray-500'}`}>{label}</p>
+      <p className={`text-sm font-medium ${highlight ? 'text-amber-900' : 'text-gray-900'}`}>{value}</p>
+      {highlight && (
+        <p className="text-xs text-amber-600 mt-1">Hohe Unsicherheit</p>
+      )}
     </div>
   );
 }

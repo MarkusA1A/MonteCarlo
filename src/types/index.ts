@@ -76,6 +76,7 @@ export interface Statistics {
   mean: number;
   median: number;
   stdDev: number;
+  coefficientOfVariation: number; // Variationskoeffizient in %
   min: number;
   max: number;
   percentile10: number;

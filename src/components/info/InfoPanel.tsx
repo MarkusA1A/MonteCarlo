@@ -180,6 +180,10 @@ export function InfoPanel() {
             description="Zeigt, wie stark die Werte streuen. Hohe Streuung = hohe Unsicherheit."
           />
           <ResultExplanation
+            term="Variationskoeffizient"
+            description="Die relative Streuung in Prozent (Standardabweichung / Mittelwert). Unter 10% = geringe, 10-20% = moderate, uber 20% = hohe Unsicherheit."
+          />
+          <ResultExplanation
             term="Histogramm"
             description="Das Balkendiagramm zeigt, wie haufig welche Werte vorkommen. Die hochsten Balken zeigen die wahrscheinlichsten Werte."
           />

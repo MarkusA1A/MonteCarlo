@@ -56,6 +56,14 @@ export function confidenceInterval95(values: number[]): [number, number] {
   return [m - marginOfError, m + marginOfError];
 }
 
+// Variationskoeffizient (CV) in Prozent
+export function coefficientOfVariation(values: number[]): number {
+  const m = mean(values);
+  if (m === 0) return 0;
+  const std = standardDeviation(values);
+  return (std / Math.abs(m)) * 100;
+}
+
 // Alle Statistiken berechnen
 export function calculateStatistics(values: number[]): Statistics {
   const { min, max } = minMax(values);
@@ -65,6 +73,7 @@ export function calculateStatistics(values: number[]): Statistics {
     mean: mean(values),
     median: median(values),
     stdDev: standardDeviation(values),
+    coefficientOfVariation: coefficientOfVariation(values),
     min,
     max,
     percentile10: percentile(values, 10),
