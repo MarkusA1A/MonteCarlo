@@ -349,9 +349,20 @@ export function ExportPanel() {
             font-size: 11px;
             color: #9ca3af;
           }
+          /* Force print colors */
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
           @media print {
             body { padding: 0; }
             section { page-break-inside: avoid; }
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              color-adjust: exact !important;
+            }
           }
         </style>
       </head>
