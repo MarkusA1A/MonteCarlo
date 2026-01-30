@@ -298,10 +298,68 @@ export const useSimulationStore = create<SimulationStore>()(
     }),
     {
       name: 'monte-carlo-simulation',
+      version: 2, // Version erhöht für Migration
       // Nur Parameter persistieren, keine Ergebnisse oder temporären UI-States
       partialize: (state) => ({
         params: state.params,
       }),
+      // Migration von alten Feldnamen (v1) zu neuen (v2)
+      migrate: (persistedState: unknown, version: number) => {
+        if (version < 2) {
+          const state = persistedState as { params?: { vergleichswert?: Record<string, unknown> } };
+          if (state?.params?.vergleichswert) {
+            const vw = state.params.vergleichswert;
+            // Alte Faktoren zu neuen Prozent-Anpassungen migrieren
+            if ('locationFactor' in vw && !('locationAdjustment' in vw)) {
+              // Konvertiere Faktor (z.B. 1.1) zu Prozent (z.B. 10%)
+              vw.locationAdjustment = convertFactorToAdjustment(vw.locationFactor);
+              delete vw.locationFactor;
+            }
+            if ('conditionFactor' in vw && !('conditionAdjustment' in vw)) {
+              vw.conditionAdjustment = convertFactorToAdjustment(vw.conditionFactor);
+              delete vw.conditionFactor;
+            }
+            if ('equipmentFactor' in vw && !('equipmentAdjustment' in vw)) {
+              vw.equipmentAdjustment = convertFactorToAdjustment(vw.equipmentFactor);
+              delete vw.equipmentFactor;
+            }
+            if ('marketAdjustmentFactor' in vw && !('marketAdjustment' in vw)) {
+              vw.marketAdjustment = convertFactorToAdjustment(vw.marketAdjustmentFactor);
+              delete vw.marketAdjustmentFactor;
+            }
+          }
+        }
+        return persistedState as SimulationStore;
+      },
     }
   )
 );
+
+// Hilfsfunktion: Konvertiert Faktor-Distribution zu Prozent-Distribution
+function convertFactorToAdjustment(factor: unknown): Distribution {
+  if (!factor || typeof factor !== 'object') {
+    return defaultSimulationParams.vergleichswert.locationAdjustment;
+  }
+  const dist = factor as Distribution;
+  const converted: Distribution = {
+    type: dist.type,
+    params: { ...dist.params },
+  };
+  // Faktor (z.B. 1.1) zu Prozent (z.B. 10%) umrechnen
+  if (converted.params.mean !== undefined) {
+    converted.params.mean = (converted.params.mean - 1) * 100;
+  }
+  if (converted.params.stdDev !== undefined) {
+    converted.params.stdDev = converted.params.stdDev * 100;
+  }
+  if (converted.params.min !== undefined) {
+    converted.params.min = (converted.params.min - 1) * 100;
+  }
+  if (converted.params.max !== undefined) {
+    converted.params.max = (converted.params.max - 1) * 100;
+  }
+  if (converted.params.mode !== undefined) {
+    converted.params.mode = (converted.params.mode - 1) * 100;
+  }
+  return converted;
+}
