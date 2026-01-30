@@ -52,21 +52,27 @@ export function ExportPanel() {
       // Warten bis das Element gerendert ist
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
-        width: 800,
-        windowWidth: 800,
-      });
-
-      // Element wieder verstecken
-      if (originalStyle) {
-        element.setAttribute('style', originalStyle);
-      } else {
-        element.removeAttribute('style');
+      let canvas: HTMLCanvasElement;
+      try {
+        canvas = await html2canvas(element, {
+          scale: 1.5,
+          backgroundColor: '#ffffff',
+          logging: false,
+          useCORS: true,
+          allowTaint: true,
+          width: 800,
+          windowWidth: 800,
+          removeContainer: true,
+          scrollX: 0,
+          scrollY: -window.scrollY,
+        });
+      } finally {
+        // Element IMMER wieder verstecken, auch bei Fehler
+        if (originalStyle) {
+          element.setAttribute('style', originalStyle);
+        } else {
+          element.removeAttribute('style');
+        }
       }
 
       const imgData = canvas.toDataURL('image/png');
@@ -110,7 +116,8 @@ export function ExportPanel() {
       toast.success('PDF erfolgreich erstellt');
     } catch (error) {
       console.error('PDF Export Fehler:', error);
-      toast.error('PDF-Export fehlgeschlagen');
+      const errorMsg = error instanceof Error ? error.message : 'Unbekannter Fehler';
+      toast.error(`PDF-Export fehlgeschlagen: ${errorMsg}`);
     } finally {
       setIsExporting(false);
     }
