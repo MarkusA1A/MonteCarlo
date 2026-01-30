@@ -2,11 +2,25 @@ import { useSimulationStore } from '../../store/simulationStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Switch } from '../ui/Switch';
 import { DistributionInput } from './DistributionInput';
-import { Info } from 'lucide-react';
+import { Info, Calculator } from 'lucide-react';
+import { getDistributionStats } from '../../lib/distributions';
+import { formatCurrency } from '../../lib/statistics';
 
 export function MieteinnahmenForm() {
-  const { params, setMieteinnahmenParams, updateMieteinnahmenDistribution } = useSimulationStore();
+  const { params, setMieteinnahmenParams, updateMieteinnahmenDistribution, property } = useSimulationStore();
   const { mieteinnahmen } = params;
+
+  // Berechnete Werte basierend auf Erwartungswerten
+  const rentPerSqm = getDistributionStats(mieteinnahmen.monthlyRentPerSqm).expectedMean;
+  const vacancyRate = getDistributionStats(mieteinnahmen.vacancyRate).expectedMean / 100;
+  const maintenanceRate = getDistributionStats(mieteinnahmen.maintenanceCosts).expectedMean / 100;
+  const managementRate = getDistributionStats(mieteinnahmen.managementCosts).expectedMean / 100;
+
+  const monthlyRent = rentPerSqm * property.area;
+  const annualRent = monthlyRent * 12;
+  const effectiveRent = annualRent * (1 - vacancyRate);
+  const maintenanceCostsEuro = effectiveRent * maintenanceRate;
+  const managementCostsEuro = effectiveRent * managementRate;
 
   return (
     <Card>
@@ -68,6 +82,24 @@ export function MieteinnahmenForm() {
             hint="Ortsübliche Vergleichsmiete"
           />
 
+          {/* Berechnete Mieten */}
+          <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+            <div className="flex items-center space-x-2 mb-2">
+              <Calculator className="w-4 h-4 text-green-600" />
+              <span className="text-xs font-medium text-green-800">Berechnete Miete ({property.area} m² Nutzfläche)</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-xs text-green-600">Monatsmiete (brutto)</div>
+                <div className="text-sm font-semibold text-green-900">{formatCurrency(monthlyRent)}</div>
+              </div>
+              <div>
+                <div className="text-xs text-green-600">Jahresmiete (brutto)</div>
+                <div className="text-sm font-semibold text-green-900">{formatCurrency(annualRent)}</div>
+              </div>
+            </div>
+          </div>
+
           <DistributionInput
             label="Leerstandsquote"
             value={mieteinnahmen.vacancyRate}
@@ -91,6 +123,24 @@ export function MieteinnahmenForm() {
             unit="%"
             hint="Anteil der Bruttomiete"
           />
+
+          {/* Berechnete Kosten */}
+          <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
+            <div className="flex items-center space-x-2 mb-2">
+              <Calculator className="w-4 h-4 text-orange-600" />
+              <span className="text-xs font-medium text-orange-800">Berechnete Kosten (p.a., basierend auf effektiver Miete)</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-xs text-orange-600">Instandhaltung</div>
+                <div className="text-sm font-semibold text-orange-900">{formatCurrency(maintenanceCostsEuro)}</div>
+              </div>
+              <div>
+                <div className="text-xs text-orange-600">Verwaltung</div>
+                <div className="text-sm font-semibold text-orange-900">{formatCurrency(managementCostsEuro)}</div>
+              </div>
+            </div>
+          </div>
 
           <DistributionInput
             label="Kapitalisierungszinssatz"
