@@ -1,13 +1,47 @@
+import { useRef } from 'react';
 import { useSimulationStore } from '../../store/simulationStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Slider } from '../ui/Slider';
 import { Button } from '../ui/Button';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Download, Upload, Info } from 'lucide-react';
 
 export function SettingsForm() {
-  const { params, setNumberOfSimulations, resetAll } = useSimulationStore();
+  const { params, setNumberOfSimulations, resetAll, exportParams, importParams } = useSimulationStore();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const simulationPresets = [1000, 5000, 10000, 50000, 100000];
+
+  const handleExport = () => {
+    const json = exportParams();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const timestamp = new Date().toISOString().slice(0, 10);
+    const propertyName = params.property.name || 'Bewertung';
+    a.download = `${propertyName.replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, '_')}_${timestamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      importParams(content);
+    };
+    reader.readAsText(file);
+
+    // Reset file input so the same file can be imported again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   return (
     <Card>
@@ -76,6 +110,47 @@ export function SettingsForm() {
               Mindestens ein Bewertungsmodell muss aktiviert sein.
             </p>
           )}
+        </div>
+
+        {/* Export/Import */}
+        <div className="pt-4 border-t border-gray-200">
+          <h4 className="text-sm font-medium text-gray-700 mb-3">Bewertung speichern / laden</h4>
+
+          <div className="bg-blue-50 rounded-lg p-3 mb-4 border border-blue-200">
+            <div className="flex items-start space-x-2">
+              <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+              <p className="text-xs text-blue-800">
+                Speichern Sie Ihre aktuellen Eingaben als JSON-Datei, um sie später wieder zu laden.
+                Alle Parameter aller Bewertungsverfahren werden gespeichert.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              variant="outline"
+              onClick={handleExport}
+              className="w-full"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Exportieren
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Importieren
+            </Button>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleImport}
+            className="hidden"
+          />
         </div>
 
         {/* Reset Button */}

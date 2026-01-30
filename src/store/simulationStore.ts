@@ -49,6 +49,11 @@ interface SimulationStore {
   resetResults: () => void;
   resetAll: () => void;
 
+  // Import/Export Actions
+  setParams: (params: SimulationParams) => void;
+  exportParams: () => string;
+  importParams: (json: string) => boolean;
+
   // UI Actions
   setActiveTab: (tab: ActiveTab) => void;
   setActiveInputSection: (section: ActiveInputSection) => void;
@@ -211,6 +216,75 @@ export const useSimulationStore = create<SimulationStore>()(
       currentPhase: null,
       liveStats: null,
     });
+  },
+
+  // Import/Export Actions
+  setParams: (params) => {
+    set({
+      params,
+      results: null,
+      status: 'idle',
+      progress: 0,
+      error: null,
+    });
+  },
+
+  exportParams: () => {
+    const { params } = get();
+    const exportData = {
+      version: '1.0',
+      exportDate: new Date().toISOString(),
+      params,
+    };
+    return JSON.stringify(exportData, null, 2);
+  },
+
+  importParams: (json: string) => {
+    try {
+      const data = JSON.parse(json);
+
+      // Validate structure
+      if (!data.params || !data.params.property) {
+        toast.error('Ungültiges Dateiformat: Fehlende Parameter');
+        return false;
+      }
+
+      // Import with validation - merge with defaults to handle missing fields
+      const importedParams: SimulationParams = {
+        ...defaultSimulationParams,
+        ...data.params,
+        property: {
+          ...defaultSimulationParams.property,
+          ...data.params.property,
+        },
+        mieteinnahmen: {
+          ...defaultSimulationParams.mieteinnahmen,
+          ...data.params.mieteinnahmen,
+        },
+        vergleichswert: {
+          ...defaultSimulationParams.vergleichswert,
+          ...data.params.vergleichswert,
+        },
+        dcf: {
+          ...defaultSimulationParams.dcf,
+          ...data.params.dcf,
+        },
+      };
+
+      set({
+        params: importedParams,
+        results: null,
+        status: 'idle',
+        progress: 0,
+        error: null,
+      });
+
+      toast.success('Parameter erfolgreich importiert');
+      return true;
+    } catch (error) {
+      toast.error('Fehler beim Import: Ungültiges JSON-Format');
+      return false;
+    }
   },
 
       // UI Actions
