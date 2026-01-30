@@ -8,7 +8,6 @@ import { formatCurrency } from '../../lib/statistics';
 import { PrintableReport } from './PrintableReport';
 import { Statistics, HistogramBin, SensitivityResult, SimulationResults, SimulationParams } from '../../types';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
 
 // Build-Information
@@ -24,91 +23,165 @@ export function ExportPanel() {
   const [showPreview, setShowPreview] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-  // useCallback muss vor allen conditional returns stehen (React Hooks Regel)
-  const exportToPDF = useCallback(async () => {
-    if (!printRef.current || !results) {
+  // PDF direkt mit jsPDF generieren (ohne html2canvas wegen Tailwind v4 oklch() Farben)
+  const exportToPDF = useCallback(() => {
+    if (!results) {
       toast.error('Keine Daten für PDF-Export verfügbar');
       return;
     }
-    const { params } = results;
+    const { params, combinedStats } = results;
 
     setIsExporting(true);
     toast.info('PDF wird erstellt...');
 
     try {
-      const element = printRef.current;
-
-      // Element temporär sichtbar machen für html2canvas
-      const originalStyle = element.getAttribute('style');
-      element.style.position = 'fixed';
-      element.style.top = '0';
-      element.style.left = '0';
-      element.style.width = '800px';
-      element.style.zIndex = '9999';
-      element.style.background = 'white';
-      element.style.opacity = '1';
-      element.style.visibility = 'visible';
-
-      // Warten bis das Element gerendert ist
-      await new Promise(resolve => setTimeout(resolve, 300));
-
-      let canvas: HTMLCanvasElement;
-      try {
-        canvas = await html2canvas(element, {
-          scale: 1.5,
-          backgroundColor: '#ffffff',
-          logging: false,
-          useCORS: true,
-          allowTaint: true,
-          width: 800,
-          windowWidth: 800,
-          removeContainer: true,
-          scrollX: 0,
-          scrollY: -window.scrollY,
-        });
-      } finally {
-        // Element IMMER wieder verstecken, auch bei Fehler
-        if (originalStyle) {
-          element.setAttribute('style', originalStyle);
-        } else {
-          element.removeAttribute('style');
-        }
-      }
-
-      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 15;
+      let y = margin;
 
-      const imgWidth = pageWidth - 20; // 10mm margin on each side
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      // Helper functions
+      const addText = (text: string, x: number, yPos: number, options?: { fontSize?: number; fontStyle?: 'normal' | 'bold'; color?: [number, number, number]; align?: 'left' | 'center' | 'right' }) => {
+        pdf.setFontSize(options?.fontSize ?? 10);
+        pdf.setFont('helvetica', options?.fontStyle ?? 'normal');
+        pdf.setTextColor(...(options?.color ?? [0, 0, 0]));
+        pdf.text(text, x, yPos, { align: options?.align ?? 'left' });
+      };
 
-      let heightLeft = imgHeight;
-      let position = 10; // Start 10mm from top
-      let page = 1;
+      const addLine = (yPos: number, color: [number, number, number] = [229, 231, 235]) => {
+        pdf.setDrawColor(...color);
+        pdf.setLineWidth(0.3);
+        pdf.line(margin, yPos, pageWidth - margin, yPos);
+      };
 
-      // First page
-      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-      heightLeft -= (pageHeight - 20);
+      // Header
+      pdf.setFillColor(0, 102, 255);
+      pdf.rect(0, 0, pageWidth, 25, 'F');
+      addText('Immobilienbewertung', pageWidth / 2, 12, { fontSize: 18, fontStyle: 'bold', color: [255, 255, 255], align: 'center' });
+      addText('Monte-Carlo-Simulation', pageWidth / 2, 19, { fontSize: 10, color: [200, 220, 255], align: 'center' });
+      y = 35;
 
-      // Add more pages if needed
-      while (heightLeft > 0) {
-        pdf.addPage();
-        page++;
-        position = -(pageHeight - 20) * (page - 1) + 10;
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= (pageHeight - 20);
+      // Objektdaten
+      addText('Objektdaten', margin, y, { fontSize: 12, fontStyle: 'bold' });
+      y += 3;
+      addLine(y);
+      y += 6;
+
+      const objectData = [
+        ['Bezeichnung:', params.property.name],
+        ['Adresse:', params.property.address],
+        ['Fläche:', `${params.property.area} m²`],
+        ['Baujahr:', params.property.yearBuilt.toString()],
+        ['Simulationen:', params.numberOfSimulations.toLocaleString('de-DE')],
+        ['Datum:', new Date(results.runDate).toLocaleDateString('de-DE')],
+      ];
+
+      objectData.forEach(([label, value], i) => {
+        const col = i % 2 === 0 ? margin : pageWidth / 2;
+        if (i % 2 === 0 && i > 0) y += 5;
+        addText(label, col, y, { fontSize: 9, color: [107, 114, 128] });
+        addText(value, col + 25, y, { fontSize: 9, fontStyle: 'bold' });
+      });
+      y += 12;
+
+      // Bewertungsergebnis
+      addText('Bewertungsergebnis', margin, y, { fontSize: 12, fontStyle: 'bold' });
+      y += 3;
+      addLine(y);
+      y += 8;
+
+      // Highlight Box
+      pdf.setFillColor(239, 246, 255);
+      pdf.roundedRect(margin, y - 3, pageWidth - 2 * margin, 28, 3, 3, 'F');
+      addText('Geschätzter Immobilienwert (Mittelwert)', pageWidth / 2, y + 3, { fontSize: 9, color: [107, 114, 128], align: 'center' });
+      addText(formatCurrency(combinedStats.mean), pageWidth / 2, y + 13, { fontSize: 20, fontStyle: 'bold', color: [0, 102, 255], align: 'center' });
+      addText(`80% Wahrscheinlichkeit: ${formatCurrency(combinedStats.percentile10)} bis ${formatCurrency(combinedStats.percentile90)}`, pageWidth / 2, y + 21, { fontSize: 8, color: [107, 114, 128], align: 'center' });
+      y += 32;
+
+      // Statistik Grid
+      const statsData = [
+        ['Median', formatCurrency(combinedStats.median)],
+        ['Standardabweichung', formatCurrency(combinedStats.stdDev)],
+        ['Minimum', formatCurrency(combinedStats.min)],
+        ['Maximum', formatCurrency(combinedStats.max)],
+      ];
+
+      const boxWidth = (pageWidth - 2 * margin - 15) / 4;
+      statsData.forEach(([label, value], i) => {
+        const x = margin + i * (boxWidth + 5);
+        pdf.setFillColor(249, 250, 251);
+        pdf.roundedRect(x, y, boxWidth, 14, 2, 2, 'F');
+        addText(label, x + boxWidth / 2, y + 5, { fontSize: 7, color: [107, 114, 128], align: 'center' });
+        addText(value, x + boxWidth / 2, y + 11, { fontSize: 8, fontStyle: 'bold', align: 'center' });
+      });
+      y += 22;
+
+      // Methodenvergleich
+      if (results.mieteinnahmenStats || results.vergleichswertStats || results.dcfStats) {
+        addText('Methodenvergleich', margin, y, { fontSize: 12, fontStyle: 'bold' });
+        y += 3;
+        addLine(y);
+        y += 6;
+
+        // Table Header
+        const cols = [margin, margin + 50, margin + 85, margin + 115, margin + 145];
+        addText('Methode', cols[0], y, { fontSize: 8, color: [107, 114, 128] });
+        addText('Mittelwert', cols[1], y, { fontSize: 8, color: [107, 114, 128] });
+        addText('P10', cols[2], y, { fontSize: 8, color: [107, 114, 128] });
+        addText('P90', cols[3], y, { fontSize: 8, color: [107, 114, 128] });
+        addText('Spanne', cols[4], y, { fontSize: 8, color: [107, 114, 128] });
+        y += 5;
+        addLine(y, [229, 231, 235]);
+        y += 4;
+
+        const addMethodRow = (name: string, stats: Statistics, color: [number, number, number]) => {
+          pdf.setFillColor(...color);
+          pdf.circle(cols[0] + 2, y - 1, 1.5, 'F');
+          addText(name, cols[0] + 6, y, { fontSize: 8 });
+          addText(formatCurrency(stats.mean), cols[1], y, { fontSize: 8 });
+          addText(formatCurrency(stats.percentile10), cols[2], y, { fontSize: 8, color: [220, 38, 38] });
+          addText(formatCurrency(stats.percentile90), cols[3], y, { fontSize: 8, color: [34, 197, 94] });
+          addText(formatCurrency(stats.percentile90 - stats.percentile10), cols[4], y, { fontSize: 8 });
+          y += 5;
+        };
+
+        if (results.mieteinnahmenStats) addMethodRow('Ertragswert', results.mieteinnahmenStats, [0, 102, 255]);
+        if (results.vergleichswertStats) addMethodRow('Vergleichswert', results.vergleichswertStats, [139, 92, 246]);
+        if (results.dcfStats) addMethodRow('DCF-Modell', results.dcfStats, [16, 185, 129]);
+
+        pdf.setFont('helvetica', 'bold');
+        addMethodRow('Kombiniert', combinedStats, [245, 158, 11]);
+        pdf.setFont('helvetica', 'normal');
+        y += 5;
       }
 
-      // Footer on last page
-      const lastPage = pdf.getNumberOfPages();
-      pdf.setPage(lastPage);
+      // Sensitivitätsanalyse
+      if (results.sensitivityAnalysis.length > 0) {
+        addText('Sensitivitätsanalyse (Top 5)', margin, y, { fontSize: 12, fontStyle: 'bold' });
+        y += 3;
+        addLine(y);
+        y += 6;
+
+        const maxImpact = Math.max(...results.sensitivityAnalysis.slice(0, 5).map(s => s.impact));
+        results.sensitivityAnalysis.slice(0, 5).forEach((item) => {
+          addText(item.label, margin, y, { fontSize: 8 });
+          const barWidth = (item.impact / maxImpact) * 60;
+          pdf.setFillColor(59, 130, 246);
+          pdf.rect(margin + 45, y - 3, barWidth, 4, 'F');
+          addText(formatCurrency(item.impact), margin + 110, y, { fontSize: 8 });
+          y += 6;
+        });
+        y += 5;
+      }
+
+      // Footer
       pdf.setFontSize(8);
       pdf.setTextColor(156, 163, 175);
       pdf.text(
-        `Erstellt mit Monte-Carlo Immobilienbewertung v${BUILD_INFO.version}`,
+        `Erstellt mit Monte-Carlo Immobilienbewertung v${BUILD_INFO.version} | © ${new Date().getFullYear()} Markus Thalhamer, MSc MRICS`,
         pageWidth / 2,
-        pageHeight - 5,
+        pageHeight - 8,
         { align: 'center' }
       );
 
