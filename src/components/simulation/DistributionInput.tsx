@@ -1,5 +1,5 @@
 import { Distribution, DistributionType } from '../../types';
-import { Input } from '../ui/Input';
+import { NumericInput } from '../ui/NumericInput';
 import { Select } from '../ui/Select';
 import { getDistributionStats } from '../../lib/distributions';
 
@@ -80,37 +80,34 @@ export function DistributionInput({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {(value.type === 'normal' || value.type === 'lognormal') && (
           <>
-            <Input
+            <NumericInput
               label="Mittelwert"
-              type="number"
               value={value.params.mean ?? 0}
-              onChange={(e) => handleParamChange('mean', parseFloat(e.target.value) || 0)}
+              onChange={(val) => handleParamChange('mean', val)}
               suffix={unit}
             />
-            <Input
+            <NumericInput
               label="Std.-Abw."
-              type="number"
               value={value.params.stdDev ?? 0}
-              onChange={(e) => handleParamChange('stdDev', parseFloat(e.target.value) || 0)}
+              onChange={(val) => handleParamChange('stdDev', val)}
               suffix={unit}
+              defaultValue={1}
             />
           </>
         )}
 
         {value.type === 'uniform' && (
           <>
-            <Input
+            <NumericInput
               label="Minimum"
-              type="number"
               value={value.params.min ?? 0}
-              onChange={(e) => handleParamChange('min', parseFloat(e.target.value) || 0)}
+              onChange={(val) => handleParamChange('min', val)}
               suffix={unit}
             />
-            <Input
+            <NumericInput
               label="Maximum"
-              type="number"
               value={value.params.max ?? 0}
-              onChange={(e) => handleParamChange('max', parseFloat(e.target.value) || 0)}
+              onChange={(val) => handleParamChange('max', val)}
               suffix={unit}
             />
           </>
@@ -118,25 +115,22 @@ export function DistributionInput({
 
         {value.type === 'triangular' && (
           <>
-            <Input
+            <NumericInput
               label="Minimum"
-              type="number"
               value={value.params.min ?? 0}
-              onChange={(e) => handleParamChange('min', parseFloat(e.target.value) || 0)}
+              onChange={(val) => handleParamChange('min', val)}
               suffix={unit}
             />
-            <Input
+            <NumericInput
               label="Modus"
-              type="number"
               value={value.params.mode ?? 0}
-              onChange={(e) => handleParamChange('mode', parseFloat(e.target.value) || 0)}
+              onChange={(val) => handleParamChange('mode', val)}
               suffix={unit}
             />
-            <Input
+            <NumericInput
               label="Maximum"
-              type="number"
               value={value.params.max ?? 0}
-              onChange={(e) => handleParamChange('max', parseFloat(e.target.value) || 0)}
+              onChange={(val) => handleParamChange('max', val)}
               suffix={unit}
               className="sm:col-span-2"
             />

@@ -1,6 +1,7 @@
 import { useSimulationStore } from '../../store/simulationStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Input } from '../ui/Input';
+import { NumericInput } from '../ui/NumericInput';
 import { Select } from '../ui/Select';
 
 export function PropertyForm() {
@@ -48,29 +49,29 @@ export function PropertyForm() {
             onChange={(e) => setPropertyData({ propertyType: e.target.value as typeof property.propertyType })}
           />
 
-          <Input
+          <NumericInput
             label="Baujahr"
-            type="number"
             value={property.yearBuilt}
-            onChange={(e) => setPropertyData({ yearBuilt: parseInt(e.target.value) || 2000 })}
+            onChange={(val) => setPropertyData({ yearBuilt: Math.round(val) })}
+            defaultValue={2000}
             min={1800}
             max={new Date().getFullYear()}
           />
 
-          <Input
+          <NumericInput
             label="Wohnfläche"
-            type="number"
             value={property.area}
-            onChange={(e) => setPropertyData({ area: parseFloat(e.target.value) || 0 })}
+            onChange={(val) => setPropertyData({ area: val })}
             suffix="m²"
+            defaultValue={1}
             min={1}
           />
 
-          <Input
+          <NumericInput
             label="Anzahl Einheiten"
-            type="number"
             value={property.numberOfUnits}
-            onChange={(e) => setPropertyData({ numberOfUnits: parseInt(e.target.value) || 1 })}
+            onChange={(val) => setPropertyData({ numberOfUnits: Math.round(val) })}
+            defaultValue={1}
             min={1}
             hint="Bei Mehrfamilienhäusern"
           />

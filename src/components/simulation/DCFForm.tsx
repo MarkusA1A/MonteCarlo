@@ -1,7 +1,7 @@
 import { useSimulationStore } from '../../store/simulationStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Switch } from '../ui/Switch';
-import { Input } from '../ui/Input';
+import { NumericInput } from '../ui/NumericInput';
 import { DistributionInput } from './DistributionInput';
 
 export function DCFForm() {
@@ -59,12 +59,12 @@ export function DCFForm() {
             hint="Kapitalisierungszinssatz beim Verkauf"
           />
 
-          <Input
+          <NumericInput
             label="Haltedauer"
-            type="number"
             value={dcf.holdingPeriod}
-            onChange={(e) => setDCFParams({ holdingPeriod: parseInt(e.target.value) || 10 })}
+            onChange={(val) => setDCFParams({ holdingPeriod: Math.round(val) })}
             suffix="Jahre"
+            defaultValue={10}
             min={1}
             max={30}
             hint="Geplante Investitionsdauer"
