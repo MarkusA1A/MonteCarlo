@@ -332,7 +332,7 @@ export function InfoPanel() {
               <div className="flex items-start space-x-2">
                 <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-gray-600">Morellenfeldgasse 13</p>
+                  <p className="text-gray-600">Hauptplatz 1</p>
                   <p className="text-gray-600">8010 Graz, Steiermark</p>
                   <p className="text-gray-600">Osterreich</p>
                 </div>
