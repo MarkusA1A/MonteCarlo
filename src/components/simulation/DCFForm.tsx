@@ -44,6 +44,21 @@ export function DCFForm() {
             </div>
           </div>
 
+          {/* Erklärung der Zinssätze */}
+          <div className="bg-gray-50 rounded-lg p-4 text-sm border border-gray-200">
+            <div className="flex items-start space-x-2">
+              <Info className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-gray-900 mb-2">Erläuterung der Zinssätze</h4>
+                <ul className="space-y-1.5 text-xs text-gray-600">
+                  <li><span className="font-medium text-gray-700">Diskontierungssatz:</span> Der Zinssatz, mit dem zukünftige Cashflows auf den heutigen Barwert abgezinst werden. Setzt sich zusammen aus risikofreiem Zins + Risikoprämie für Immobilieninvestments. Typische Werte: 4-8% je nach Risikoeinschätzung und Marktlage.</li>
+                  <li><span className="font-medium text-gray-700">Exit-Cap-Rate (Kapitalisierungszins):</span> Der Zinssatz zur Berechnung des Terminal Value (Verkaufswert) am Ende der Haltedauer. Ergibt sich aus NOI / Immobilienwert. Niedrigere Cap-Rates bedeuten höhere Bewertungen. Typische Werte: 3-6% je nach Lage und Objektqualität.</li>
+                  <li><span className="font-medium text-gray-700">Zusammenhang:</span> Die Exit-Cap-Rate sollte typischerweise 0.25-0.5% höher als die aktuelle Cap-Rate sein, um eine konservative Annahme für den Verkaufszeitpunkt zu treffen.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           <DistributionInput
             label="Anfangs-Monatsmiete (gesamt)"
             value={dcf.initialMonthlyRent}
