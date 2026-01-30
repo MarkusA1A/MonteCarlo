@@ -135,7 +135,7 @@ export const defaultTriangular = (min: number, mode: number, max: number): Distr
 
 export const defaultPropertyData: PropertyData = {
   name: 'Musterimmobilie',
-  address: 'Musterstraße 1, 80331 München',
+  address: 'Hauptplatz 1, 8010 Graz',
   area: 100,
   yearBuilt: 2000,
   propertyType: 'wohnung',
