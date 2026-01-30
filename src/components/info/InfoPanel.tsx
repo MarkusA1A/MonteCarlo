@@ -109,59 +109,59 @@ export function InfoPanel() {
         </div>
       </Card>
 
-      {/* Korrelierte Variablen */}
+      {/* Zusammenhänge zwischen Parametern */}
       <Card>
         <CardHeader>
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
               <Link2 className="w-5 h-5 text-indigo-600" />
             </div>
-            <CardTitle className="text-base">Korrelierte Variablen - Realistische Szenarien</CardTitle>
+            <CardTitle className="text-base">Warum hangen die Werte zusammen?</CardTitle>
           </div>
         </CardHeader>
 
         <div className="space-y-4 text-sm text-gray-600">
           <p>
-            In der Realitat hangen viele Immobilienparameter zusammen. Diese App berucksichtigt diese
-            <strong className="text-gray-900"> Korrelationen</strong> automatisch beim Ertragswertverfahren:
+            In der Realitat passieren gute und schlechte Dinge oft gemeinsam. Eine Immobilie in Top-Lage
+            hat nicht nur hohe Mieten, sondern auch wenig Leerstand. Diese App berucksichtigt solche
+            <strong className="text-gray-900"> Zusammenhange</strong> automatisch - das macht die Ergebnisse realistischer.
           </p>
 
           <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
-            <h4 className="font-medium text-indigo-900 mb-3">Wie hangen die Parameter zusammen?</h4>
-            <ul className="space-y-2 text-xs text-indigo-800">
-              <li className="flex items-start space-x-2">
-                <span className="font-semibold text-indigo-600 w-6">↗↘</span>
-                <span><strong>Miete ↔ Leerstand:</strong> Hohe Mieten korrelieren mit niedrigem Leerstand (gute Lagen sind begehrt).</span>
+            <h4 className="font-medium text-indigo-900 mb-3">Beispiele aus der Praxis</h4>
+            <ul className="space-y-3 text-xs text-indigo-800">
+              <li>
+                <strong className="text-indigo-900">Gute Lage = wenig Leerstand:</strong> Wenn die Mieten hoch sind,
+                ist die Lage meist attraktiv - und attraktive Lagen haben wenig Leerstand.
+                Die Simulation berucksichtigt: Hohe Miete und hoher Leerstand gleichzeitig ist unwahrscheinlich.
               </li>
-              <li className="flex items-start space-x-2">
-                <span className="font-semibold text-indigo-600 w-6">↗↗</span>
-                <span><strong>Leerstand ↔ Kapitalisierungszins:</strong> Hoher Leerstand bedeutet hoheres Risiko und damit hohere Cap Rates.</span>
+              <li>
+                <strong className="text-indigo-900">Risiko hangt zusammen:</strong> Wenn viele Wohnungen leer stehen,
+                sehen Kaufer mehr Risiko und erwarten hohere Renditen. Umgekehrt akzeptieren sie bei voll vermieteten
+                Objekten niedrigere Renditen.
               </li>
-              <li className="flex items-start space-x-2">
-                <span className="font-semibold text-indigo-600 w-6">↗↘</span>
-                <span><strong>Miete ↔ Kapitalisierungszins:</strong> Prime-Lagen mit hohen Mieten haben niedrigere Cap Rates (weniger Risiko).</span>
-              </li>
-              <li className="flex items-start space-x-2">
-                <span className="font-semibold text-indigo-600 w-6">↗↗</span>
-                <span><strong>Leerstand ↔ Instandhaltung:</strong> Objekte mit hohem Leerstand haben oft auch hoheren Instandhaltungsbedarf.</span>
+              <li>
+                <strong className="text-indigo-900">Vernachlassigung zeigt sich uberall:</strong> Ein Gebaude mit
+                hohem Leerstand hat oft auch hoheren Sanierungsbedarf - beides sind Zeichen von Vernachlassigung.
               </li>
             </ul>
           </div>
 
           <div className="bg-red-50 rounded-lg p-4 border border-red-200">
-            <h4 className="font-medium text-red-900 mb-2">Fat-Tail-Logik: Krisenszenarien</h4>
+            <h4 className="font-medium text-red-900 mb-2">Was passiert in einer Krise?</h4>
             <p className="text-xs text-red-800">
-              Die Simulation berucksichtigt <strong>Marktkrisen</strong>: Wenn der Kapitalisierungszins extrem
-              hoch ausfallt (oberste 5% der Verteilung), wird der Leerstand zusatzlich um den Faktor 1,5 verstarkt.
-              Dies simuliert realistische Abschwungszenarien, in denen mehrere negative Faktoren gleichzeitig auftreten.
+              Die Simulation berucksichtigt auch <strong>Extremszenarien</strong>: In den schlimmsten 5% der
+              simulierten Falle (sehr hohe Renditeerwartungen der Kaufer = Krisenstimmung) wird der Leerstand
+              zusatzlich erhoht. Das bildet ab, was in echten Krisen passiert: Mehrere negative Faktoren
+              treten gleichzeitig auf und verstarken sich gegenseitig.
             </p>
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-3">
-            <p className="text-xs text-gray-600">
-              <strong className="text-gray-900">Technischer Hintergrund:</strong> Die Korrelationen werden mittels
-              Cholesky-Zerlegung der Korrelationsmatrix berechnet. So werden unabhangige Zufallsvariablen in
-              korrelierte transformiert, was zu realistischeren Szenarien fuhrt als unkorrelierte Simulationen.
+          <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+            <p className="text-xs text-green-800">
+              <strong className="text-green-900">Was bedeutet das fur Sie?</strong> Die Ergebnisse dieser Simulation
+              sind realistischer als einfache Berechnungen, weil sie berucksichtigen, dass in guten Zeiten
+              vieles gut lauft - und in schlechten Zeiten vieles gleichzeitig schlecht wird.
             </p>
           </div>
         </div>
