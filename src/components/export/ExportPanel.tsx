@@ -1,12 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
-import { FileText, Download, Printer, FileSpreadsheet, Info } from 'lucide-react';
+import { useState, useRef, useCallback } from 'react';
+import { FileText, Download, Printer, FileSpreadsheet, Info, Eye } from 'lucide-react';
 import { useSimulationStore } from '../../store/simulationStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { formatCurrency } from '../../lib/statistics';
-import { HistogramChart } from '../results/HistogramChart';
-import { MethodComparisonChart } from '../results/MethodComparisonChart';
-import { TornadoChart } from '../results/TornadoChart';
+import { PrintableReport } from './PrintableReport';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -14,32 +12,14 @@ import html2canvas from 'html2canvas';
 const BUILD_INFO = {
   version: '1.0.0',
   buildDate: new Date().toISOString().split('T')[0],
-  commit: 'b8436ff',
+  commit: 'd673722',
 };
 
 export function ExportPanel() {
   const { results } = useSimulationStore();
   const [isExporting, setIsExporting] = useState(false);
-  const [showExportCharts, setShowExportCharts] = useState(false);
-  const [exportReady, setExportReady] = useState(false);
-
-  // Callback wenn Charts bereit sind
-  const handleExportReady = useCallback(() => {
-    setExportReady(true);
-  }, []);
-
-  // Effect der den Export ausführt wenn Charts sichtbar sind
-  useEffect(() => {
-    if (showExportCharts && exportReady && results) {
-      const runExport = async () => {
-        await performPDFExport();
-        setShowExportCharts(false);
-        setExportReady(false);
-        setIsExporting(false);
-      };
-      runExport();
-    }
-  }, [showExportCharts, exportReady, results]);
+  const [showPreview, setShowPreview] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
 
   if (!results) {
     return (
@@ -59,196 +39,70 @@ export function ExportPanel() {
     );
   }
 
-  const { params, combinedStats, mieteinnahmenStats, vergleichswertStats, dcfStats } = results;
+  const { params, combinedStats } = results;
 
-  const performPDFExport = async () => {
+  const exportToPDF = useCallback(async () => {
+    if (!printRef.current) return;
+
+    setIsExporting(true);
+
     try {
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
-      let y = 20;
+      // Kurz warten damit der DOM fertig gerendert ist
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Header
-      doc.setFontSize(20);
-      doc.setTextColor(0, 102, 255);
-      doc.text('Immobilienbewertung', pageWidth / 2, y, { align: 'center' });
-      y += 8;
-      doc.setFontSize(12);
-      doc.setTextColor(107, 114, 128);
-      doc.text('Monte-Carlo-Simulation', pageWidth / 2, y, { align: 'center' });
-      y += 15;
-
-      // Objektdaten
-      doc.setFontSize(14);
-      doc.setTextColor(26, 26, 26);
-      doc.text('Objektdaten', 20, y);
-      y += 8;
-
-      doc.setFontSize(10);
-      doc.setTextColor(107, 114, 128);
-      const propertyInfo = [
-        [`Bezeichnung: ${params.property.name}`],
-        [`Adresse: ${params.property.address}`],
-        [`Fläche: ${params.property.area} m²`],
-        [`Baujahr: ${params.property.yearBuilt}`],
-        [`Simulationen: ${params.numberOfSimulations.toLocaleString('de-DE')}`],
-        [`Datum: ${new Date(results.runDate).toLocaleDateString('de-DE')}`],
-      ];
-
-      propertyInfo.forEach((line) => {
-        doc.text(line[0], 20, y);
-        y += 5;
+      const element = printRef.current;
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
       });
-      y += 10;
 
-      // Hauptergebnisse
-      doc.setFontSize(14);
-      doc.setTextColor(26, 26, 26);
-      doc.text('Bewertungsergebnis (Kombiniert)', 20, y);
-      y += 8;
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
 
-      doc.setFontSize(10);
-      const mainResults = [
-        ['Mittelwert:', formatCurrency(combinedStats.mean)],
-        ['Median:', formatCurrency(combinedStats.median)],
-        ['Standardabweichung:', formatCurrency(combinedStats.stdDev)],
-        ['Variationskoeffizient:', `${combinedStats.coefficientOfVariation.toFixed(1)}%`],
-        ['10. Perzentil (pessimistisch):', formatCurrency(combinedStats.percentile10)],
-        ['90. Perzentil (optimistisch):', formatCurrency(combinedStats.percentile90)],
-        ['Minimum:', formatCurrency(combinedStats.min)],
-        ['Maximum:', formatCurrency(combinedStats.max)],
-      ];
+      const imgWidth = pageWidth - 20; // 10mm margin on each side
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      mainResults.forEach((row) => {
-        doc.setTextColor(107, 114, 128);
-        doc.text(row[0], 20, y);
-        doc.setTextColor(26, 26, 26);
-        doc.text(row[1], 100, y);
-        y += 5;
-      });
-      y += 10;
+      let heightLeft = imgHeight;
+      let position = 10; // Start 10mm from top
+      let page = 1;
 
-      // Einzelne Methoden
-      if (mieteinnahmenStats || vergleichswertStats || dcfStats) {
-        doc.setFontSize(14);
-        doc.setTextColor(26, 26, 26);
-        doc.text('Ergebnisse nach Methode', 20, y);
-        y += 8;
+      // First page
+      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+      heightLeft -= (pageHeight - 20);
 
-        doc.setFontSize(10);
-
-        if (mieteinnahmenStats) {
-          doc.setTextColor(0, 102, 255);
-          doc.text('Ertragswertverfahren:', 20, y);
-          y += 5;
-          doc.setTextColor(107, 114, 128);
-          doc.text(`  Mittelwert: ${formatCurrency(mieteinnahmenStats.mean)}`, 20, y);
-          y += 4;
-          doc.text(`  P10-P90: ${formatCurrency(mieteinnahmenStats.percentile10)} - ${formatCurrency(mieteinnahmenStats.percentile90)}`, 20, y);
-          y += 6;
-        }
-
-        if (vergleichswertStats) {
-          doc.setTextColor(139, 92, 246);
-          doc.text('Vergleichswertverfahren:', 20, y);
-          y += 5;
-          doc.setTextColor(107, 114, 128);
-          doc.text(`  Mittelwert: ${formatCurrency(vergleichswertStats.mean)}`, 20, y);
-          y += 4;
-          doc.text(`  P10-P90: ${formatCurrency(vergleichswertStats.percentile10)} - ${formatCurrency(vergleichswertStats.percentile90)}`, 20, y);
-          y += 6;
-        }
-
-        if (dcfStats) {
-          doc.setTextColor(16, 185, 129);
-          doc.text('DCF-Modell:', 20, y);
-          y += 5;
-          doc.setTextColor(107, 114, 128);
-          doc.text(`  Mittelwert: ${formatCurrency(dcfStats.mean)}`, 20, y);
-          y += 4;
-          doc.text(`  P10-P90: ${formatCurrency(dcfStats.percentile10)} - ${formatCurrency(dcfStats.percentile90)}`, 20, y);
-          y += 10;
-        }
+      // Add more pages if needed
+      while (heightLeft > 0) {
+        pdf.addPage();
+        page++;
+        position = -(pageHeight - 20) * (page - 1) + 10;
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= (pageHeight - 20);
       }
 
-      // Sensitivitätsanalyse
-      if (results.sensitivityAnalysis.length > 0) {
-        doc.setFontSize(14);
-        doc.setTextColor(26, 26, 26);
-        doc.text('Sensitivitätsanalyse (Top 5 Parameter)', 20, y);
-        y += 8;
+      // Footer on last page
+      const lastPage = pdf.getNumberOfPages();
+      pdf.setPage(lastPage);
+      pdf.setFontSize(8);
+      pdf.setTextColor(156, 163, 175);
+      pdf.text(
+        `Erstellt mit Monte-Carlo Immobilienbewertung v${BUILD_INFO.version}`,
+        pageWidth / 2,
+        pageHeight - 5,
+        { align: 'center' }
+      );
 
-        doc.setFontSize(10);
-        results.sensitivityAnalysis.slice(0, 5).forEach((item, index) => {
-          doc.setTextColor(107, 114, 128);
-          doc.text(`${index + 1}. ${item.label}`, 20, y);
-          doc.setTextColor(26, 26, 26);
-          doc.text(`Einfluss: ${formatCurrency(item.impact)}`, 100, y);
-          y += 5;
-        });
-      }
-
-      // Grafiken auf neuen Seiten
-      const addChartToPage = async (elementId: string, title: string) => {
-        const element = document.getElementById(elementId);
-        if (!element) {
-          console.warn(`Element ${elementId} nicht gefunden`);
-          return;
-        }
-
-        doc.addPage();
-        const pageHeight = doc.internal.pageSize.getHeight();
-
-        // Titel
-        doc.setFontSize(14);
-        doc.setTextColor(26, 26, 26);
-        doc.text(title, 20, 20);
-
-        try {
-          const canvas = await html2canvas(element, {
-            scale: 2,
-            backgroundColor: '#ffffff',
-            logging: false,
-            useCORS: true,
-            allowTaint: true,
-            windowWidth: 800,
-            windowHeight: 400,
-          });
-
-          const imgData = canvas.toDataURL('image/png');
-          const imgWidth = pageWidth - 40;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          const maxHeight = pageHeight - 50;
-          const finalHeight = Math.min(imgHeight, maxHeight);
-
-          doc.addImage(imgData, 'PNG', 20, 30, imgWidth, finalHeight);
-        } catch (err) {
-          console.error(`Fehler beim Erfassen von ${elementId}:`, err);
-        }
-      };
-
-      // Charts hinzufügen
-      await addChartToPage('export-chart-histogram', 'Verteilung der Immobilienwerte');
-      await addChartToPage('export-chart-method-comparison', 'Methodenvergleich');
-      await addChartToPage('export-chart-tornado', 'Sensitivitätsanalyse');
-
-      // Footer auf letzter Seite
-      const lastPageHeight = doc.internal.pageSize.getHeight();
-      doc.setFontSize(8);
-      doc.setTextColor(156, 163, 175);
-      doc.text(`Erstellt mit Monte-Carlo Immobilienbewertung v${BUILD_INFO.version}`, pageWidth / 2, lastPageHeight - 10, { align: 'center' });
-
-      // Speichern
-      doc.save(`Immobilienbewertung_${params.property.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+      pdf.save(`Immobilienbewertung_${params.property.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
     } catch (error) {
       console.error('PDF Export Fehler:', error);
+    } finally {
+      setIsExporting(false);
     }
-  };
-
-  const startPDFExport = () => {
-    setIsExporting(true);
-    setShowExportCharts(true);
-    // Export wird über useEffect gestartet wenn Charts bereit sind
-  };
+  }, [params.property.name]);
 
   const exportToCSV = () => {
     const rows = [
@@ -271,11 +125,334 @@ export function ExportPanel() {
   };
 
   const handlePrint = () => {
-    window.print();
+    // Öffne neues Fenster mit druckbarem Bericht
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Bitte erlauben Sie Pop-ups für diese Seite um zu drucken.');
+      return;
+    }
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Immobilienbewertung - ${params.property.name}</title>
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #1a1a1a;
+            background: white;
+            padding: 20px;
+          }
+          .report {
+            max-width: 800px;
+            margin: 0 auto;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #0066FF;
+          }
+          .header h1 {
+            color: #0066FF;
+            font-size: 28px;
+            margin-bottom: 5px;
+          }
+          .header p {
+            color: #6b7280;
+            font-size: 16px;
+          }
+          section {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+          }
+          h2 {
+            font-size: 18px;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e7eb;
+          }
+          .grid {
+            display: grid;
+            gap: 10px;
+          }
+          .grid-2 { grid-template-columns: repeat(2, 1fr); }
+          .grid-4 { grid-template-columns: repeat(4, 1fr); }
+          .grid-5 { grid-template-columns: repeat(5, 1fr); }
+          .info-row {
+            font-size: 14px;
+          }
+          .info-row .label {
+            color: #6b7280;
+          }
+          .info-row .value {
+            font-weight: 500;
+            margin-left: 8px;
+          }
+          .highlight-box {
+            background: #eff6ff;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+          }
+          .highlight-box .label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 5px;
+          }
+          .highlight-box .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #0066FF;
+          }
+          .highlight-box .subtitle {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 8px;
+          }
+          .stat-box {
+            background: #f9fafb;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+          }
+          .stat-box .label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 4px;
+          }
+          .stat-box .value {
+            font-size: 13px;
+            font-weight: 600;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+          }
+          th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+          }
+          th {
+            color: #6b7280;
+            font-weight: 500;
+          }
+          .text-right { text-align: right; }
+          .text-center { text-align: center; }
+          .color-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+          }
+          .bar-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+          }
+          .bar-label {
+            width: 120px;
+            font-size: 12px;
+            color: #374151;
+          }
+          .bar-track {
+            flex: 1;
+            height: 20px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            position: relative;
+          }
+          .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+          }
+          .bar-value {
+            width: 80px;
+            font-size: 12px;
+            text-align: right;
+            font-weight: 500;
+          }
+          .percentile-bar {
+            height: 40px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            position: relative;
+            margin-bottom: 20px;
+          }
+          .p10-p90 {
+            position: absolute;
+            height: 100%;
+            background: #bfdbfe;
+          }
+          .p25-p75 {
+            position: absolute;
+            height: 100%;
+            background: #60a5fa;
+          }
+          .median-line {
+            position: absolute;
+            width: 3px;
+            height: 100%;
+            background: #0066FF;
+          }
+          .percentile-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+          }
+          .percentile-labels .item {
+            text-align: center;
+          }
+          .percentile-labels .item .label {
+            color: #6b7280;
+          }
+          .percentile-labels .item .value {
+            font-weight: 500;
+          }
+          footer {
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            font-size: 11px;
+            color: #9ca3af;
+          }
+          @media print {
+            body { padding: 0; }
+            section { page-break-inside: avoid; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="report">
+          <div class="header">
+            <h1>Immobilienbewertung</h1>
+            <p>Monte-Carlo-Simulation</p>
+          </div>
+
+          <section>
+            <h2>Objektdaten</h2>
+            <div class="grid grid-2">
+              <div class="info-row"><span class="label">Bezeichnung:</span><span class="value">${params.property.name}</span></div>
+              <div class="info-row"><span class="label">Adresse:</span><span class="value">${params.property.address}</span></div>
+              <div class="info-row"><span class="label">Fläche:</span><span class="value">${params.property.area} m²</span></div>
+              <div class="info-row"><span class="label">Baujahr:</span><span class="value">${params.property.yearBuilt}</span></div>
+              <div class="info-row"><span class="label">Simulationen:</span><span class="value">${params.numberOfSimulations.toLocaleString('de-DE')}</span></div>
+              <div class="info-row"><span class="label">Datum:</span><span class="value">${new Date(results.runDate).toLocaleDateString('de-DE')}</span></div>
+            </div>
+          </section>
+
+          <section>
+            <h2>Bewertungsergebnis</h2>
+            <div class="highlight-box">
+              <div class="label">Geschätzter Immobilienwert (Mittelwert)</div>
+              <div class="value">${formatCurrency(combinedStats.mean)}</div>
+              <div class="subtitle">80% Wahrscheinlichkeit: ${formatCurrency(combinedStats.percentile10)} bis ${formatCurrency(combinedStats.percentile90)}</div>
+            </div>
+            <div class="grid grid-4">
+              <div class="stat-box"><div class="label">Median</div><div class="value">${formatCurrency(combinedStats.median)}</div></div>
+              <div class="stat-box"><div class="label">Standardabweichung</div><div class="value">${formatCurrency(combinedStats.stdDev)}</div></div>
+              <div class="stat-box"><div class="label">Minimum</div><div class="value">${formatCurrency(combinedStats.min)}</div></div>
+              <div class="stat-box"><div class="label">Maximum</div><div class="value">${formatCurrency(combinedStats.max)}</div></div>
+            </div>
+          </section>
+
+          <section>
+            <h2>Werteverteilung (Perzentile)</h2>
+            ${generatePercentileHTML(combinedStats)}
+          </section>
+
+          ${results.mieteinnahmenStats || results.vergleichswertStats || results.dcfStats ? `
+          <section>
+            <h2>Methodenvergleich</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Methode</th>
+                  <th class="text-right">Mittelwert</th>
+                  <th class="text-right">P10</th>
+                  <th class="text-right">P90</th>
+                  <th class="text-right">Spanne</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${results.mieteinnahmenStats ? `
+                <tr>
+                  <td><span class="color-dot" style="background:#0066FF"></span>Ertragswertverfahren</td>
+                  <td class="text-right">${formatCurrency(results.mieteinnahmenStats.mean)}</td>
+                  <td class="text-right">${formatCurrency(results.mieteinnahmenStats.percentile10)}</td>
+                  <td class="text-right">${formatCurrency(results.mieteinnahmenStats.percentile90)}</td>
+                  <td class="text-right">${formatCurrency(results.mieteinnahmenStats.percentile90 - results.mieteinnahmenStats.percentile10)}</td>
+                </tr>` : ''}
+                ${results.vergleichswertStats ? `
+                <tr>
+                  <td><span class="color-dot" style="background:#8B5CF6"></span>Vergleichswertverfahren</td>
+                  <td class="text-right">${formatCurrency(results.vergleichswertStats.mean)}</td>
+                  <td class="text-right">${formatCurrency(results.vergleichswertStats.percentile10)}</td>
+                  <td class="text-right">${formatCurrency(results.vergleichswertStats.percentile90)}</td>
+                  <td class="text-right">${formatCurrency(results.vergleichswertStats.percentile90 - results.vergleichswertStats.percentile10)}</td>
+                </tr>` : ''}
+                ${results.dcfStats ? `
+                <tr>
+                  <td><span class="color-dot" style="background:#10B981"></span>DCF-Modell</td>
+                  <td class="text-right">${formatCurrency(results.dcfStats.mean)}</td>
+                  <td class="text-right">${formatCurrency(results.dcfStats.percentile10)}</td>
+                  <td class="text-right">${formatCurrency(results.dcfStats.percentile90)}</td>
+                  <td class="text-right">${formatCurrency(results.dcfStats.percentile90 - results.dcfStats.percentile10)}</td>
+                </tr>` : ''}
+                <tr style="font-weight:600">
+                  <td><span class="color-dot" style="background:#F59E0B"></span>Kombiniert</td>
+                  <td class="text-right">${formatCurrency(combinedStats.mean)}</td>
+                  <td class="text-right">${formatCurrency(combinedStats.percentile10)}</td>
+                  <td class="text-right">${formatCurrency(combinedStats.percentile90)}</td>
+                  <td class="text-right">${formatCurrency(combinedStats.percentile90 - combinedStats.percentile10)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>` : ''}
+
+          <section>
+            <h2>Verteilung der Immobilienwerte</h2>
+            ${generateHistogramHTML(results.histogram, combinedStats)}
+          </section>
+
+          ${results.sensitivityAnalysis.length > 0 ? `
+          <section>
+            <h2>Sensitivitätsanalyse (Top 8)</h2>
+            <p style="font-size:12px;color:#6b7280;margin-bottom:15px;">Einfluss der Parameter bei ±20% Variation</p>
+            ${generateSensitivityHTML(results.sensitivityAnalysis.slice(0, 8))}
+          </section>` : ''}
+
+          <footer>
+            <p>Erstellt mit Monte-Carlo Immobilienbewertung v${BUILD_INFO.version}</p>
+            <p style="margin-top:5px;">© ${new Date().getFullYear()} Markus Thalhamer, MSc MRICS</p>
+          </footer>
+        </div>
+        <script>
+          window.onload = function() {
+            window.print();
+          };
+        </script>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 no-print">
       <Card>
         <CardHeader>
           <CardTitle>Export & Druck</CardTitle>
@@ -284,30 +461,38 @@ export function ExportPanel() {
           </CardDescription>
         </CardHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <ExportOption
             icon={FileText}
             title="PDF-Bericht"
-            description="Professioneller Bericht mit allen Ergebnissen und Grafiken"
+            description="Vollständiger Bericht mit Grafiken"
             buttonText="PDF erstellen"
-            onClick={startPDFExport}
+            onClick={exportToPDF}
             isLoading={isExporting}
-          />
-
-          <ExportOption
-            icon={FileSpreadsheet}
-            title="CSV-Export"
-            description="Rohdaten für Excel oder weitere Analyse"
-            buttonText="CSV herunterladen"
-            onClick={exportToCSV}
           />
 
           <ExportOption
             icon={Printer}
             title="Drucken"
-            description="Aktuelle Ansicht drucken"
+            description="Professionellen Bericht drucken"
             buttonText="Drucken"
             onClick={handlePrint}
+          />
+
+          <ExportOption
+            icon={FileSpreadsheet}
+            title="CSV-Export"
+            description="Rohdaten für Excel"
+            buttonText="CSV herunterladen"
+            onClick={exportToCSV}
+          />
+
+          <ExportOption
+            icon={Eye}
+            title="Vorschau"
+            description="Druckvorschau anzeigen"
+            buttonText={showPreview ? 'Ausblenden' : 'Anzeigen'}
+            onClick={() => setShowPreview(!showPreview)}
           />
         </div>
       </Card>
@@ -369,82 +554,102 @@ export function ExportPanel() {
         </div>
       </Card>
 
-      {/* Charts für PDF-Export - sichtbar während Export */}
-      {showExportCharts && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white">
-          <div className="text-center mb-4 absolute top-4 left-0 right-0">
-            <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-lg">
-              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              <span>PDF wird erstellt...</span>
-            </div>
-          </div>
-          <div className="overflow-auto max-h-screen pt-16 pb-8">
-            <ExportCharts
-              results={results}
-              combinedStats={combinedStats}
-              mieteinnahmenStats={mieteinnahmenStats}
-              vergleichswertStats={vergleichswertStats}
-              dcfStats={dcfStats}
-              onReady={handleExportReady}
-            />
-          </div>
-        </div>
-      )}
+      {/* Druckbare Version für PDF-Export */}
+      <div
+        ref={printRef}
+        className={showPreview ? 'border border-gray-300 rounded-lg overflow-hidden' : 'fixed top-0 left-0 w-[800px] bg-white'}
+        style={showPreview ? {} : { left: '-9999px', zIndex: -1 }}
+      >
+        <PrintableReport results={results} />
+      </div>
     </div>
   );
 }
 
-// Separate Komponente für Export-Charts
-function ExportCharts({
-  results,
-  combinedStats,
-  mieteinnahmenStats,
-  vergleichswertStats,
-  dcfStats,
-  onReady,
-}: {
-  results: any;
-  combinedStats: any;
-  mieteinnahmenStats: any;
-  vergleichswertStats: any;
-  dcfStats: any;
-  onReady: () => void;
-}) {
-  useEffect(() => {
-    // Warte bis Charts vollständig gerendert sind
-    // requestAnimationFrame stellt sicher, dass der Browser gerendert hat
-    const timer = setTimeout(() => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          onReady();
-        });
-      });
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [onReady]);
+// Helper-Funktionen für Print HTML
+function generatePercentileHTML(stats: any) {
+  const range = stats.max - stats.min;
+  const getPos = (val: number) => ((val - stats.min) / range) * 100;
 
-  return (
-    <div className="p-4 space-y-4 bg-white">
-      <div id="export-chart-histogram" className="bg-white" style={{ width: '760px', height: '380px' }}>
-        <HistogramChart data={results.histogram} stats={combinedStats} exportMode={true} />
-      </div>
-      <div id="export-chart-method-comparison" className="bg-white" style={{ width: '760px', height: '350px' }}>
-        <MethodComparisonChart
-          mieteinnahmenStats={mieteinnahmenStats}
-          vergleichswertStats={vergleichswertStats}
-          dcfStats={dcfStats}
-          combinedStats={combinedStats}
-          exportMode={true}
-        />
-      </div>
-      <div id="export-chart-tornado" className="bg-white" style={{ width: '760px', height: '380px' }}>
-        <TornadoChart data={results.sensitivityAnalysis} exportMode={true} />
-      </div>
+  return `
+    <div class="percentile-bar">
+      <div class="p10-p90" style="left:${getPos(stats.percentile10)}%;width:${getPos(stats.percentile90) - getPos(stats.percentile10)}%"></div>
+      <div class="p25-p75" style="left:${getPos(stats.percentile25)}%;width:${getPos(stats.percentile75) - getPos(stats.percentile25)}%"></div>
+      <div class="median-line" style="left:${getPos(stats.median)}%"></div>
     </div>
-  );
+    <div class="percentile-labels">
+      <div class="item"><div class="label">P10</div><div class="value">${formatCurrency(stats.percentile10)}</div></div>
+      <div class="item"><div class="label">P25</div><div class="value">${formatCurrency(stats.percentile25)}</div></div>
+      <div class="item" style="color:#0066FF"><div class="label" style="font-weight:500">Median</div><div class="value">${formatCurrency(stats.median)}</div></div>
+      <div class="item"><div class="label">P75</div><div class="value">${formatCurrency(stats.percentile75)}</div></div>
+      <div class="item"><div class="label">P90</div><div class="value">${formatCurrency(stats.percentile90)}</div></div>
+    </div>
+  `;
+}
+
+function generateHistogramHTML(histogram: any[], stats: any) {
+  const maxCount = Math.max(...histogram.map((h: any) => h.count));
+
+  return `
+    <div style="display:flex;flex-direction:column;gap:3px;">
+      ${histogram.map((bin: any) => {
+        const isInRange = bin.rangeStart >= stats.percentile10 && bin.rangeEnd <= stats.percentile90;
+        const barWidth = (bin.count / maxCount) * 100;
+        const color = isInRange ? '#60a5fa' : '#d1d5db';
+
+        return `
+          <div class="bar-container">
+            <div class="bar-label">${(bin.rangeStart / 1000).toFixed(0)}k €</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:${barWidth}%;background:${color}"></div>
+            </div>
+            <div class="bar-value">${bin.percentage.toFixed(1)}%</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+    <div style="display:flex;justify-content:center;gap:20px;margin-top:15px;font-size:11px;">
+      <div><span style="display:inline-block;width:12px;height:12px;background:#60a5fa;border-radius:2px;margin-right:5px;vertical-align:middle"></span>P10-P90 Bereich</div>
+      <div><span style="display:inline-block;width:12px;height:12px;background:#d1d5db;border-radius:2px;margin-right:5px;vertical-align:middle"></span>Außerhalb</div>
+    </div>
+  `;
+}
+
+function generateSensitivityHTML(data: any[]) {
+  const maxImpact = Math.max(...data.map((d: any) => d.impact));
+
+  return `
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      ${data.map((item: any) => {
+        const barWidth = (item.impact / maxImpact) * 100;
+        const lowDiff = item.lowValue - item.baseValue;
+        const highDiff = item.highValue - item.baseValue;
+        const total = Math.abs(lowDiff) + Math.abs(highDiff);
+        const lowWidth = (Math.abs(lowDiff) / total) * barWidth / 2;
+        const highWidth = (Math.abs(highDiff) / total) * barWidth / 2;
+
+        return `
+          <div class="bar-container">
+            <div class="bar-label" style="width:100px">${item.label}</div>
+            <div class="bar-track" style="display:flex">
+              <div style="width:50%;display:flex;justify-content:flex-end">
+                <div style="width:${lowWidth}%;height:100%;background:#ef4444;opacity:0.7;border-radius:4px 0 0 4px"></div>
+              </div>
+              <div style="width:1px;background:#9ca3af"></div>
+              <div style="width:50%">
+                <div style="width:${highWidth}%;height:100%;background:#10b981;opacity:0.7;border-radius:0 4px 4px 0"></div>
+              </div>
+            </div>
+            <div class="bar-value" style="width:70px">${formatCurrency(item.impact)}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+    <div style="display:flex;justify-content:center;gap:20px;margin-top:15px;font-size:11px;">
+      <div><span style="display:inline-block;width:12px;height:12px;background:#ef4444;opacity:0.7;border-radius:2px;margin-right:5px;vertical-align:middle"></span>-20% Variation</div>
+      <div><span style="display:inline-block;width:12px;height:12px;background:#10b981;opacity:0.7;border-radius:2px;margin-right:5px;vertical-align:middle"></span>+20% Variation</div>
+    </div>
+  `;
 }
 
 function ExportOption({

@@ -25,3 +25,88 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* Print Styles */
+@media print {
+  /* Reset background colors */
+  body {
+    background-color: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide non-printable elements */
+  header,
+  .no-print,
+  nav,
+  aside {
+    display: none !important;
+  }
+
+  /* Show print-only elements */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  /* Avoid page breaks inside cards */
+  .print-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Force page break before */
+  .print-page-break {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  /* Ensure SVG charts print with colors */
+  svg {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Recharts specific */
+  .recharts-wrapper {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .recharts-surface {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Cards styling for print */
+  .bg-white {
+    background-color: white !important;
+    box-shadow: none !important;
+    border: 1px solid #e5e7eb !important;
+  }
+
+  /* Ensure colored backgrounds print */
+  .bg-blue-50,
+  .bg-green-50,
+  .bg-purple-50,
+  .bg-amber-50,
+  .bg-gray-50,
+  .bg-orange-200,
+  .bg-yellow-200,
+  .bg-blue-300,
+  .bg-green-300 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Fix chart containers */
+  .recharts-responsive-container {
+    width: 100% !important;
+    height: 300px !important;
+  }
+}
