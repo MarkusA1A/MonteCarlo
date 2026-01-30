@@ -26,10 +26,14 @@ export function ExportPanel() {
 
   // useCallback muss vor allen conditional returns stehen (React Hooks Regel)
   const exportToPDF = useCallback(async () => {
-    if (!printRef.current || !results) return;
+    if (!printRef.current || !results) {
+      toast.error('Keine Daten für PDF-Export verfügbar');
+      return;
+    }
     const { params } = results;
 
     setIsExporting(true);
+    toast.info('PDF wird erstellt...');
 
     try {
       const element = printRef.current;
@@ -43,6 +47,7 @@ export function ExportPanel() {
       element.style.zIndex = '9999';
       element.style.background = 'white';
       element.style.opacity = '1';
+      element.style.visibility = 'visible';
 
       // Warten bis das Element gerendert ist
       await new Promise(resolve => setTimeout(resolve, 300));
