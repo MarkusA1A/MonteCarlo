@@ -335,7 +335,7 @@ export function ExportPanel() {
         aria-hidden="true"
       >
         <div id="export-chart-histogram" className="p-4" style={{ width: '800px', height: '400px' }}>
-          <HistogramChart data={results.histogram} stats={combinedStats} />
+          <HistogramChart data={results.histogram} stats={combinedStats} exportMode={true} />
         </div>
         <div id="export-chart-method-comparison" className="p-4" style={{ width: '800px', height: '400px' }}>
           <MethodComparisonChart
@@ -343,10 +343,11 @@ export function ExportPanel() {
             vergleichswertStats={vergleichswertStats}
             dcfStats={dcfStats}
             combinedStats={combinedStats}
+            exportMode={true}
           />
         </div>
         <div id="export-chart-tornado" className="p-4" style={{ width: '800px', height: '400px' }}>
-          <TornadoChart data={results.sensitivityAnalysis} />
+          <TornadoChart data={results.sensitivityAnalysis} exportMode={true} />
         </div>
       </div>
     </div>

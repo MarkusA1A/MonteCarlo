@@ -15,6 +15,7 @@ interface MethodComparisonChartProps {
   vergleichswertStats: Statistics | null;
   dcfStats: Statistics | null;
   combinedStats: Statistics;
+  exportMode?: boolean;
 }
 
 export function MethodComparisonChart({
@@ -22,6 +23,7 @@ export function MethodComparisonChart({
   vergleichswertStats,
   dcfStats,
   combinedStats,
+  exportMode = false,
 }: MethodComparisonChartProps) {
   const chartData = [
     mieteinnahmenStats && {
@@ -62,6 +64,71 @@ export function MethodComparisonChart({
     },
   ].filter(Boolean);
 
+  const chartContent = (
+    <BarChart
+      data={chartData}
+      margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+      width={exportMode ? 760 : undefined}
+      height={exportMode ? 250 : undefined}
+    >
+      <XAxis
+        dataKey="name"
+        tick={{ fontSize: 12, fill: '#6B7280' }}
+        tickLine={false}
+        axisLine={{ stroke: '#E5E7EB' }}
+      />
+      <YAxis
+        tick={{ fontSize: 11, fill: '#6B7280' }}
+        tickLine={false}
+        axisLine={{ stroke: '#E5E7EB' }}
+        tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+      />
+      <Tooltip
+        content={({ active, payload }) => {
+          if (active && payload && payload.length) {
+            const data = payload[0].payload;
+            return (
+              <div className="bg-white shadow-lg rounded-lg border border-gray-200 p-3">
+                <p className="text-sm font-medium text-gray-900 mb-2">{data.name}</p>
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between space-x-4">
+                    <span className="text-gray-500">Mittelwert:</span>
+                    <span className="font-medium">{formatCurrency(data.value)}</span>
+                  </div>
+                  <div className="flex justify-between space-x-4">
+                    <span className="text-gray-500">P10:</span>
+                    <span className="font-medium">{formatCurrency(data.p10)}</span>
+                  </div>
+                  <div className="flex justify-between space-x-4">
+                    <span className="text-gray-500">P90:</span>
+                    <span className="font-medium">{formatCurrency(data.p90)}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+          return null;
+        }}
+      />
+      <Bar dataKey="value" radius={[4, 4, 0, 0]} fill="#0066FF">
+        <ErrorBar
+          dataKey="errorLow"
+          direction="y"
+          width={4}
+          strokeWidth={2}
+          stroke="#9CA3AF"
+        />
+        <ErrorBar
+          dataKey="errorHigh"
+          direction="y"
+          width={4}
+          strokeWidth={2}
+          stroke="#9CA3AF"
+        />
+      </Bar>
+    </BarChart>
+  );
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -71,98 +138,43 @@ export function MethodComparisonChart({
         Mittelwerte mit 80% Konfidenzintervall (P10-P90)
       </p>
 
-      <div className="h-48 sm:h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={chartData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-          >
-            <XAxis
-              dataKey="name"
-              tick={{ fontSize: 12, fill: '#6B7280' }}
-              tickLine={false}
-              axisLine={{ stroke: '#E5E7EB' }}
-            />
-            <YAxis
-              tick={{ fontSize: 11, fill: '#6B7280' }}
-              tickLine={false}
-              axisLine={{ stroke: '#E5E7EB' }}
-              tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
-            />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const data = payload[0].payload;
-                  return (
-                    <div className="bg-white shadow-lg rounded-lg border border-gray-200 p-3">
-                      <p className="text-sm font-medium text-gray-900 mb-2">{data.name}</p>
-                      <div className="space-y-1 text-xs">
-                        <div className="flex justify-between space-x-4">
-                          <span className="text-gray-500">Mittelwert:</span>
-                          <span className="font-medium">{formatCurrency(data.value)}</span>
-                        </div>
-                        <div className="flex justify-between space-x-4">
-                          <span className="text-gray-500">P10:</span>
-                          <span className="font-medium">{formatCurrency(data.p10)}</span>
-                        </div>
-                        <div className="flex justify-between space-x-4">
-                          <span className="text-gray-500">P90:</span>
-                          <span className="font-medium">{formatCurrency(data.p90)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
-            <Bar dataKey="value" radius={[4, 4, 0, 0]} fill="#0066FF">
-              <ErrorBar
-                dataKey="errorLow"
-                direction="y"
-                width={4}
-                strokeWidth={2}
-                stroke="#9CA3AF"
-              />
-              <ErrorBar
-                dataKey="errorHigh"
-                direction="y"
-                width={4}
-                strokeWidth={2}
-                stroke="#9CA3AF"
-              />
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+      <div className={exportMode ? '' : 'h-48 sm:h-64'}>
+        {exportMode ? chartContent : (
+          <ResponsiveContainer width="100%" height="100%">
+            {chartContent}
+          </ResponsiveContainer>
+        )}
       </div>
 
       {/* Vergleichstabelle */}
-      <div className="mt-4 overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-left py-2 text-gray-500 font-medium">Methode</th>
-              <th className="text-right py-2 text-gray-500 font-medium">Mittelwert</th>
-              <th className="text-right py-2 text-gray-500 font-medium">P10</th>
-              <th className="text-right py-2 text-gray-500 font-medium">P90</th>
-              <th className="text-right py-2 text-gray-500 font-medium">Spanne</th>
-            </tr>
-          </thead>
-          <tbody>
-            {chartData.map((item: any) => (
-              <tr key={item.name} className="border-b border-gray-100">
-                <td className="py-2 font-medium text-gray-900">{item.name}</td>
-                <td className="py-2 text-right">{formatCurrency(item.value)}</td>
-                <td className="py-2 text-right text-orange-600">{formatCurrency(item.p10)}</td>
-                <td className="py-2 text-right text-green-600">{formatCurrency(item.p90)}</td>
-                <td className="py-2 text-right text-gray-500">
-                  {formatCurrency(item.p90 - item.p10)}
-                </td>
+      {!exportMode && (
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-2 text-gray-500 font-medium">Methode</th>
+                <th className="text-right py-2 text-gray-500 font-medium">Mittelwert</th>
+                <th className="text-right py-2 text-gray-500 font-medium">P10</th>
+                <th className="text-right py-2 text-gray-500 font-medium">P90</th>
+                <th className="text-right py-2 text-gray-500 font-medium">Spanne</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {chartData.map((item: any) => (
+                <tr key={item.name} className="border-b border-gray-100">
+                  <td className="py-2 font-medium text-gray-900">{item.name}</td>
+                  <td className="py-2 text-right">{formatCurrency(item.value)}</td>
+                  <td className="py-2 text-right text-orange-600">{formatCurrency(item.p10)}</td>
+                  <td className="py-2 text-right text-green-600">{formatCurrency(item.p90)}</td>
+                  <td className="py-2 text-right text-gray-500">
+                    {formatCurrency(item.p90 - item.p10)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

@@ -15,9 +15,10 @@ interface HistogramChartProps {
   data: HistogramBin[];
   stats: Statistics;
   title?: string;
+  exportMode?: boolean;
 }
 
-export function HistogramChart({ data, stats, title = 'Verteilung der Immobilienwerte' }: HistogramChartProps) {
+export function HistogramChart({ data, stats, title = 'Verteilung der Immobilienwerte', exportMode = false }: HistogramChartProps) {
   const chartData = data.map((bin) => ({
     range: `${(bin.rangeStart / 1000).toFixed(0)}k`,
     rangeStart: bin.rangeStart,
@@ -35,13 +36,8 @@ export function HistogramChart({ data, stats, title = 'Verteilung der Immobilien
     return '#A7F3D0'; // emerald-200
   };
 
-  return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
-
-      <div className="h-64 sm:h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+  const chartContent = (
+    <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }} width={exportMode ? 760 : undefined} height={exportMode ? 300 : undefined}>
             <XAxis
               dataKey="range"
               tick={{ fontSize: 11, fill: '#6B7280' }}
@@ -99,15 +95,26 @@ export function HistogramChart({ data, stats, title = 'Verteilung der Immobilien
             />
 
             <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-              {chartData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={getBarColor(entry.rangeStart, entry.rangeEnd)}
-                />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+        {chartData.map((entry, index) => (
+          <Cell
+            key={`cell-${index}`}
+            fill={getBarColor(entry.rangeStart, entry.rangeEnd)}
+          />
+        ))}
+      </Bar>
+    </BarChart>
+  );
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+
+      <div className={exportMode ? '' : 'h-64 sm:h-80'}>
+        {exportMode ? chartContent : (
+          <ResponsiveContainer width="100%" height="100%">
+            {chartContent}
+          </ResponsiveContainer>
+        )}
       </div>
 
       {/* Legende */}
