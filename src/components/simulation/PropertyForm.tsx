@@ -85,7 +85,7 @@ export function PropertyForm() {
           />
 
           <NumericInput
-            label="Wohnfläche"
+            label="Nutzfläche"
             value={property.area}
             onChange={(val) => setPropertyData({ area: val })}
             suffix="m²"

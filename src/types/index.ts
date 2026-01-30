@@ -16,7 +16,7 @@ export interface Distribution {
 export interface PropertyData {
   name: string;
   address: string;
-  area: number; // Wohnfläche in m²
+  area: number; // Nutzfläche in m²
   yearBuilt: number;
   propertyType: 'wohnung' | 'haus' | 'mehrfamilienhaus' | 'gewerbe';
   numberOfUnits: number;
