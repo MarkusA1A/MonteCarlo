@@ -6,6 +6,7 @@ import { SimulationPanel } from './components/simulation/SimulationPanel';
 import { ResultsPanel } from './components/results/ResultsPanel';
 import { ExportPanel } from './components/export/ExportPanel';
 import { InfoPanel } from './components/info/InfoPanel';
+import { ToastContainer } from './components/ui/ToastContainer';
 
 function App() {
   const { activeTab } = useSimulationStore();
@@ -44,6 +45,7 @@ function App() {
           {renderContent()}
         </main>
       </div>
+      <ToastContainer />
     </div>
   );
 }

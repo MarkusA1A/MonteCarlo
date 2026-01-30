@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { FileText, Download, Printer, FileSpreadsheet, Info, Eye } from 'lucide-react';
 import { useSimulationStore } from '../../store/simulationStore';
+import { toast } from '../../store/toastStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { formatCurrency } from '../../lib/statistics';
@@ -101,8 +102,10 @@ export function ExportPanel() {
       );
 
       pdf.save(`Immobilienbewertung_${params.property.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success('PDF erfolgreich erstellt');
     } catch (error) {
       console.error('PDF Export Fehler:', error);
+      toast.error('PDF-Export fehlgeschlagen');
     } finally {
       setIsExporting(false);
     }
@@ -213,6 +216,7 @@ export function ExportPanel() {
     // Speichern
     const fileName = `Immobilienbewertung_${params.property.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
+    toast.success('Excel-Datei erfolgreich erstellt');
   }, [results]);
 
   const handlePrint = useCallback(() => {
@@ -222,9 +226,10 @@ export function ExportPanel() {
     // Öffne neues Fenster mit druckbarem Bericht
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-      alert('Bitte erlauben Sie Pop-ups für diese Seite um zu drucken.');
+      toast.error('Pop-ups blockiert - bitte erlauben Sie Pop-ups für diese Seite');
       return;
     }
+    toast.info('Druckdialog wird geöffnet...');
 
     printWindow.document.write(`
       <!DOCTYPE html>

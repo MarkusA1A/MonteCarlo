@@ -14,6 +14,7 @@ import {
   defaultSimulationParams,
 } from '../types';
 import { runMonteCarloSimulation, SimulationPhase, LiveStats } from '../lib/simulation/monteCarloEngine';
+import { toast } from './toastStore';
 
 interface SimulationStore {
   // State
@@ -172,13 +173,18 @@ export const useSimulationStore = create<SimulationStore>()(
         currentPhase: null,
         liveStats: null,
       });
+
+      toast.success('Simulation erfolgreich abgeschlossen');
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
       set({
         status: 'error',
-        error: error instanceof Error ? error.message : 'Unbekannter Fehler',
+        error: errorMessage,
         currentPhase: null,
         liveStats: null,
       });
+
+      toast.error(`Simulation fehlgeschlagen: ${errorMessage}`);
     }
   },
 
