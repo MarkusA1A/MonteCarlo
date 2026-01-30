@@ -7,8 +7,8 @@ import { getDistributionStats } from '../../lib/distributions';
 import { formatCurrency } from '../../lib/statistics';
 
 export function MieteinnahmenForm() {
-  const { params, setMieteinnahmenParams, updateMieteinnahmenDistribution, property } = useSimulationStore();
-  const { mieteinnahmen } = params;
+  const { params, setMieteinnahmenParams, updateMieteinnahmenDistribution } = useSimulationStore();
+  const { mieteinnahmen, property } = params;
 
   // Berechnete Werte basierend auf Erwartungswerten
   const rentPerSqm = getDistributionStats(mieteinnahmen.monthlyRentPerSqm).expectedMean;
