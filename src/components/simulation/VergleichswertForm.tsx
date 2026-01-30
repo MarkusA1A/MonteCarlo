@@ -2,6 +2,7 @@ import { useSimulationStore } from '../../store/simulationStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Switch } from '../ui/Switch';
 import { DistributionInput } from './DistributionInput';
+import { Info } from 'lucide-react';
 
 export function VergleichswertForm() {
   const { params, setVergleichswertParams, updateVergleichswertDistribution } = useSimulationStore();
@@ -26,40 +27,56 @@ export function VergleichswertForm() {
 
       {vergleichswert.enabled && (
         <div className="space-y-4">
+          {/* Erklärung der Faktoren */}
+          <div className="bg-gray-50 rounded-lg p-4 text-sm border border-gray-200">
+            <div className="flex items-start space-x-2">
+              <Info className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-gray-900 mb-2">Erläuterung der Anpassungsfaktoren</h4>
+                <ul className="space-y-1.5 text-xs text-gray-600">
+                  <li><span className="font-medium text-gray-700">Lagefaktor:</span> Berücksichtigt Mikro- und Makrolage (Infrastruktur, Verkehrsanbindung, Nachbarschaft). Werte: 0.8 (schlecht) bis 1.3 (sehr gut).</li>
+                  <li><span className="font-medium text-gray-700">Zustandsfaktor:</span> Bewertet den baulichen Zustand und Sanierungsbedarf. Werte: 0.7 (sanierungsbedürftig) bis 1.2 (neuwertig).</li>
+                  <li><span className="font-medium text-gray-700">Ausstattungsfaktor:</span> Erfasst Qualität der Ausstattung (Böden, Sanitär, Küche, Heizung). Werte: 0.9 (einfach) bis 1.3 (gehoben).</li>
+                  <li><span className="font-medium text-gray-700">Marktanpassung:</span> Korrektur für zeitliche Unterschiede und aktuelle Marktdynamik. Werte: 0.9 (schwacher Markt) bis 1.2 (starker Markt).</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           <DistributionInput
             label="Basis-Quadratmeterpreis"
             value={vergleichswert.basePricePerSqm}
             onChange={(dist) => updateVergleichswertDistribution('basePricePerSqm', dist)}
             unit="€/m²"
-            hint="Durchschnittlicher Preis vergleichbarer Objekte"
+            hint="Durchschnittspreis aus Vergleichstransaktionen in der Region"
           />
 
           <DistributionInput
             label="Lagefaktor"
             value={vergleichswert.locationFactor}
             onChange={(dist) => updateVergleichswertDistribution('locationFactor', dist)}
-            hint="1.0 = durchschnittliche Lage, >1 = bessere Lage"
+            hint="1.0 = durchschnittlich, <1 = schlechter, >1 = besser als Vergleichsobjekte"
           />
 
           <DistributionInput
             label="Zustandsfaktor"
             value={vergleichswert.conditionFactor}
             onChange={(dist) => updateVergleichswertDistribution('conditionFactor', dist)}
-            hint="1.0 = durchschnittlicher Zustand"
+            hint="1.0 = altersgemäß, <1 = Sanierungsbedarf, >1 = überdurchschnittlich"
           />
 
           <DistributionInput
             label="Ausstattungsfaktor"
             value={vergleichswert.equipmentFactor}
             onChange={(dist) => updateVergleichswertDistribution('equipmentFactor', dist)}
-            hint="1.0 = Standardausstattung"
+            hint="1.0 = Standard, <1 = einfach, >1 = gehoben/hochwertig"
           />
 
           <DistributionInput
             label="Marktanpassungsfaktor"
             value={vergleichswert.marketAdjustmentFactor}
             onChange={(dist) => updateVergleichswertDistribution('marketAdjustmentFactor', dist)}
-            hint="Berücksichtigt aktuelle Marktlage"
+            hint="Korrektur für Marktentwicklung seit den Vergleichstransaktionen"
           />
 
           {/* Formel-Erklärung */}
