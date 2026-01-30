@@ -90,6 +90,28 @@ export function VergleichswertForm() {
             </div>
           </div>
 
+          {/* Erklärung der Standardabweichung */}
+          <div className="bg-amber-50 rounded-lg p-4 text-sm border border-amber-200">
+            <div className="flex items-start space-x-2">
+              <Info className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-amber-900 mb-2">Was bedeutet die Standardabweichung?</h4>
+                <p className="text-xs text-amber-800 mb-2">
+                  Die Standardabweichung zeigt, wie stark ein Wert typischerweise vom Erwartungswert abweicht.
+                  Je größer die Standardabweichung, desto unsicherer ist Ihre Schätzung. <strong>Bei der Normalverteilung
+                  liegen etwa 68% aller Werte innerhalb einer Standardabweichung</strong> vom Mittelwert.
+                </p>
+                <ul className="space-y-1.5 text-xs text-amber-700">
+                  <li><span className="font-medium">Basis-Quadratmeterpreis:</span> Eine Standardabweichung von 500 €/m² bei 3.000 €/m² Erwartungswert zeigt die Streuung der Vergleichspreise. Mehr Vergleichsdaten = kleinere Standardabweichung.</li>
+                  <li><span className="font-medium">Lagefaktor:</span> Eine kleine Standardabweichung (z.B. 0,05) bedeutet, dass Sie die Lage gut einschätzen können. Bei Unsicherheit über die Mikrolage wählen Sie 0,1 oder mehr.</li>
+                  <li><span className="font-medium">Zustandsfaktor:</span> Bei Gebäuden ohne Gutachten sollte die Standardabweichung höher sein (z.B. 0,1-0,15), da versteckte Mängel möglich sind.</li>
+                  <li><span className="font-medium">Ausstattungsfaktor:</span> Die Ausstattung ist meist gut sichtbar – eine kleine Standardabweichung (0,05) ist oft angemessen.</li>
+                  <li><span className="font-medium">Marktanpassungsfaktor:</span> In volatilen Märkten sollte die Standardabweichung höher sein (0,1+). Bei stabilen Märkten genügen 0,03-0,05.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           <DistributionInput
             label="Basis-Quadratmeterpreis"
             value={vergleichswert.basePricePerSqm}

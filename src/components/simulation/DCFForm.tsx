@@ -59,6 +59,28 @@ export function DCFForm() {
             </div>
           </div>
 
+          {/* Erklärung der Standardabweichung */}
+          <div className="bg-amber-50 rounded-lg p-4 text-sm border border-amber-200">
+            <div className="flex items-start space-x-2">
+              <Info className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-amber-900 mb-2">Was bedeutet die Standardabweichung?</h4>
+                <p className="text-xs text-amber-800 mb-2">
+                  Die Standardabweichung zeigt, wie stark ein Wert typischerweise vom Erwartungswert abweicht.
+                  Je größer die Standardabweichung, desto unsicherer ist Ihre Schätzung. <strong>Bei der Normalverteilung
+                  liegen etwa 68% aller Werte innerhalb einer Standardabweichung</strong> vom Mittelwert.
+                </p>
+                <ul className="space-y-1.5 text-xs text-amber-700">
+                  <li><span className="font-medium">Anfangs-Monatsmiete:</span> Bei bestehenden Mietverträgen ist die Standardabweichung klein (z.B. 5% der Miete). Bei Neuvermietung oder Leerstand kann sie 10-20% betragen.</li>
+                  <li><span className="font-medium">Jährliche Mietsteigerung:</span> Eine Standardabweichung von 0,5% bei 2% Erwartung bedeutet: Die Steigerung liegt meist zwischen 1,5-2,5%. In unsicheren Märkten wählen Sie 1% oder mehr.</li>
+                  <li><span className="font-medium">Diskontierungssatz:</span> Kritischer Parameter! Eine Standardabweichung von 0,5% kann den DCF-Wert um 5-10% verändern. Seien Sie bei der Schätzung konservativ.</li>
+                  <li><span className="font-medium">Exit-Cap-Rate:</span> Da der Terminal Value oft 50%+ des DCF-Werts ausmacht, ist dieser Parameter sehr sensibel. Eine Standardabweichung von 0,5% ist bei Prognosen über 5+ Jahre realistisch.</li>
+                  <li><span className="font-medium">Betriebskostenquote:</span> Bei gut dokumentierten Objekten wählen Sie eine kleine Standardabweichung (1-2%). Bei unbekannten Objekten oder älteren Gebäuden 3-5%.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           <DistributionInput
             label="Anfangs-Monatsmiete (gesamt)"
             value={dcf.initialMonthlyRent}

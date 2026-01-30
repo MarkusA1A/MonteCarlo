@@ -95,6 +95,28 @@ export function MieteinnahmenForm() {
             </div>
           </div>
 
+          {/* Erklärung der Standardabweichung */}
+          <div className="bg-amber-50 rounded-lg p-4 text-sm border border-amber-200">
+            <div className="flex items-start space-x-2">
+              <Info className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-amber-900 mb-2">Was bedeutet die Standardabweichung?</h4>
+                <p className="text-xs text-amber-800 mb-2">
+                  Die Standardabweichung zeigt, wie stark ein Wert typischerweise vom Erwartungswert abweicht.
+                  Je größer die Standardabweichung, desto unsicherer ist Ihre Schätzung. <strong>Bei der Normalverteilung
+                  liegen etwa 68% aller Werte innerhalb einer Standardabweichung</strong> vom Mittelwert.
+                </p>
+                <ul className="space-y-1.5 text-xs text-amber-700">
+                  <li><span className="font-medium">Monatsmiete:</span> Eine Standardabweichung von 1 €/m² bei 12 €/m² Erwartungswert bedeutet: Die Miete liegt mit 68% Wahrscheinlichkeit zwischen 11-13 €/m².</li>
+                  <li><span className="font-medium">Leerstandsquote:</span> Eine hohe Standardabweichung (z.B. 3% bei 5% Erwartung) deutet auf unsichere Vermietbarkeit hin – etwa bei Spezialimmobilien oder schwankender Nachfrage.</li>
+                  <li><span className="font-medium">Instandhaltungskosten:</span> Ältere Gebäude haben typischerweise eine höhere Standardabweichung, da unvorhergesehene Reparaturen wahrscheinlicher sind.</li>
+                  <li><span className="font-medium">Verwaltungskosten:</span> Diese sind meist stabil – eine kleine Standardabweichung (z.B. 0,5%) ist hier realistisch.</li>
+                  <li><span className="font-medium">Kapitalisierungszinssatz:</span> Der wichtigste Parameter! Eine Standardabweichung von 0,5% kann den Immobilienwert um 10-15% verändern.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           <DistributionInput
             label="Monatsmiete pro m²"
             value={mieteinnahmen.monthlyRentPerSqm}
