@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 import { SensitivityResult } from '../../types';
 import { formatCurrency } from '../../lib/statistics';
+import { Info } from 'lucide-react';
 
 interface TornadoChartProps {
   data: SensitivityResult[];
@@ -125,6 +126,38 @@ export function TornadoChart({ data, title = 'Sensitivitätsanalyse', exportMode
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-green-500 rounded opacity-70" />
             <span className="text-gray-600">+20%</span>
+          </div>
+        </div>
+      )}
+
+      {/* Erläuterung für Nicht-Fachkundige */}
+      {!exportMode && (
+        <div className="mt-6 bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <div className="flex items-start space-x-2">
+            <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <h4 className="font-medium text-blue-900 mb-2">So lesen Sie diese Grafik</h4>
+              <div className="space-y-2 text-xs text-blue-800">
+                <p>
+                  <strong>Was zeigt die Sensitivitätsanalyse?</strong> Sie zeigt, welche Eingabeparameter
+                  den größten Einfluss auf den berechneten Immobilienwert haben.
+                </p>
+                <p>
+                  <strong>Je länger der Balken, desto wichtiger der Parameter.</strong> Parameter ganz
+                  oben haben den größten Einfluss auf das Ergebnis – hier lohnt es sich, besonders
+                  sorgfältig zu schätzen.
+                </p>
+                <p>
+                  <strong>Rot vs. Grün:</strong> Der rote Bereich zeigt, wie der Immobilienwert sinkt,
+                  wenn der Parameter um 20% fällt. Der grüne Bereich zeigt den Anstieg bei +20%.
+                </p>
+                <p>
+                  <strong>Praktischer Nutzen:</strong> Konzentrieren Sie Ihre Recherche auf die Parameter
+                  mit den längsten Balken. Kleine Fehler bei diesen Werten haben große Auswirkungen
+                  auf die Bewertung.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}
