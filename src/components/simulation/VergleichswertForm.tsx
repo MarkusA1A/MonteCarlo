@@ -2,11 +2,42 @@ import { useSimulationStore } from '../../store/simulationStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Switch } from '../ui/Switch';
 import { DistributionInput } from './DistributionInput';
-import { Info } from 'lucide-react';
+import { Info, Calculator } from 'lucide-react';
+import { getDistributionStats } from '../../lib/distributions';
+import { formatCurrency } from '../../lib/statistics';
 
 export function VergleichswertForm() {
   const { params, setVergleichswertParams, updateVergleichswertDistribution } = useSimulationStore();
-  const { vergleichswert } = params;
+  const { vergleichswert, property } = params;
+
+  // Verteilungsstatistiken holen
+  const basePriceStats = getDistributionStats(vergleichswert.basePricePerSqm);
+  const locationStats = getDistributionStats(vergleichswert.locationFactor);
+  const conditionStats = getDistributionStats(vergleichswert.conditionFactor);
+  const equipmentStats = getDistributionStats(vergleichswert.equipmentFactor);
+  const marketStats = getDistributionStats(vergleichswert.marketAdjustmentFactor);
+
+  // Berechnete Gesamtpreise (Min | Erwartet | Max)
+  // Basis-Gesamtpreis (nur Fläche × Basispreis)
+  const baseTotal = {
+    min: basePriceStats.p5 * property.area,
+    expected: basePriceStats.expectedMean * property.area,
+    max: basePriceStats.p95 * property.area,
+  };
+
+  // Angepasster Quadratmeterpreis (alle Faktoren)
+  const adjustedPricePerSqm = {
+    min: basePriceStats.p5 * locationStats.p5 * conditionStats.p5 * equipmentStats.p5 * marketStats.p5,
+    expected: basePriceStats.expectedMean * locationStats.expectedMean * conditionStats.expectedMean * equipmentStats.expectedMean * marketStats.expectedMean,
+    max: basePriceStats.p95 * locationStats.p95 * conditionStats.p95 * equipmentStats.p95 * marketStats.p95,
+  };
+
+  // Angepasster Gesamtpreis
+  const adjustedTotal = {
+    min: adjustedPricePerSqm.min * property.area,
+    expected: adjustedPricePerSqm.expected * property.area,
+    max: adjustedPricePerSqm.max * property.area,
+  };
 
   return (
     <Card>
@@ -64,36 +95,92 @@ export function VergleichswertForm() {
             value={vergleichswert.basePricePerSqm}
             onChange={(dist) => updateVergleichswertDistribution('basePricePerSqm', dist)}
             unit="€/m²"
-            hint="Durchschnittspreis aus Vergleichstransaktionen in der Region"
+            hint="Durchschnittspreis aus Vergleichstransaktionen · Empfehlung: Dreiecksverteilung (bei bekannter Preisspanne aus Kaufpreissammlung) oder Log-Normal (bei wenigen Vergleichsdaten mit möglichen Ausreißern)"
           />
+
+          {/* Berechneter Basis-Gesamtpreis */}
+          <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+            <div className="flex items-center space-x-2 mb-3">
+              <Calculator className="w-4 h-4 text-green-600" />
+              <span className="text-xs font-medium text-green-800">Berechneter Basis-Gesamtpreis ({property.area} m² Nutzfläche)</span>
+            </div>
+
+            {/* Header */}
+            <div className="grid grid-cols-4 gap-2 mb-2 text-xs text-green-600">
+              <div></div>
+              <div className="text-center">Min (P5)</div>
+              <div className="text-center font-medium">Erwartet</div>
+              <div className="text-center">Max (P95)</div>
+            </div>
+
+            {/* Basis-Gesamtpreis */}
+            <div className="grid grid-cols-4 gap-2 items-center">
+              <div className="text-xs text-green-700">Gesamtpreis</div>
+              <div className="text-xs text-center text-green-800">{formatCurrency(baseTotal.min)}</div>
+              <div className="text-sm text-center font-semibold text-green-900">{formatCurrency(baseTotal.expected)}</div>
+              <div className="text-xs text-center text-green-800">{formatCurrency(baseTotal.max)}</div>
+            </div>
+          </div>
 
           <DistributionInput
             label="Lagefaktor"
             value={vergleichswert.locationFactor}
             onChange={(dist) => updateVergleichswertDistribution('locationFactor', dist)}
-            hint="1.0 = durchschnittlich, <1 = schlechter, >1 = besser als Vergleichsobjekte"
+            hint="1.0 = durchschnittlich · Empfehlung: Normalverteilung (symmetrische Einschätzung um den Referenzwert 1.0)"
           />
 
           <DistributionInput
             label="Zustandsfaktor"
             value={vergleichswert.conditionFactor}
             onChange={(dist) => updateVergleichswertDistribution('conditionFactor', dist)}
-            hint="1.0 = altersgemäß, <1 = Sanierungsbedarf, >1 = überdurchschnittlich"
+            hint="1.0 = altersgemäß · Empfehlung: Dreiecksverteilung (klare Grenzen durch Gutachten möglich) oder Normalverteilung bei guter Kenntnis des Zustands"
           />
 
           <DistributionInput
             label="Ausstattungsfaktor"
             value={vergleichswert.equipmentFactor}
             onChange={(dist) => updateVergleichswertDistribution('equipmentFactor', dist)}
-            hint="1.0 = Standard, <1 = einfach, >1 = gehoben/hochwertig"
+            hint="1.0 = Standard · Empfehlung: Normalverteilung (Ausstattung ist meist gut einschätzbar mit symmetrischer Unsicherheit)"
           />
 
           <DistributionInput
             label="Marktanpassungsfaktor"
             value={vergleichswert.marketAdjustmentFactor}
             onChange={(dist) => updateVergleichswertDistribution('marketAdjustmentFactor', dist)}
-            hint="Korrektur für Marktentwicklung seit den Vergleichstransaktionen"
+            hint="Korrektur für Marktentwicklung · Empfehlung: Gleichverteilung (bei hoher Marktunsicherheit) oder Normalverteilung (bei stabilen Markttrends)"
           />
+
+          {/* Berechneter angepasster Gesamtpreis */}
+          <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
+            <div className="flex items-center space-x-2 mb-3">
+              <Calculator className="w-4 h-4 text-purple-600" />
+              <span className="text-xs font-medium text-purple-800">Angepasster Gesamtpreis (inkl. aller Faktoren)</span>
+            </div>
+
+            {/* Header */}
+            <div className="grid grid-cols-4 gap-2 mb-2 text-xs text-purple-600">
+              <div></div>
+              <div className="text-center">Min (P5)</div>
+              <div className="text-center font-medium">Erwartet</div>
+              <div className="text-center">Max (P95)</div>
+            </div>
+
+            {/* Angepasster m²-Preis */}
+            <div className="grid grid-cols-4 gap-2 items-center mb-1">
+              <div className="text-xs text-purple-700">m²-Preis</div>
+              <div className="text-xs text-center text-purple-800">{formatCurrency(adjustedPricePerSqm.min)}</div>
+              <div className="text-sm text-center font-semibold text-purple-900">{formatCurrency(adjustedPricePerSqm.expected)}</div>
+              <div className="text-xs text-center text-purple-800">{formatCurrency(adjustedPricePerSqm.max)}</div>
+            </div>
+
+            {/* Angepasster Gesamtpreis */}
+            <div className="grid grid-cols-4 gap-2 items-center">
+              <div className="text-xs text-purple-700">Gesamtpreis</div>
+              <div className="text-xs text-center text-purple-800">{formatCurrency(adjustedTotal.min)}</div>
+              <div className="text-sm text-center font-semibold text-purple-900">{formatCurrency(adjustedTotal.expected)}</div>
+              <div className="text-xs text-center text-purple-800">{formatCurrency(adjustedTotal.max)}</div>
+            </div>
+          </div>
 
           {/* Formel-Erklärung */}
           <div className="bg-blue-50 rounded-lg p-4 text-sm">

@@ -100,7 +100,7 @@ export function MieteinnahmenForm() {
             value={mieteinnahmen.monthlyRentPerSqm}
             onChange={(dist) => updateMieteinnahmenDistribution('monthlyRentPerSqm', dist)}
             unit="€/m²"
-            hint="Ortsübliche Vergleichsmiete"
+            hint="Ortsübliche Vergleichsmiete · Empfehlung: Dreiecksverteilung (wenn Min/Max aus Mietspiegel bekannt) oder Normalverteilung (bei guter Marktkenntnis)"
           />
 
           {/* Berechnete Mieten */}
@@ -140,7 +140,7 @@ export function MieteinnahmenForm() {
             value={mieteinnahmen.vacancyRate}
             onChange={(dist) => updateMieteinnahmenDistribution('vacancyRate', dist)}
             unit="%"
-            hint="Erwarteter Leerstand pro Jahr"
+            hint="Erwarteter Leerstand pro Jahr · Empfehlung: Log-Normalverteilung (kann nicht negativ sein, Ausreißer nach oben bei Problemimmobilien möglich)"
           />
 
           <DistributionInput
@@ -148,7 +148,7 @@ export function MieteinnahmenForm() {
             value={mieteinnahmen.maintenanceCosts}
             onChange={(dist) => updateMieteinnahmenDistribution('maintenanceCosts', dist)}
             unit="%"
-            hint="Anteil der Bruttomiete"
+            hint="Anteil der Bruttomiete · Empfehlung: Dreiecksverteilung (klare Unter-/Obergrenzen je nach Gebäudealter) oder Log-Normal (bei älteren Objekten mit Überraschungspotenzial)"
           />
 
           <DistributionInput
@@ -156,7 +156,7 @@ export function MieteinnahmenForm() {
             value={mieteinnahmen.managementCosts}
             onChange={(dist) => updateMieteinnahmenDistribution('managementCosts', dist)}
             unit="%"
-            hint="Anteil der Bruttomiete"
+            hint="Anteil der Bruttomiete · Empfehlung: Normalverteilung (relativ stabile Kosten mit geringer Schwankung)"
           />
 
           {/* Berechnete Kosten */}
@@ -196,7 +196,7 @@ export function MieteinnahmenForm() {
             value={mieteinnahmen.capitalizationRate}
             onChange={(dist) => updateMieteinnahmenDistribution('capitalizationRate', dist)}
             unit="%"
-            hint="Liegenschaftszins für die Kapitalisierung"
+            hint="Liegenschaftszins für die Kapitalisierung · Empfehlung: Normalverteilung (symmetrische Unsicherheit) oder Dreiecksverteilung (wenn Bandbreite aus Gutachterausschuss bekannt)"
           />
 
           {/* Formel-Erklärung */}

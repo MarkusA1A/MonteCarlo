@@ -64,7 +64,7 @@ export function DCFForm() {
             value={dcf.initialMonthlyRent}
             onChange={(dist) => updateDCFDistribution('initialMonthlyRent', dist)}
             unit="€"
-            hint="Gesamte monatliche Mieteinnahmen zum Start"
+            hint="Gesamte monatliche Mieteinnahmen zum Start · Empfehlung: Normalverteilung (bei bestehenden Mietverträgen) oder Dreiecksverteilung (bei Neuvermietung mit Preisspanne)"
           />
 
           <DistributionInput
@@ -72,7 +72,7 @@ export function DCFForm() {
             value={dcf.annualRentGrowth}
             onChange={(dist) => updateDCFDistribution('annualRentGrowth', dist)}
             unit="%"
-            hint="Erwartete jährliche Steigerung der Mieteinnahmen"
+            hint="Erwartete jährliche Steigerung · Empfehlung: Normalverteilung (orientiert an Inflationserwartung) oder Gleichverteilung (bei hoher Unsicherheit über Marktentwicklung)"
           />
 
           <DistributionInput
@@ -80,7 +80,7 @@ export function DCFForm() {
             value={dcf.discountRate}
             onChange={(dist) => updateDCFDistribution('discountRate', dist)}
             unit="%"
-            hint="Erwartete Rendite / Opportunitätskosten"
+            hint="Erwartete Rendite / Opportunitätskosten · Empfehlung: Normalverteilung (WACC-basiert mit symmetrischer Unsicherheit) oder Dreiecksverteilung (bei bekannten Renditeerwartungen)"
           />
 
           <DistributionInput
@@ -88,7 +88,7 @@ export function DCFForm() {
             value={dcf.exitCapRate}
             onChange={(dist) => updateDCFDistribution('exitCapRate', dist)}
             unit="%"
-            hint="Kapitalisierungszinssatz beim Verkauf"
+            hint="Kapitalisierungszinssatz beim Verkauf · Empfehlung: Normalverteilung (symmetrische Unsicherheit um Markterwartung) oder Dreiecksverteilung (konservativ mit höherem Maximum)"
           />
 
           <NumericInput
@@ -107,7 +107,7 @@ export function DCFForm() {
             value={dcf.operatingExpenseRatio}
             onChange={(dist) => updateDCFDistribution('operatingExpenseRatio', dist)}
             unit="%"
-            hint="Anteil der Mieteinnahmen für Betriebskosten"
+            hint="Anteil der Mieteinnahmen für Betriebskosten · Empfehlung: Dreiecksverteilung (Erfahrungswerte definieren klare Grenzen) oder Log-Normal (bei älteren Objekten mit Kostensteigerungspotenzial)"
           />
 
           {/* Formel-Erklärung */}
