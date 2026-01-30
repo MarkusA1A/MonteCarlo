@@ -4,7 +4,8 @@ import { HistogramChart } from './HistogramChart';
 import { TornadoChart } from './TornadoChart';
 import { MethodComparisonChart } from './MethodComparisonChart';
 import { Card } from '../ui/Card';
-import { Building2, Calendar, Hash } from 'lucide-react';
+import { Building2, Calendar, Hash, Lightbulb } from 'lucide-react';
+import { formatCurrency } from '../../lib/statistics';
 
 export function ResultsPanel() {
   const { results } = useSimulationStore();
@@ -60,6 +61,9 @@ export function ResultsPanel() {
 
       {/* Haupt-Statistiken */}
       <StatisticsCards stats={results.combinedStats} title="Kombinierter Immobilienwert" />
+
+      {/* Interpretation */}
+      <InterpretationCard results={results} />
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -119,6 +123,104 @@ export function ResultsPanel() {
         </div>
       )}
     </div>
+  );
+}
+
+function InterpretationCard({ results }: { results: import('../../types').SimulationResults }) {
+  const { params, combinedStats, sensitivityAnalysis, mieteinnahmenStats, vergleichswertStats, dcfStats } = results;
+  const cv = combinedStats.coefficientOfVariation;
+  const range = combinedStats.percentile90 - combinedStats.percentile10;
+  const rangePercent = (range / combinedStats.mean * 100).toFixed(0);
+
+  // Bestimme Unsicherheitslevel
+  let uncertaintyLevel: string;
+  let uncertaintyColor: string;
+  let uncertaintyBg: string;
+  if (cv < 15) {
+    uncertaintyLevel = 'gering';
+    uncertaintyColor = 'text-green-700';
+    uncertaintyBg = 'bg-green-50 border-green-200';
+  } else if (cv < 25) {
+    uncertaintyLevel = 'moderat';
+    uncertaintyColor = 'text-amber-700';
+    uncertaintyBg = 'bg-amber-50 border-amber-200';
+  } else {
+    uncertaintyLevel = 'hoch';
+    uncertaintyColor = 'text-red-700';
+    uncertaintyBg = 'bg-red-50 border-red-200';
+  }
+
+  // Zähle aktive Methoden
+  const methods: string[] = [];
+  if (params.mieteinnahmen?.enabled) methods.push('Ertragswertverfahren');
+  if (params.vergleichswert?.enabled) methods.push('Vergleichswertverfahren');
+  if (params.dcf?.enabled) methods.push('DCF-Modell');
+
+  // Finde dominante Einflussfaktoren
+  const topFactors = sensitivityAnalysis?.slice(0, 3).map((s) => s.label) || [];
+
+  // Berechne Methodenabweichungen
+  let methodComparison = '';
+  const methodStats = [
+    { name: 'Ertragswertverfahren', stats: mieteinnahmenStats },
+    { name: 'Vergleichswertverfahren', stats: vergleichswertStats },
+    { name: 'DCF-Modell', stats: dcfStats },
+  ].filter(m => m.stats);
+
+  if (methodStats.length > 1) {
+    const means = methodStats.map(m => m.stats!.mean);
+    const maxDiff = Math.max(...means) - Math.min(...means);
+    const maxDiffPercent = (maxDiff / combinedStats.mean * 100).toFixed(0);
+
+    if (Number(maxDiffPercent) > 20) {
+      methodComparison = `Die Bewertungsmethoden weichen um bis zu ${maxDiffPercent}% voneinander ab, was auf unterschiedliche Werttreiber hindeutet.`;
+    } else {
+      methodComparison = `Die verschiedenen Bewertungsmethoden liefern konsistente Ergebnisse (max. ${maxDiffPercent}% Abweichung).`;
+    }
+  }
+
+  return (
+    <Card>
+      <div className="flex items-start space-x-4">
+        <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <Lightbulb className="w-5 h-5 text-amber-600" />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">Interpretation</h3>
+          <div className="space-y-3 text-sm text-gray-600">
+            <p>
+              Basierend auf {params.numberOfSimulations.toLocaleString('de-DE')} Monte-Carlo-Simulationen wird der
+              Marktwert der Immobilie auf <span className="font-semibold text-[#0066FF]">{formatCurrency(combinedStats.mean)}</span> geschätzt.
+            </p>
+
+            <p>
+              Mit einer <span className="font-medium">80%igen Wahrscheinlichkeit</span> liegt der tatsächliche Wert zwischen{' '}
+              {formatCurrency(combinedStats.percentile10)} und {formatCurrency(combinedStats.percentile90)}{' '}
+              (Spanne: {rangePercent}% des Mittelwerts).
+            </p>
+
+            <div className={`inline-flex items-center px-3 py-1.5 rounded-lg border ${uncertaintyBg}`}>
+              <span className="text-gray-600 mr-2">Bewertungsunsicherheit:</span>
+              <span className={`font-semibold ${uncertaintyColor}`}>{uncertaintyLevel}</span>
+              <span className="text-gray-500 ml-2">(CV: {cv.toFixed(1)}%)</span>
+            </div>
+
+            {methods.length > 0 && (
+              <p>
+                Die Bewertung basiert auf {methods.length === 1 ? methods[0] : methods.length === 2 ? methods.join(' und ') : methods.slice(0, -1).join(', ') + ' und ' + methods[methods.length - 1]}.
+                {methodComparison && ` ${methodComparison}`}
+              </p>
+            )}
+
+            {topFactors.length > 0 && (
+              <p>
+                <span className="font-medium">Wichtigste Einflussfaktoren:</span> {topFactors.join(', ')}.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </Card>
   );
 }
 

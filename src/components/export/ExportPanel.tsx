@@ -170,33 +170,33 @@ export function ExportPanel() {
             padding: 20px;
           }
           .report {
-            max-width: 1100px;
+            max-width: 800px;
             margin: 0 auto;
           }
           .header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
             border-bottom: 3px solid #0066FF;
           }
           .header h1 {
             color: #0066FF;
-            font-size: 28px;
-            margin-bottom: 5px;
+            font-size: 24px;
+            margin-bottom: 3px;
           }
           .header p {
             color: #6b7280;
-            font-size: 16px;
+            font-size: 14px;
           }
           section {
-            margin-bottom: 25px;
+            margin-bottom: 16px;
             page-break-inside: avoid;
           }
           h2 {
-            font-size: 18px;
+            font-size: 15px;
             color: #1a1a1a;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
             border-bottom: 1px solid #e5e7eb;
           }
           .grid {
@@ -219,47 +219,47 @@ export function ExportPanel() {
           .highlight-box {
             background: #eff6ff;
             border-radius: 8px;
-            padding: 20px;
+            padding: 14px;
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
           }
           .highlight-box .label {
-            font-size: 14px;
+            font-size: 12px;
             color: #6b7280;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
           }
           .highlight-box .value {
-            font-size: 32px;
+            font-size: 26px;
             font-weight: bold;
             color: #0066FF;
           }
           .highlight-box .subtitle {
-            font-size: 13px;
+            font-size: 11px;
             color: #6b7280;
-            margin-top: 8px;
+            margin-top: 5px;
           }
           .stat-box {
             background: #f9fafb;
             border-radius: 6px;
-            padding: 12px;
+            padding: 8px;
             text-align: center;
           }
           .stat-box .label {
-            font-size: 11px;
+            font-size: 10px;
             color: #6b7280;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
           }
           .stat-box .value {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 600;
           }
           table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
+            font-size: 11px;
           }
           th, td {
-            padding: 8px;
+            padding: 5px 6px;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
           }
@@ -305,11 +305,11 @@ export function ExportPanel() {
             font-weight: 500;
           }
           .percentile-bar {
-            height: 40px;
+            height: 30px;
             background: #f3f4f6;
-            border-radius: 8px;
+            border-radius: 6px;
             position: relative;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
           }
           .p10-p90 {
             position: absolute;
@@ -342,36 +342,48 @@ export function ExportPanel() {
             font-weight: 500;
           }
           footer {
-            margin-top: 40px;
-            padding-top: 15px;
+            margin-top: 20px;
+            padding-top: 10px;
             border-top: 1px solid #e5e7eb;
             text-align: center;
-            font-size: 11px;
+            font-size: 10px;
             color: #9ca3af;
           }
           /* Two-column layout for charts */
           .charts-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            gap: 20px;
             page-break-inside: avoid;
           }
           .charts-row section {
             margin-bottom: 0;
           }
           .charts-row h2 {
-            font-size: 16px;
+            font-size: 14px;
+            margin-bottom: 10px;
           }
           .charts-row .bar-container {
-            margin-bottom: 4px;
+            margin-bottom: 2px;
           }
           .charts-row .bar-label {
-            width: 70px;
-            font-size: 10px;
+            width: 55px;
+            font-size: 9px;
           }
           .charts-row .bar-value {
-            width: 50px;
-            font-size: 10px;
+            width: 40px;
+            font-size: 9px;
+          }
+          .charts-row .bar-track {
+            height: 14px;
+          }
+          /* Compact interpretation */
+          .interpretation {
+            font-size: 11px;
+            line-height: 1.5;
+          }
+          .interpretation p {
+            margin-bottom: 6px;
           }
           /* Force print colors */
           * {
@@ -380,8 +392,8 @@ export function ExportPanel() {
             color-adjust: exact !important;
           }
           @page {
-            size: A4 landscape;
-            margin: 15mm;
+            size: A4 portrait;
+            margin: 12mm;
           }
           @media print {
             body { padding: 0; }
@@ -430,7 +442,7 @@ export function ExportPanel() {
 
           <section>
             <h2>Interpretation</h2>
-            <div style="font-size:13px;line-height:1.6;color:#374151;">
+            <div class="interpretation" style="color:#374151;">
               ${generateInterpretationHTML(results, params, combinedStats)}
             </div>
           </section>
