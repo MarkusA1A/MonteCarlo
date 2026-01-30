@@ -4,9 +4,9 @@ import { sampleDistribution } from '../distributions';
 /**
  * Ertragswertverfahren / Mieteinnahmen-Modell
  *
- * Berechnet den Immobilienwert basierend auf den zu erwartenden Mieteinnahmen.
- * Verwendet das Gordon Growth Model für ewige Rente mit Wachstum:
- * Formel: Wert = Jahresreinertrag / (Kapitalisierungszinssatz - Wachstumsrate)
+ * Berechnet den Immobilienwert basierend auf den aktuellen Mieteinnahmen.
+ * Klassisches Ertragswertverfahren ohne Wachstumskomponente:
+ * Formel: Wert = Jahresreinertrag / Kapitalisierungszinssatz
  */
 export function calculateMieteinnahmenValue(
   property: PropertyData,
@@ -15,14 +15,9 @@ export function calculateMieteinnahmenValue(
   // Parameter samplen
   const monthlyRentPerSqm = sampleDistribution(params.monthlyRentPerSqm);
   const vacancyRate = sampleDistribution(params.vacancyRate) / 100; // In Dezimal
-  const annualRentIncrease = sampleDistribution(params.annualRentIncrease) / 100; // In Dezimal
   const maintenanceCostRate = sampleDistribution(params.maintenanceCosts) / 100;
   const managementCostRate = sampleDistribution(params.managementCosts) / 100;
-  const capRate = sampleDistribution(params.capitalizationRate) / 100;
-
-  // Validierung: Cap Rate muss größer als Wachstumsrate sein (Gordon Growth Model)
-  // Minimum 0.5% effektive Rate um Division durch ~0 zu vermeiden
-  const effectiveCapRate = Math.max(capRate - annualRentIncrease, 0.005);
+  const capRate = Math.max(sampleDistribution(params.capitalizationRate) / 100, 0.005); // Min 0.5%
 
   // Brutto-Jahresmiete
   const grossAnnualRent = monthlyRentPerSqm * property.area * 12;
@@ -34,11 +29,11 @@ export function calculateMieteinnahmenValue(
   const maintenanceCosts = effectiveGrossIncome * maintenanceCostRate;
   const managementCosts = effectiveGrossIncome * managementCostRate;
 
-  // Nettoertrag
+  // Nettoertrag (Jahresreinertrag)
   const netOperatingIncome = effectiveGrossIncome - maintenanceCosts - managementCosts;
 
-  // Kapitalisierung mit Gordon Growth Model
-  const propertyValue = netOperatingIncome / effectiveCapRate;
+  // Kapitalisierung: Wert = NOI / Cap Rate
+  const propertyValue = netOperatingIncome / capRate;
 
   return Math.max(0, propertyValue);
 }
@@ -48,7 +43,7 @@ export function calculateMieteinnahmenValue(
  */
 export function calculateMieteinnahmenDetailed(
   property: PropertyData,
-  params: MieteinnahmenParams,
+  _params: MieteinnahmenParams,
   samples: {
     monthlyRentPerSqm: number;
     vacancyRate: number;

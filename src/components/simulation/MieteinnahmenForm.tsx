@@ -52,7 +52,6 @@ export function MieteinnahmenForm() {
                 <ul className="space-y-1.5 text-xs text-gray-600">
                   <li><span className="font-medium text-gray-700">Monatsmiete pro m²:</span> Ortsübliche Vergleichsmiete laut Mietspiegel oder Marktrecherche. Typische Werte: 8-20 €/m² je nach Lage und Ausstattung.</li>
                   <li><span className="font-medium text-gray-700">Leerstandsquote:</span> Erwarteter durchschnittlicher Leerstand über die Nutzungsdauer. Typische Werte: 2-5% (gute Lage) bis 10-15% (schwache Lage).</li>
-                  <li><span className="font-medium text-gray-700">Jährliche Mietsteigerung:</span> Erwartete langfristige Mietentwicklung, orientiert an Inflation und Markttrend. Typische Werte: 1-3% p.a.</li>
                   <li><span className="font-medium text-gray-700">Instandhaltungskosten:</span> Jährliche Rücklagen für Reparaturen und Wartung. Typische Werte: 8-15% der Bruttomiete je nach Alter.</li>
                   <li><span className="font-medium text-gray-700">Verwaltungskosten:</span> Kosten für Hausverwaltung, Buchhaltung, etc. Typische Werte: 2-5% der Bruttomiete.</li>
                   <li><span className="font-medium text-gray-700">Kapitalisierungszinssatz:</span> Auch Liegenschaftszins genannt. Spiegelt Renditeerwartung und Risiko wider. Typische Werte: 3-6% je nach Lage und Objektart.</li>
@@ -75,14 +74,6 @@ export function MieteinnahmenForm() {
             onChange={(dist) => updateMieteinnahmenDistribution('vacancyRate', dist)}
             unit="%"
             hint="Erwarteter Leerstand pro Jahr"
-          />
-
-          <DistributionInput
-            label="Jährliche Mietsteigerung"
-            value={mieteinnahmen.annualRentIncrease}
-            onChange={(dist) => updateMieteinnahmenDistribution('annualRentIncrease', dist)}
-            unit="%"
-            hint="Langfristige Mietentwicklung"
           />
 
           <DistributionInput
