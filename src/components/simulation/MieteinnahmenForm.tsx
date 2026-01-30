@@ -10,17 +10,38 @@ export function MieteinnahmenForm() {
   const { params, setMieteinnahmenParams, updateMieteinnahmenDistribution } = useSimulationStore();
   const { mieteinnahmen, property } = params;
 
-  // Berechnete Werte basierend auf Erwartungswerten
-  const rentPerSqm = getDistributionStats(mieteinnahmen.monthlyRentPerSqm).expectedMean;
-  const vacancyRate = getDistributionStats(mieteinnahmen.vacancyRate).expectedMean / 100;
-  const maintenanceRate = getDistributionStats(mieteinnahmen.maintenanceCosts).expectedMean / 100;
-  const managementRate = getDistributionStats(mieteinnahmen.managementCosts).expectedMean / 100;
+  // Verteilungsstatistiken holen
+  const rentStats = getDistributionStats(mieteinnahmen.monthlyRentPerSqm);
+  const vacancyStats = getDistributionStats(mieteinnahmen.vacancyRate);
+  const maintenanceStats = getDistributionStats(mieteinnahmen.maintenanceCosts);
+  const managementStats = getDistributionStats(mieteinnahmen.managementCosts);
 
-  const monthlyRent = rentPerSqm * property.area;
-  const annualRent = monthlyRent * 12;
-  const effectiveRent = annualRent * (1 - vacancyRate);
-  const maintenanceCostsEuro = effectiveRent * maintenanceRate;
-  const managementCostsEuro = effectiveRent * managementRate;
+  // Berechnete Mieten (Min | Erwartet | Max)
+  const monthlyRent = {
+    min: rentStats.p5 * property.area,
+    expected: rentStats.expectedMean * property.area,
+    max: rentStats.p95 * property.area,
+  };
+  const annualRent = {
+    min: monthlyRent.min * 12,
+    expected: monthlyRent.expected * 12,
+    max: monthlyRent.max * 12,
+  };
+
+  // Effektive Miete nach Leerstand (für Kosten-Berechnung)
+  const effectiveRentExpected = annualRent.expected * (1 - vacancyStats.expectedMean / 100);
+
+  // Berechnete Kosten (Min | Erwartet | Max)
+  const maintenanceCosts = {
+    min: effectiveRentExpected * (maintenanceStats.p5 / 100),
+    expected: effectiveRentExpected * (maintenanceStats.expectedMean / 100),
+    max: effectiveRentExpected * (maintenanceStats.p95 / 100),
+  };
+  const managementCosts = {
+    min: effectiveRentExpected * (managementStats.p5 / 100),
+    expected: effectiveRentExpected * (managementStats.expectedMean / 100),
+    max: effectiveRentExpected * (managementStats.p95 / 100),
+  };
 
   return (
     <Card>
@@ -84,19 +105,33 @@ export function MieteinnahmenForm() {
 
           {/* Berechnete Mieten */}
           <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-            <div className="flex items-center space-x-2 mb-2">
+            <div className="flex items-center space-x-2 mb-3">
               <Calculator className="w-4 h-4 text-green-600" />
               <span className="text-xs font-medium text-green-800">Berechnete Miete ({property.area} m² Nutzfläche)</span>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-xs text-green-600">Monatsmiete (brutto)</div>
-                <div className="text-sm font-semibold text-green-900">{formatCurrency(monthlyRent)}</div>
-              </div>
-              <div>
-                <div className="text-xs text-green-600">Jahresmiete (brutto)</div>
-                <div className="text-sm font-semibold text-green-900">{formatCurrency(annualRent)}</div>
-              </div>
+
+            {/* Header */}
+            <div className="grid grid-cols-4 gap-2 mb-2 text-xs text-green-600">
+              <div></div>
+              <div className="text-center">Min (P5)</div>
+              <div className="text-center font-medium">Erwartet</div>
+              <div className="text-center">Max (P95)</div>
+            </div>
+
+            {/* Monatsmiete */}
+            <div className="grid grid-cols-4 gap-2 items-center mb-1">
+              <div className="text-xs text-green-700">Monatsmiete</div>
+              <div className="text-xs text-center text-green-800">{formatCurrency(monthlyRent.min)}</div>
+              <div className="text-sm text-center font-semibold text-green-900">{formatCurrency(monthlyRent.expected)}</div>
+              <div className="text-xs text-center text-green-800">{formatCurrency(monthlyRent.max)}</div>
+            </div>
+
+            {/* Jahresmiete */}
+            <div className="grid grid-cols-4 gap-2 items-center">
+              <div className="text-xs text-green-700">Jahresmiete</div>
+              <div className="text-xs text-center text-green-800">{formatCurrency(annualRent.min)}</div>
+              <div className="text-sm text-center font-semibold text-green-900">{formatCurrency(annualRent.expected)}</div>
+              <div className="text-xs text-center text-green-800">{formatCurrency(annualRent.max)}</div>
             </div>
           </div>
 
@@ -126,19 +161,33 @@ export function MieteinnahmenForm() {
 
           {/* Berechnete Kosten */}
           <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
-            <div className="flex items-center space-x-2 mb-2">
+            <div className="flex items-center space-x-2 mb-3">
               <Calculator className="w-4 h-4 text-orange-600" />
               <span className="text-xs font-medium text-orange-800">Berechnete Kosten (p.a., basierend auf effektiver Miete)</span>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-xs text-orange-600">Instandhaltung</div>
-                <div className="text-sm font-semibold text-orange-900">{formatCurrency(maintenanceCostsEuro)}</div>
-              </div>
-              <div>
-                <div className="text-xs text-orange-600">Verwaltung</div>
-                <div className="text-sm font-semibold text-orange-900">{formatCurrency(managementCostsEuro)}</div>
-              </div>
+
+            {/* Header */}
+            <div className="grid grid-cols-4 gap-2 mb-2 text-xs text-orange-600">
+              <div></div>
+              <div className="text-center">Min (P5)</div>
+              <div className="text-center font-medium">Erwartet</div>
+              <div className="text-center">Max (P95)</div>
+            </div>
+
+            {/* Instandhaltung */}
+            <div className="grid grid-cols-4 gap-2 items-center mb-1">
+              <div className="text-xs text-orange-700">Instandhaltung</div>
+              <div className="text-xs text-center text-orange-800">{formatCurrency(maintenanceCosts.min)}</div>
+              <div className="text-sm text-center font-semibold text-orange-900">{formatCurrency(maintenanceCosts.expected)}</div>
+              <div className="text-xs text-center text-orange-800">{formatCurrency(maintenanceCosts.max)}</div>
+            </div>
+
+            {/* Verwaltung */}
+            <div className="grid grid-cols-4 gap-2 items-center">
+              <div className="text-xs text-orange-700">Verwaltung</div>
+              <div className="text-xs text-center text-orange-800">{formatCurrency(managementCosts.min)}</div>
+              <div className="text-sm text-center font-semibold text-orange-900">{formatCurrency(managementCosts.expected)}</div>
+              <div className="text-xs text-center text-orange-800">{formatCurrency(managementCosts.max)}</div>
             </div>
           </div>
 
