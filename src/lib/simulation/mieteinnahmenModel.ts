@@ -1,5 +1,6 @@
-import { MieteinnahmenParams, PropertyData } from '../../types';
+import { MieteinnahmenParams, PropertyData, Distribution } from '../../types';
 import { sampleDistribution } from '../distributions';
+import { generateCorrelatedMieteinnahmenSamples } from '../correlation';
 
 /**
  * Ertragswertverfahren / Mieteinnahmen-Modell
@@ -7,17 +8,48 @@ import { sampleDistribution } from '../distributions';
  * Berechnet den Immobilienwert basierend auf den aktuellen Mieteinnahmen.
  * Klassisches Ertragswertverfahren ohne Wachstumskomponente:
  * Formel: Wert = Jahresreinertrag / Kapitalisierungszinssatz
+ *
+ * NEU: Unterstützt korrelierte Zufallsvariablen für realistischere Szenarien.
+ * Die Korrelationsmatrix basiert auf empirischen Zusammenhängen zwischen
+ * Miete, Leerstand, Instandhaltung und Kapitalisierungszins.
+ *
+ * Fat-Tail-Logik: Bei hohem Cap Rate (Krisenszenario) wird der Leerstand verstärkt.
  */
 export function calculateMieteinnahmenValue(
   property: PropertyData,
-  params: MieteinnahmenParams
+  params: MieteinnahmenParams,
+  useCorrelation: boolean = true
 ): number {
-  // Parameter samplen
-  const monthlyRentPerSqm = sampleDistribution(params.monthlyRentPerSqm);
-  const vacancyRate = sampleDistribution(params.vacancyRate) / 100; // In Dezimal
-  const maintenanceCostRate = sampleDistribution(params.maintenanceCosts) / 100;
-  const managementCostRate = sampleDistribution(params.managementCosts) / 100;
-  const capRate = Math.max(sampleDistribution(params.capitalizationRate) / 100, 0.005); // Min 0.5%
+  let monthlyRentPerSqm: number;
+  let vacancyRate: number;
+  let maintenanceCostRate: number;
+  let capRate: number;
+  let managementCostRate: number;
+
+  if (useCorrelation) {
+    // Korrelierte Samples generieren
+    const correlatedSamples = generateCorrelatedMieteinnahmenSamples({
+      monthlyRentPerSqm: convertDistribution(params.monthlyRentPerSqm),
+      vacancyRate: convertDistribution(params.vacancyRate),
+      maintenanceCosts: convertDistribution(params.maintenanceCosts),
+      capitalizationRate: convertDistribution(params.capitalizationRate),
+    });
+
+    monthlyRentPerSqm = correlatedSamples.monthlyRentPerSqm;
+    vacancyRate = correlatedSamples.vacancyRate / 100; // In Dezimal
+    maintenanceCostRate = correlatedSamples.maintenanceCostRate / 100;
+    capRate = Math.max(correlatedSamples.capRate / 100, 0.005); // Min 0.5%
+
+    // Verwaltungskosten bleiben unkorreliert (weniger volatil)
+    managementCostRate = sampleDistribution(params.managementCosts) / 100;
+  } else {
+    // Fallback: Unkorrelierte Samples (Original-Verhalten)
+    monthlyRentPerSqm = sampleDistribution(params.monthlyRentPerSqm);
+    vacancyRate = sampleDistribution(params.vacancyRate) / 100;
+    maintenanceCostRate = sampleDistribution(params.maintenanceCosts) / 100;
+    managementCostRate = sampleDistribution(params.managementCosts) / 100;
+    capRate = Math.max(sampleDistribution(params.capitalizationRate) / 100, 0.005);
+  }
 
   // Brutto-Jahresmiete
   const grossAnnualRent = monthlyRentPerSqm * property.area * 12;
@@ -36,6 +68,19 @@ export function calculateMieteinnahmenValue(
   const propertyValue = netOperatingIncome / capRate;
 
   return Math.max(0, propertyValue);
+}
+
+/**
+ * Konvertiert ein Distribution-Objekt in das Format für die Korrelationsfunktion
+ */
+function convertDistribution(dist: Distribution): {
+  type: 'normal' | 'triangular' | 'uniform' | 'lognormal';
+  params: Record<string, number>;
+} {
+  return {
+    type: dist.type,
+    params: dist.params as Record<string, number>,
+  };
 }
 
 /**
