@@ -34,7 +34,7 @@ export function Header({ sidebarOpen, onToggleSidebar, showMenuButton }: HeaderP
             {showMenuButton && (
               <button
                 onClick={onToggleSidebar}
-                className="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                className="md:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 active:bg-gray-200 rounded-lg transition-colors"
               >
                 {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -61,12 +61,12 @@ export function Header({ sidebarOpen, onToggleSidebar, showMenuButton }: HeaderP
                     onClick={() => !isDisabled && setActiveTab(tab.id)}
                     disabled={isDisabled}
                     className={`
-                      flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-md transition-all duration-200
+                      flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 min-h-[44px]
                       ${isActive
                         ? 'bg-white text-gray-900 shadow-sm'
                         : isDisabled
                           ? 'text-gray-400 cursor-not-allowed'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 active:bg-gray-100'
                       }
                     `}
                   >
@@ -81,10 +81,10 @@ export function Header({ sidebarOpen, onToggleSidebar, showMenuButton }: HeaderP
           {/* Settings - Rechts */}
           <button
             onClick={handleSettingsClick}
-            className={`flex-shrink-0 p-2 rounded-lg transition-colors ${
+            className={`flex-shrink-0 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors ${
               isSettingsActive
                 ? 'text-[#0066FF] bg-blue-50'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 active:bg-gray-200'
             }`}
           >
             <Settings className="w-5 h-5" />

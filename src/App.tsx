@@ -40,7 +40,7 @@ function App() {
             onClose={() => setSidebarOpen(false)}
           />
         )}
-        <main className={`flex-1 p-4 sm:p-6 ${activeTab === 'input' ? 'lg:ml-0' : 'max-w-7xl mx-auto'}`}>
+        <main className={`flex-1 p-4 sm:p-6 ${activeTab === 'input' ? 'md:ml-0' : 'max-w-7xl mx-auto'}`}>
           {renderContent()}
         </main>
       </div>

@@ -30,10 +30,10 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile Overlay */}
+      {/* Mobile/Tablet Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/20 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/20 z-40 md:hidden"
           onClick={onClose}
         />
       )}
@@ -41,13 +41,13 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed lg:relative inset-y-0 left-0 z-50 lg:z-auto
+          fixed md:relative inset-y-0 left-0 z-50 md:z-auto
           w-64 bg-white border-r border-gray-200
           transform transition-transform duration-300 ease-in-out
-          lg:transform-none lg:transition-none
-          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          top-14 sm:top-16 lg:top-0
-          h-[calc(100vh-56px)] sm:h-[calc(100vh-64px)] lg:min-h-[calc(100vh-64px)]
+          md:transform-none md:transition-none
+          ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          top-14 sm:top-16 md:top-0
+          h-[calc(100vh-56px)] sm:h-[calc(100vh-64px)] md:min-h-[calc(100vh-64px)]
         `}
       >
         <nav className="p-4 space-y-1">
@@ -60,11 +60,11 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                 key={section.id}
                 onClick={() => handleSectionClick(section.id)}
                 className={`
-                  w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                  transition-all duration-200
+                  w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-sm font-medium
+                  transition-all duration-200 min-h-[44px]
                   ${isActive
                     ? 'bg-[#0066FF]/10 text-[#0066FF]'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100'
                   }
                 `}
               >
