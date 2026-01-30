@@ -4,6 +4,9 @@ import { useSimulationStore } from '../../store/simulationStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { formatCurrency } from '../../lib/statistics';
+import { HistogramChart } from '../results/HistogramChart';
+import { MethodComparisonChart } from '../results/MethodComparisonChart';
+import { TornadoChart } from '../results/TornadoChart';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -190,10 +193,10 @@ export function ExportPanel() {
         }
       };
 
-      // Charts hinzufügen
-      await addChartToPage('chart-histogram', 'Verteilung der Immobilienwerte');
-      await addChartToPage('chart-method-comparison', 'Methodenvergleich');
-      await addChartToPage('chart-tornado', 'Sensitivitätsanalyse');
+      // Charts hinzufügen (verwende export-spezifische IDs)
+      await addChartToPage('export-chart-histogram', 'Verteilung der Immobilienwerte');
+      await addChartToPage('export-chart-method-comparison', 'Methodenvergleich');
+      await addChartToPage('export-chart-tornado', 'Sensitivitätsanalyse');
 
       // Footer auf letzter Seite
       const lastPageHeight = doc.internal.pageSize.getHeight();
@@ -304,6 +307,24 @@ export function ExportPanel() {
           </p>
         </div>
       </Card>
+
+      {/* Versteckte Charts für PDF-Export */}
+      <div className="absolute left-[-9999px] top-0 w-[800px]" aria-hidden="true">
+        <div id="export-chart-histogram">
+          <HistogramChart data={results.histogram} stats={combinedStats} />
+        </div>
+        <div id="export-chart-method-comparison">
+          <MethodComparisonChart
+            mieteinnahmenStats={mieteinnahmenStats}
+            vergleichswertStats={vergleichswertStats}
+            dcfStats={dcfStats}
+            combinedStats={combinedStats}
+          />
+        </div>
+        <div id="export-chart-tornado">
+          <TornadoChart data={results.sensitivityAnalysis} />
+        </div>
+      </div>
     </div>
   );
 }
