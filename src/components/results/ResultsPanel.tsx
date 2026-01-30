@@ -132,7 +132,7 @@ function InterpretationCard({ results }: { results: import('../../types').Simula
   const range = combinedStats.percentile90 - combinedStats.percentile10;
   const rangePercent = (range / combinedStats.mean * 100).toFixed(0);
 
-  // Bestimme Unsicherheitslevel
+  // Bestimme Unsicherheitslevel basierend auf Variationskoeffizient
   let uncertaintyLevel: string;
   let uncertaintyColor: string;
   let uncertaintyBg: string;
@@ -148,6 +148,21 @@ function InterpretationCard({ results }: { results: import('../../types').Simula
     uncertaintyLevel = 'hoch';
     uncertaintyColor = 'text-red-700';
     uncertaintyBg = 'bg-red-50 border-red-200';
+  }
+
+  // Standardabweichung als Prozent des Mittelwerts
+  const stdDevPercent = ((combinedStats.stdDev / combinedStats.mean) * 100).toFixed(1);
+  let stdDevColor: string;
+  let stdDevBg: string;
+  if (Number(stdDevPercent) < 15) {
+    stdDevColor = 'text-green-700';
+    stdDevBg = 'bg-green-50 border-green-200';
+  } else if (Number(stdDevPercent) < 25) {
+    stdDevColor = 'text-amber-700';
+    stdDevBg = 'bg-amber-50 border-amber-200';
+  } else {
+    stdDevColor = 'text-red-700';
+    stdDevBg = 'bg-red-50 border-red-200';
   }
 
   // Zähle aktive Methoden
@@ -199,10 +214,17 @@ function InterpretationCard({ results }: { results: import('../../types').Simula
               (Spanne: {rangePercent}% des Mittelwerts).
             </p>
 
-            <div className={`inline-flex items-center px-3 py-1.5 rounded-lg border ${uncertaintyBg}`}>
-              <span className="text-gray-600 mr-2">Bewertungsunsicherheit:</span>
-              <span className={`font-semibold ${uncertaintyColor}`}>{uncertaintyLevel}</span>
-              <span className="text-gray-500 ml-2">(CV: {cv.toFixed(1)}%)</span>
+            <div className="flex flex-wrap gap-3">
+              <div className={`inline-flex items-center px-3 py-1.5 rounded-lg border ${uncertaintyBg}`}>
+                <span className="text-gray-600 mr-2">Bewertungsunsicherheit:</span>
+                <span className={`font-semibold ${uncertaintyColor}`}>{uncertaintyLevel}</span>
+                <span className="text-gray-500 ml-2">(Variationskoeffizient: {cv.toFixed(1)}%)</span>
+              </div>
+              <div className={`inline-flex items-center px-3 py-1.5 rounded-lg border ${stdDevBg}`}>
+                <span className="text-gray-600 mr-2">Standardabweichung:</span>
+                <span className={`font-semibold ${stdDevColor}`}>{formatCurrency(combinedStats.stdDev)}</span>
+                <span className="text-gray-500 ml-2">({stdDevPercent}% des Mittelwerts)</span>
+              </div>
             </div>
 
             {methods.length > 0 && (

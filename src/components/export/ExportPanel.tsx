@@ -740,7 +740,7 @@ function generateInterpretationHTML(results: any, params: any, combinedStats: an
   const range = combinedStats.percentile90 - combinedStats.percentile10;
   const rangePercent = (range / combinedStats.mean * 100).toFixed(0);
 
-  // Bestimme Unsicherheitslevel
+  // Bestimme Unsicherheitslevel basierend auf Variationskoeffizient
   let uncertaintyLevel: string;
   let uncertaintyColor: string;
   if (cv < 15) {
@@ -752,6 +752,17 @@ function generateInterpretationHTML(results: any, params: any, combinedStats: an
   } else {
     uncertaintyLevel = 'hoch';
     uncertaintyColor = '#EF4444';
+  }
+
+  // Standardabweichung als Prozent des Mittelwerts
+  const stdDevPercent = ((combinedStats.stdDev / combinedStats.mean) * 100).toFixed(1);
+  let stdDevColor: string;
+  if (Number(stdDevPercent) < 15) {
+    stdDevColor = '#10B981';
+  } else if (Number(stdDevPercent) < 25) {
+    stdDevColor = '#F59E0B';
+  } else {
+    stdDevColor = '#EF4444';
   }
 
   // Zähle aktive Methoden
@@ -800,6 +811,9 @@ function generateInterpretationHTML(results: any, params: any, combinedStats: an
       Die Bewertungsunsicherheit ist
       <strong style="color:${uncertaintyColor}">${uncertaintyLevel}</strong>
       (Variationskoeffizient: ${cv.toFixed(1)}%).
+      Die Standardabweichung beträgt
+      <strong style="color:${stdDevColor}">${formatCurrency(combinedStats.stdDev)}</strong>
+      (${stdDevPercent}% des Mittelwerts).
       ${cv >= 25 ? ' Bei einer hohen Unsicherheit empfiehlt sich eine detailliertere Analyse der Eingabeparameter.' : ''}
     </p>
 
