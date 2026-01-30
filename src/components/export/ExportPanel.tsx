@@ -170,7 +170,7 @@ export function ExportPanel() {
             padding: 20px;
           }
           .report {
-            max-width: 800px;
+            max-width: 1100px;
             margin: 0 auto;
           }
           .header {
@@ -349,11 +349,39 @@ export function ExportPanel() {
             font-size: 11px;
             color: #9ca3af;
           }
+          /* Two-column layout for charts */
+          .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            page-break-inside: avoid;
+          }
+          .charts-row section {
+            margin-bottom: 0;
+          }
+          .charts-row h2 {
+            font-size: 16px;
+          }
+          .charts-row .bar-container {
+            margin-bottom: 4px;
+          }
+          .charts-row .bar-label {
+            width: 70px;
+            font-size: 10px;
+          }
+          .charts-row .bar-value {
+            width: 50px;
+            font-size: 10px;
+          }
           /* Force print colors */
           * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
             color-adjust: exact !important;
+          }
+          @page {
+            size: A4 landscape;
+            margin: 15mm;
           }
           @media print {
             body { padding: 0; }
@@ -454,17 +482,19 @@ export function ExportPanel() {
             </table>
           </section>` : ''}
 
-          <section>
-            <h2>Verteilung der Immobilienwerte</h2>
-            ${generateHistogramHTML(results.histogram, combinedStats)}
-          </section>
+          <div class="charts-row">
+            <section>
+              <h2>Verteilung der Immobilienwerte</h2>
+              ${generateHistogramHTML(results.histogram, combinedStats)}
+            </section>
 
-          ${results.sensitivityAnalysis.length > 0 ? `
-          <section>
-            <h2>Sensitivitätsanalyse (Top 8)</h2>
-            <p style="font-size:12px;color:#6b7280;margin-bottom:15px;">Einfluss der Parameter bei ±20% Variation</p>
-            ${generateSensitivityHTML(results.sensitivityAnalysis.slice(0, 8))}
-          </section>` : ''}
+            ${results.sensitivityAnalysis.length > 0 ? `
+            <section>
+              <h2>Sensitivitätsanalyse (Top 8)</h2>
+              <p style="font-size:10px;color:#6b7280;margin-bottom:10px;">Einfluss der Parameter bei ±20% Variation</p>
+              ${generateSensitivityHTML(results.sensitivityAnalysis.slice(0, 8))}
+            </section>` : ''}
+          </div>
 
           <footer>
             <p>Erstellt mit Monte-Carlo Immobilienbewertung v${BUILD_INFO.version}</p>
