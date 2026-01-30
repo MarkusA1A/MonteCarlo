@@ -1,4 +1,4 @@
-import { Lightbulb, TrendingUp, BarChart3, Target, HelpCircle, ChevronRight, AlertTriangle, Scale, Shield, User, Mail, Phone, MapPin, Globe, Award } from 'lucide-react';
+import { Lightbulb, TrendingUp, BarChart3, Target, HelpCircle, ChevronRight, AlertTriangle, Scale, Shield, User, Mail, Phone, MapPin, Globe, Award, Link2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 
 export function InfoPanel() {
@@ -105,6 +105,64 @@ export function InfoPanel() {
                 Je breiter die Streuung, desto unsicherer die Bewertung.
               </p>
             </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Korrelierte Variablen */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+              <Link2 className="w-5 h-5 text-indigo-600" />
+            </div>
+            <CardTitle className="text-base">Korrelierte Variablen - Realistische Szenarien</CardTitle>
+          </div>
+        </CardHeader>
+
+        <div className="space-y-4 text-sm text-gray-600">
+          <p>
+            In der Realitat hangen viele Immobilienparameter zusammen. Diese App berucksichtigt diese
+            <strong className="text-gray-900"> Korrelationen</strong> automatisch beim Ertragswertverfahren:
+          </p>
+
+          <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
+            <h4 className="font-medium text-indigo-900 mb-3">Wie hangen die Parameter zusammen?</h4>
+            <ul className="space-y-2 text-xs text-indigo-800">
+              <li className="flex items-start space-x-2">
+                <span className="font-semibold text-indigo-600 w-6">↗↘</span>
+                <span><strong>Miete ↔ Leerstand:</strong> Hohe Mieten korrelieren mit niedrigem Leerstand (gute Lagen sind begehrt).</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="font-semibold text-indigo-600 w-6">↗↗</span>
+                <span><strong>Leerstand ↔ Kapitalisierungszins:</strong> Hoher Leerstand bedeutet hoheres Risiko und damit hohere Cap Rates.</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="font-semibold text-indigo-600 w-6">↗↘</span>
+                <span><strong>Miete ↔ Kapitalisierungszins:</strong> Prime-Lagen mit hohen Mieten haben niedrigere Cap Rates (weniger Risiko).</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="font-semibold text-indigo-600 w-6">↗↗</span>
+                <span><strong>Leerstand ↔ Instandhaltung:</strong> Objekte mit hohem Leerstand haben oft auch hoheren Instandhaltungsbedarf.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+            <h4 className="font-medium text-red-900 mb-2">Fat-Tail-Logik: Krisenszenarien</h4>
+            <p className="text-xs text-red-800">
+              Die Simulation berucksichtigt <strong>Marktkrisen</strong>: Wenn der Kapitalisierungszins extrem
+              hoch ausfallt (oberste 5% der Verteilung), wird der Leerstand zusatzlich um den Faktor 1,5 verstarkt.
+              Dies simuliert realistische Abschwungszenarien, in denen mehrere negative Faktoren gleichzeitig auftreten.
+            </p>
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-3">
+            <p className="text-xs text-gray-600">
+              <strong className="text-gray-900">Technischer Hintergrund:</strong> Die Korrelationen werden mittels
+              Cholesky-Zerlegung der Korrelationsmatrix berechnet. So werden unabhangige Zufallsvariablen in
+              korrelierte transformiert, was zu realistischeren Szenarien fuhrt als unkorrelierte Simulationen.
+            </p>
           </div>
         </div>
       </Card>
