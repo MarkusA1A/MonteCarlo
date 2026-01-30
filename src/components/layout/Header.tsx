@@ -9,7 +9,14 @@ interface HeaderProps {
 }
 
 export function Header({ sidebarOpen, onToggleSidebar, showMenuButton }: HeaderProps) {
-  const { activeTab, setActiveTab, status } = useSimulationStore();
+  const { activeTab, activeInputSection, setActiveTab, setActiveInputSection, status } = useSimulationStore();
+
+  const handleSettingsClick = () => {
+    setActiveTab('input');
+    setActiveInputSection('settings');
+  };
+
+  const isSettingsActive = activeTab === 'input' && activeInputSection === 'settings';
 
   const tabs: { id: ActiveTab; label: string; icon: typeof Building2 }[] = [
     { id: 'input', label: 'Eingabe', icon: Building2 },
@@ -70,7 +77,14 @@ export function Header({ sidebarOpen, onToggleSidebar, showMenuButton }: HeaderP
           </nav>
 
           {/* Settings */}
-          <button className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+          <button
+            onClick={handleSettingsClick}
+            className={`p-2 rounded-lg transition-colors ${
+              isSettingsActive
+                ? 'text-[#0066FF] bg-blue-50'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+            }`}
+          >
             <Settings className="w-5 h-5" />
           </button>
         </div>
