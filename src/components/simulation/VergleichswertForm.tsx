@@ -12,10 +12,10 @@ export function VergleichswertForm() {
 
   // Verteilungsstatistiken holen
   const basePriceStats = getDistributionStats(vergleichswert.basePricePerSqm);
-  const locationStats = getDistributionStats(vergleichswert.locationFactor);
-  const conditionStats = getDistributionStats(vergleichswert.conditionFactor);
-  const equipmentStats = getDistributionStats(vergleichswert.equipmentFactor);
-  const marketStats = getDistributionStats(vergleichswert.marketAdjustmentFactor);
+  const locationStats = getDistributionStats(vergleichswert.locationAdjustment);
+  const conditionStats = getDistributionStats(vergleichswert.conditionAdjustment);
+  const equipmentStats = getDistributionStats(vergleichswert.equipmentAdjustment);
+  const marketStats = getDistributionStats(vergleichswert.marketAdjustment);
 
   // Berechnete Gesamtpreise (Min | Erwartet | Max)
   // Basis-Gesamtpreis (nur Fläche × Basispreis)
@@ -25,11 +25,18 @@ export function VergleichswertForm() {
     max: basePriceStats.p95 * property.area,
   };
 
-  // Angepasster Quadratmeterpreis (alle Faktoren)
+  // Gesamtanpassung in Prozent (additiv gemäß ImmoWertV)
+  const totalAdjustment = {
+    min: locationStats.p5 + conditionStats.p5 + equipmentStats.p5 + marketStats.p5,
+    expected: locationStats.expectedMean + conditionStats.expectedMean + equipmentStats.expectedMean + marketStats.expectedMean,
+    max: locationStats.p95 + conditionStats.p95 + equipmentStats.p95 + marketStats.p95,
+  };
+
+  // Angepasster Quadratmeterpreis (additive Formel)
   const adjustedPricePerSqm = {
-    min: basePriceStats.p5 * locationStats.p5 * conditionStats.p5 * equipmentStats.p5 * marketStats.p5,
-    expected: basePriceStats.expectedMean * locationStats.expectedMean * conditionStats.expectedMean * equipmentStats.expectedMean * marketStats.expectedMean,
-    max: basePriceStats.p95 * locationStats.p95 * conditionStats.p95 * equipmentStats.p95 * marketStats.p95,
+    min: basePriceStats.p5 * (1 + totalAdjustment.min / 100),
+    expected: basePriceStats.expectedMean * (1 + totalAdjustment.expected / 100),
+    max: basePriceStats.p95 * (1 + totalAdjustment.max / 100),
   };
 
   // Angepasster Gesamtpreis
@@ -39,6 +46,12 @@ export function VergleichswertForm() {
     max: adjustedPricePerSqm.max * property.area,
   };
 
+  // Formatierung der Prozentanpassung
+  const formatAdjustment = (value: number) => {
+    const sign = value >= 0 ? '+' : '';
+    return `${sign}${value.toFixed(1)}%`;
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -46,7 +59,7 @@ export function VergleichswertForm() {
           <div>
             <CardTitle>Vergleichswertverfahren</CardTitle>
             <CardDescription>
-              Bewertung anhand vergleichbarer Transaktionen
+              Bewertung anhand vergleichbarer Transaktionen (ImmoWertV-konform)
             </CardDescription>
           </div>
           <Switch
@@ -74,17 +87,21 @@ export function VergleichswertForm() {
             </div>
           </div>
 
-          {/* Erklärung der Faktoren */}
+          {/* Erklärung der Zu-/Abschläge gemäß ImmoWertV */}
           <div className="bg-gray-50 rounded-lg p-4 text-sm border border-gray-200">
             <div className="flex items-start space-x-2">
               <Info className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">Erläuterung der Anpassungsfaktoren</h4>
+                <h4 className="font-medium text-gray-900 mb-2">Zu- und Abschläge gemäß ImmoWertV</h4>
+                <p className="text-xs text-gray-600 mb-2">
+                  Die Anpassungen werden als <strong>Prozent-Zu-/Abschläge addiert</strong> (nicht multipliziert).
+                  Die Summe aller Anpassungen sollte gemäß ImmoWertV <strong>unter 35%</strong> liegen.
+                </p>
                 <ul className="space-y-1.5 text-xs text-gray-600">
-                  <li><span className="font-medium text-gray-700">Lagefaktor:</span> Berücksichtigt Mikro- und Makrolage (Infrastruktur, Verkehrsanbindung, Nachbarschaft). Werte: 0.8 (schlecht) bis 1.3 (sehr gut).</li>
-                  <li><span className="font-medium text-gray-700">Zustandsfaktor:</span> Bewertet den baulichen Zustand und Sanierungsbedarf. Werte: 0.7 (sanierungsbedürftig) bis 1.2 (neuwertig).</li>
-                  <li><span className="font-medium text-gray-700">Ausstattungsfaktor:</span> Erfasst Qualität der Ausstattung (Böden, Sanitär, Küche, Heizung). Werte: 0.9 (einfach) bis 1.3 (gehoben).</li>
-                  <li><span className="font-medium text-gray-700">Marktanpassung:</span> Korrektur für zeitliche Unterschiede und aktuelle Marktdynamik. Werte: 0.9 (schwacher Markt) bis 1.2 (starker Markt).</li>
+                  <li><span className="font-medium text-gray-700">Lageanpassung:</span> Berücksichtigt Mikro- und Makrolage. Typische Werte: -20% (schlecht) bis +30% (sehr gut).</li>
+                  <li><span className="font-medium text-gray-700">Zustandsanpassung:</span> Bewertet baulichen Zustand und Sanierungsbedarf. Typische Werte: -30% (sanierungsbedürftig) bis +20% (neuwertig).</li>
+                  <li><span className="font-medium text-gray-700">Ausstattungsanpassung:</span> Erfasst Qualität der Ausstattung. Typische Werte: -10% (einfach) bis +30% (gehoben).</li>
+                  <li><span className="font-medium text-gray-700">Marktanpassung:</span> Korrektur für Marktentwicklung seit Vergleichstransaktion. Typische Werte: -10% bis +20%.</li>
                 </ul>
               </div>
             </div>
@@ -103,10 +120,10 @@ export function VergleichswertForm() {
                 </p>
                 <ul className="space-y-1.5 text-xs text-amber-700">
                   <li><span className="font-medium">Basis-Quadratmeterpreis:</span> Eine Standardabweichung von 500 €/m² bei 3.000 €/m² Erwartungswert zeigt die Streuung der Vergleichspreise. Mehr Vergleichsdaten = kleinere Standardabweichung.</li>
-                  <li><span className="font-medium">Lagefaktor:</span> Eine kleine Standardabweichung (z.B. 0,05) bedeutet, dass Sie die Lage gut einschätzen können. Bei Unsicherheit über die Mikrolage wählen Sie 0,1 oder mehr.</li>
-                  <li><span className="font-medium">Zustandsfaktor:</span> Bei Gebäuden ohne Gutachten sollte die Standardabweichung höher sein (z.B. 0,1-0,15), da versteckte Mängel möglich sind.</li>
-                  <li><span className="font-medium">Ausstattungsfaktor:</span> Die Ausstattung ist meist gut sichtbar – eine kleine Standardabweichung (0,05) ist oft angemessen.</li>
-                  <li><span className="font-medium">Marktanpassungsfaktor:</span> In volatilen Märkten sollte die Standardabweichung höher sein (0,1+). Bei stabilen Märkten genügen 0,03-0,05.</li>
+                  <li><span className="font-medium">Lageanpassung:</span> Eine Standardabweichung von 5% bedeutet Unsicherheit bei der Lageeinschätzung. Bei gut bekannter Mikrolage wählen Sie 2-3%.</li>
+                  <li><span className="font-medium">Zustandsanpassung:</span> Bei Gebäuden ohne Gutachten sollte die Standardabweichung höher sein (z.B. 8-10%), da versteckte Mängel möglich sind.</li>
+                  <li><span className="font-medium">Ausstattungsanpassung:</span> Die Ausstattung ist meist gut sichtbar – eine Standardabweichung von 3-5% ist oft angemessen.</li>
+                  <li><span className="font-medium">Marktanpassung:</span> In volatilen Märkten wählen Sie 5-10%. Bei stabilen Märkten genügen 2-3%.</li>
                 </ul>
               </div>
             </div>
@@ -145,38 +162,42 @@ export function VergleichswertForm() {
           </div>
 
           <DistributionInput
-            label="Lagefaktor"
-            value={vergleichswert.locationFactor}
-            onChange={(dist) => updateVergleichswertDistribution('locationFactor', dist)}
-            hint="1.0 = durchschnittlich · Empfehlung: Normalverteilung (symmetrische Einschätzung um den Referenzwert 1.0)"
+            label="Lageanpassung"
+            value={vergleichswert.locationAdjustment}
+            onChange={(dist) => updateVergleichswertDistribution('locationAdjustment', dist)}
+            unit="%"
+            hint="0% = durchschnittliche Lage · Empfehlung: Dreiecksverteilung (bei bekannter Bandbreite) oder Normalverteilung (symmetrische Einschätzung)"
           />
 
           <DistributionInput
-            label="Zustandsfaktor"
-            value={vergleichswert.conditionFactor}
-            onChange={(dist) => updateVergleichswertDistribution('conditionFactor', dist)}
-            hint="1.0 = altersgemäß · Empfehlung: Dreiecksverteilung (klare Grenzen durch Gutachten möglich) oder Normalverteilung bei guter Kenntnis des Zustands"
+            label="Zustandsanpassung"
+            value={vergleichswert.conditionAdjustment}
+            onChange={(dist) => updateVergleichswertDistribution('conditionAdjustment', dist)}
+            unit="%"
+            hint="0% = altersgemäßer Zustand · Empfehlung: Dreiecksverteilung (klare Grenzen durch Gutachten) oder Normalverteilung bei guter Kenntnis"
           />
 
           <DistributionInput
-            label="Ausstattungsfaktor"
-            value={vergleichswert.equipmentFactor}
-            onChange={(dist) => updateVergleichswertDistribution('equipmentFactor', dist)}
-            hint="1.0 = Standard · Empfehlung: Normalverteilung (Ausstattung ist meist gut einschätzbar mit symmetrischer Unsicherheit)"
+            label="Ausstattungsanpassung"
+            value={vergleichswert.equipmentAdjustment}
+            onChange={(dist) => updateVergleichswertDistribution('equipmentAdjustment', dist)}
+            unit="%"
+            hint="0% = Standardausstattung · Empfehlung: Normalverteilung (Ausstattung ist meist gut einschätzbar)"
           />
 
           <DistributionInput
-            label="Marktanpassungsfaktor"
-            value={vergleichswert.marketAdjustmentFactor}
-            onChange={(dist) => updateVergleichswertDistribution('marketAdjustmentFactor', dist)}
-            hint="Korrektur für Marktentwicklung · Empfehlung: Gleichverteilung (bei hoher Marktunsicherheit) oder Normalverteilung (bei stabilen Markttrends)"
+            label="Marktanpassung"
+            value={vergleichswert.marketAdjustment}
+            onChange={(dist) => updateVergleichswertDistribution('marketAdjustment', dist)}
+            unit="%"
+            hint="Korrektur für Marktentwicklung seit Vergleichstransaktion · Empfehlung: Normalverteilung (bei stabilen Trends) oder Gleichverteilung (bei hoher Unsicherheit)"
           />
 
           {/* Berechneter angepasster Gesamtpreis */}
           <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
             <div className="flex items-center space-x-2 mb-3">
               <Calculator className="w-4 h-4 text-purple-600" />
-              <span className="text-xs font-medium text-purple-800">Angepasster Gesamtpreis (inkl. aller Faktoren)</span>
+              <span className="text-xs font-medium text-purple-800">Angepasster Gesamtpreis (ImmoWertV-Methode)</span>
             </div>
 
             {/* Header */}
@@ -185,6 +206,14 @@ export function VergleichswertForm() {
               <div className="text-center">Min (P5)</div>
               <div className="text-center font-medium">Erwartet</div>
               <div className="text-center">Max (P95)</div>
+            </div>
+
+            {/* Gesamtanpassung */}
+            <div className="grid grid-cols-4 gap-2 items-center mb-1">
+              <div className="text-xs text-purple-700">Σ Anpassungen</div>
+              <div className="text-xs text-center text-purple-800">{formatAdjustment(totalAdjustment.min)}</div>
+              <div className="text-sm text-center font-semibold text-purple-900">{formatAdjustment(totalAdjustment.expected)}</div>
+              <div className="text-xs text-center text-purple-800">{formatAdjustment(totalAdjustment.max)}</div>
             </div>
 
             {/* Angepasster m²-Preis */}
@@ -202,17 +231,27 @@ export function VergleichswertForm() {
               <div className="text-sm text-center font-semibold text-purple-900">{formatCurrency(adjustedTotal.expected)}</div>
               <div className="text-xs text-center text-purple-800">{formatCurrency(adjustedTotal.max)}</div>
             </div>
+
+            {/* Warnung bei >35% Anpassung */}
+            {Math.abs(totalAdjustment.expected) > 35 && (
+              <div className="mt-3 p-2 bg-amber-100 rounded border border-amber-300">
+                <p className="text-xs text-amber-800">
+                  <strong>Hinweis:</strong> Die Gesamtanpassung überschreitet 35%. Gemäß ImmoWertV sollten
+                  Vergleichsobjekte mit einer Gesamtanpassung über 35% nicht verwendet werden.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Formel-Erklärung */}
           <div className="bg-blue-50 rounded-lg p-4 text-sm">
-            <h4 className="font-medium text-blue-900 mb-2">Berechnungsformel</h4>
-            <p className="text-blue-800 font-mono text-xs">
-              Wert = Fläche × Basispreis × Lage × Zustand × Ausstattung × Markt
+            <h4 className="font-medium text-blue-900 mb-2">Berechnungsformel (ImmoWertV)</h4>
+            <p className="text-blue-800 font-mono text-xs mb-2">
+              Wert = Fläche × Basispreis × (1 + Lage% + Zustand% + Ausstattung% + Markt%)
             </p>
-            <p className="text-blue-700 mt-2 text-xs">
-              Alle Faktoren werden miteinander multipliziert, um den angepassten
-              Immobilienwert zu ermitteln.
+            <p className="text-blue-700 text-xs">
+              Die Zu- und Abschläge werden gemäß ImmoWertV <strong>addiert</strong> (nicht multipliziert).
+              Der Gesamtanpassungsfaktor ergibt sich aus 1 plus der Summe aller Prozentanpassungen.
             </p>
           </div>
         </div>

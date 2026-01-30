@@ -262,11 +262,11 @@ function runSensitivityAnalysis(params: SimulationParams): SensitivityResult[] {
       },
     }));
 
-    analyzeParameter('locationFactor', 'Lagefaktor', (factor) => ({
+    analyzeParameter('locationAdjustment', 'Lageanpassung', (factor) => ({
       ...params,
       vergleichswert: {
         ...params.vergleichswert,
-        locationFactor: scaleDistribution(params.vergleichswert.locationFactor, factor),
+        locationAdjustment: scaleDistribution(params.vergleichswert.locationAdjustment, factor),
       },
     }));
   }

@@ -2,10 +2,13 @@ import { VergleichswertParams, PropertyData } from '../../types';
 import { sampleDistribution } from '../distributions';
 
 /**
- * Vergleichswertverfahren
+ * Vergleichswertverfahren (ImmoWertV-konform)
  *
  * Berechnet den Immobilienwert basierend auf vergleichbaren Transaktionen.
- * Formel: Wert = Basispreis × Fläche × Lagefaktor × Zustandsfaktor × Ausstattungsfaktor × Marktanpassung
+ * Formel gemäß ImmoWertV: Wert = Basispreis × Fläche × (1 + Σ Anpassungen)
+ *
+ * Die Anpassungen werden als Prozent-Zu-/Abschläge addiert (nicht multipliziert).
+ * Beispiel: Lage +5%, Zustand -10%, Ausstattung +3%, Markt 0% = Gesamtanpassung -2%
  */
 export function calculateVergleichswertValue(
   property: PropertyData,
@@ -13,20 +16,19 @@ export function calculateVergleichswertValue(
 ): number {
   // Parameter samplen
   const basePricePerSqm = sampleDistribution(params.basePricePerSqm);
-  const locationFactor = sampleDistribution(params.locationFactor);
-  const conditionFactor = sampleDistribution(params.conditionFactor);
-  const equipmentFactor = sampleDistribution(params.equipmentFactor);
-  const marketAdjustmentFactor = sampleDistribution(params.marketAdjustmentFactor);
+  const locationAdj = sampleDistribution(params.locationAdjustment) / 100; // In Dezimal
+  const conditionAdj = sampleDistribution(params.conditionAdjustment) / 100;
+  const equipmentAdj = sampleDistribution(params.equipmentAdjustment) / 100;
+  const marketAdj = sampleDistribution(params.marketAdjustment) / 100;
 
   // Basiswert
   const baseValue = basePricePerSqm * property.area;
 
-  // Angepasster Wert
-  const adjustedValue = baseValue
-    * locationFactor
-    * conditionFactor
-    * equipmentFactor
-    * marketAdjustmentFactor;
+  // Gesamtanpassung additiv (ImmoWertV-konform)
+  const totalAdjustment = locationAdj + conditionAdj + equipmentAdj + marketAdj;
+
+  // Angepasster Wert: Basiswert × (1 + Summe der Anpassungen)
+  const adjustedValue = baseValue * (1 + totalAdjustment);
 
   return Math.max(0, adjustedValue);
 }
@@ -38,72 +40,85 @@ export function calculateVergleichswertDetailed(
   property: PropertyData,
   samples: {
     basePricePerSqm: number;
-    locationFactor: number;
-    conditionFactor: number;
-    equipmentFactor: number;
-    marketAdjustmentFactor: number;
+    locationAdjustment: number; // in %
+    conditionAdjustment: number; // in %
+    equipmentAdjustment: number; // in %
+    marketAdjustment: number; // in %
   }
 ): {
   baseValue: number;
-  afterLocation: number;
-  afterCondition: number;
-  afterEquipment: number;
+  totalAdjustmentPercent: number;
+  adjustedPricePerSqm: number;
   finalValue: number;
-  totalAdjustment: number;
+  breakdown: {
+    location: number;
+    condition: number;
+    equipment: number;
+    market: number;
+  };
 } {
-  const { basePricePerSqm, locationFactor, conditionFactor, equipmentFactor, marketAdjustmentFactor } = samples;
+  const { basePricePerSqm, locationAdjustment, conditionAdjustment, equipmentAdjustment, marketAdjustment } = samples;
 
+  // Basiswert
   const baseValue = basePricePerSqm * property.area;
-  const afterLocation = baseValue * locationFactor;
-  const afterCondition = afterLocation * conditionFactor;
-  const afterEquipment = afterCondition * equipmentFactor;
-  const finalValue = afterEquipment * marketAdjustmentFactor;
 
-  const totalAdjustment = locationFactor * conditionFactor * equipmentFactor * marketAdjustmentFactor;
+  // Gesamtanpassung in Prozent (addiert)
+  const totalAdjustmentPercent = locationAdjustment + conditionAdjustment + equipmentAdjustment + marketAdjustment;
+
+  // Angepasster Quadratmeterpreis
+  const adjustedPricePerSqm = basePricePerSqm * (1 + totalAdjustmentPercent / 100);
+
+  // Endwert
+  const finalValue = adjustedPricePerSqm * property.area;
 
   return {
     baseValue,
-    afterLocation,
-    afterCondition,
-    afterEquipment,
+    totalAdjustmentPercent,
+    adjustedPricePerSqm,
     finalValue: Math.max(0, finalValue),
-    totalAdjustment,
+    breakdown: {
+      location: locationAdjustment,
+      condition: conditionAdjustment,
+      equipment: equipmentAdjustment,
+      market: marketAdjustment,
+    },
   };
 }
 
 /**
- * Berechnet typische Anpassungsfaktoren basierend auf Objekteigenschaften
+ * Berechnet typische Anpassungen basierend auf Objekteigenschaften
+ * Gibt Prozent-Werte zurück (z.B. -10 für -10%)
  */
-export function suggestAdjustmentFactors(property: PropertyData): {
-  suggestedConditionFactor: { min: number; mode: number; max: number };
-  suggestedEquipmentFactor: { min: number; mode: number; max: number };
+export function suggestAdjustments(property: PropertyData): {
+  suggestedConditionAdjustment: { min: number; mode: number; max: number };
+  suggestedEquipmentAdjustment: { min: number; mode: number; max: number };
 } {
   const currentYear = new Date().getFullYear();
   const age = currentYear - property.yearBuilt;
 
-  // Zustandsfaktor basierend auf Alter
-  let conditionMode = 1.0;
-  if (age < 5) conditionMode = 1.1;
-  else if (age < 10) conditionMode = 1.05;
-  else if (age < 20) conditionMode = 1.0;
-  else if (age < 40) conditionMode = 0.95;
-  else conditionMode = 0.85;
+  // Zustandsanpassung basierend auf Alter (in %)
+  let conditionMode = 0;
+  if (age < 5) conditionMode = 10; // +10% Zuschlag
+  else if (age < 10) conditionMode = 5;
+  else if (age < 20) conditionMode = 0;
+  else if (age < 40) conditionMode = -5;
+  else conditionMode = -15; // -15% Abschlag
 
-  // Ausstattungsfaktor basierend auf Objekttyp
-  let equipmentMode = 1.0;
-  if (property.propertyType === 'gewerbe') equipmentMode = 1.05;
-  else if (property.propertyType === 'mehrfamilienhaus') equipmentMode = 0.95;
+  // Ausstattungsanpassung basierend auf Objekttyp (in %)
+  let equipmentMode = 0;
+  if (property.propertyType === 'gewerbe') equipmentMode = 5;
+  else if (property.propertyType === 'mehrfamilienhaus') equipmentMode = -5;
 
   return {
-    suggestedConditionFactor: {
-      min: conditionMode - 0.1,
+    suggestedConditionAdjustment: {
+      min: conditionMode - 10,
       mode: conditionMode,
-      max: conditionMode + 0.1,
+      max: conditionMode + 10,
     },
-    suggestedEquipmentFactor: {
-      min: equipmentMode - 0.1,
+    suggestedEquipmentAdjustment: {
+      min: equipmentMode - 10,
       mode: equipmentMode,
-      max: equipmentMode + 0.1,
+      max: equipmentMode + 10,
     },
   };
 }

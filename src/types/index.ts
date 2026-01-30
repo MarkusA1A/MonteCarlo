@@ -33,14 +33,14 @@ export interface MieteinnahmenParams {
   capitalizationRate: Distribution; // %
 }
 
-// Parameter für Vergleichswert-Modell
+// Parameter für Vergleichswert-Modell (ImmoWertV-konform mit additiven Anpassungen)
 export interface VergleichswertParams {
   enabled: boolean;
   basePricePerSqm: Distribution; // €/m²
-  locationFactor: Distribution; // Multiplikator
-  conditionFactor: Distribution; // Multiplikator
-  equipmentFactor: Distribution; // Multiplikator
-  marketAdjustmentFactor: Distribution; // Multiplikator
+  locationAdjustment: Distribution; // % Zu-/Abschlag für Lage
+  conditionAdjustment: Distribution; // % Zu-/Abschlag für Zustand
+  equipmentAdjustment: Distribution; // % Zu-/Abschlag für Ausstattung
+  marketAdjustment: Distribution; // % Zu-/Abschlag für Markt
 }
 
 // Parameter für DCF-Modell
@@ -155,10 +155,10 @@ export const defaultMieteinnahmenParams: MieteinnahmenParams = {
 export const defaultVergleichswertParams: VergleichswertParams = {
   enabled: true,
   basePricePerSqm: defaultDistribution(5000, 800),
-  locationFactor: defaultTriangular(0.9, 1.0, 1.2),
-  conditionFactor: defaultTriangular(0.85, 1.0, 1.1),
-  equipmentFactor: defaultTriangular(0.9, 1.0, 1.15),
-  marketAdjustmentFactor: defaultDistribution(1.0, 0.05),
+  locationAdjustment: defaultTriangular(-10, 0, 20), // % Anpassung für Lage
+  conditionAdjustment: defaultTriangular(-15, 0, 10), // % Anpassung für Zustand
+  equipmentAdjustment: defaultTriangular(-10, 0, 15), // % Anpassung für Ausstattung
+  marketAdjustment: defaultDistribution(0, 5), // % Marktanpassung
 };
 
 export const defaultDCFParams: DCFParams = {
