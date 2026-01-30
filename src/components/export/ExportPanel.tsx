@@ -47,17 +47,37 @@ export function ExportPanel() {
     setIsExporting(true);
 
     try {
-      // Kurz warten damit der DOM fertig gerendert ist
-      await new Promise(resolve => setTimeout(resolve, 100));
-
       const element = printRef.current;
+
+      // Element temporär sichtbar machen für html2canvas
+      const originalStyle = element.getAttribute('style');
+      element.style.position = 'fixed';
+      element.style.top = '0';
+      element.style.left = '0';
+      element.style.width = '800px';
+      element.style.zIndex = '9999';
+      element.style.background = 'white';
+      element.style.opacity = '1';
+
+      // Warten bis das Element gerendert ist
+      await new Promise(resolve => setTimeout(resolve, 300));
+
       const canvas = await html2canvas(element, {
         scale: 2,
         backgroundColor: '#ffffff',
         logging: false,
         useCORS: true,
         allowTaint: true,
+        width: 800,
+        windowWidth: 800,
       });
+
+      // Element wieder verstecken
+      if (originalStyle) {
+        element.setAttribute('style', originalStyle);
+      } else {
+        element.removeAttribute('style');
+      }
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
@@ -441,8 +461,11 @@ export function ExportPanel() {
           </footer>
         </div>
         <script>
+          // Warten bis alles gerendert ist, dann drucken
           window.onload = function() {
-            window.print();
+            setTimeout(function() {
+              window.print();
+            }, 500);
           };
         </script>
       </body>
@@ -557,8 +580,8 @@ export function ExportPanel() {
       {/* Druckbare Version für PDF-Export */}
       <div
         ref={printRef}
-        className={showPreview ? 'border border-gray-300 rounded-lg overflow-hidden' : 'fixed top-0 left-0 w-[800px] bg-white'}
-        style={showPreview ? {} : { left: '-9999px', zIndex: -1 }}
+        className={showPreview ? 'border border-gray-300 rounded-lg overflow-hidden' : 'w-[800px] bg-white'}
+        style={showPreview ? {} : { position: 'absolute', left: '-9999px', top: 0, visibility: 'hidden' }}
       >
         <PrintableReport results={results} />
       </div>
