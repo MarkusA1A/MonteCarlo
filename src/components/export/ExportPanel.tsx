@@ -21,28 +21,10 @@ export function ExportPanel() {
   const [showPreview, setShowPreview] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-  if (!results) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FileText className="w-8 h-8 text-gray-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Keine Daten zum Exportieren
-          </h3>
-          <p className="text-sm text-gray-500">
-            Führen Sie zuerst eine Simulation durch.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const { params, combinedStats } = results;
-
+  // useCallback muss vor allen conditional returns stehen (React Hooks Regel)
   const exportToPDF = useCallback(async () => {
-    if (!printRef.current) return;
+    if (!printRef.current || !results) return;
+    const { params } = results;
 
     setIsExporting(true);
 
@@ -122,9 +104,11 @@ export function ExportPanel() {
     } finally {
       setIsExporting(false);
     }
-  }, [params.property.name]);
+  }, [results]);
 
-  const exportToCSV = () => {
+  const exportToCSV = useCallback(() => {
+    if (!results) return;
+    const { params } = results;
     const rows = [
       ['Simulation Nr.', 'Ertragswert', 'Vergleichswert', 'DCF', 'Kombiniert'],
       ...results.rawResults.map((r, i) => [
@@ -142,9 +126,12 @@ export function ExportPanel() {
     link.href = URL.createObjectURL(blob);
     link.download = `Simulation_${params.property.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
-  };
+  }, [results]);
 
-  const handlePrint = () => {
+  const handlePrint = useCallback(() => {
+    if (!results) return;
+    const { params, combinedStats } = results;
+
     // Öffne neues Fenster mit druckbarem Bericht
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
@@ -532,7 +519,28 @@ export function ExportPanel() {
       </html>
     `);
     printWindow.document.close();
-  };
+  }, [results]);
+
+  // Early return für fehlende Ergebnisse (nach allen Hooks)
+  if (!results) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FileText className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Keine Daten zum Exportieren
+          </h3>
+          <p className="text-sm text-gray-500">
+            Führen Sie zuerst eine Simulation durch.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const { params, combinedStats } = results;
 
   return (
     <div className="space-y-6 no-print">

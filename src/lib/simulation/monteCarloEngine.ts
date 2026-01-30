@@ -9,7 +9,6 @@ import { calculateMieteinnahmenValue } from './mieteinnahmenModel';
 import { calculateVergleichswertValue } from './vergleichswertModel';
 import { calculateDCFValue } from './dcfModel';
 import { calculateStatistics, createHistogram, mean } from '../statistics';
-import { sampleDistribution } from '../distributions';
 
 export type SimulationProgressCallback = (progress: number, currentIteration: number) => void;
 
