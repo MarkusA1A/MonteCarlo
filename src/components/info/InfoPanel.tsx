@@ -165,12 +165,21 @@ export function InfoPanel() {
         <div className="space-y-3 text-sm">
           <ResultExplanation
             term="Mittelwert"
-            description="Der Durchschnitt aller berechneten Werte - Ihr bester Schatzwert."
+            description="Der Durchschnitt aller berechneten Werte. Kann durch einzelne sehr hohe oder niedrige Ausreißer verzerrt werden."
           />
           <ResultExplanation
             term="Median"
-            description="Der mittlere Wert, wenn man alle Ergebnisse sortiert. Oft aussagekraftiger als der Mittelwert."
+            description="Der mittlere Wert, wenn alle Ergebnisse sortiert werden (50% darunter, 50% daruber). Robust gegenuber Ausreißern – zeigt den 'typischen' Wert."
           />
+          <div className="bg-purple-50 rounded-lg p-3 border border-purple-200 text-xs">
+            <p className="font-medium text-purple-900 mb-1">Mittelwert vs. Median – wann welchen nutzen?</p>
+            <p className="text-purple-800">
+              Sind beide ahnlich, ist die Verteilung symmetrisch und beide Werte aussagekraftig.
+              Liegt der <strong>Mittelwert uber dem Median</strong>, gibt es hohe Ausreißer – der Median ist dann konservativer.
+              Liegt der <strong>Mittelwert unter dem Median</strong>, gibt es niedrige Ausreißer.
+              Fur eine <strong>vorsichtige Schatzung</strong> empfiehlt sich oft der Median.
+            </p>
+          </div>
           <ResultExplanation
             term="P10 / P90 (Perzentile)"
             description="P10 bedeutet: 10% der Werte liegen darunter (pessimistisch). P90 bedeutet: 90% liegen darunter (optimistisch)."

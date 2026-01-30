@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, Target, BarChart3 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Target, BarChart3, Info } from 'lucide-react';
 import { Statistics } from '../../types';
 import { formatCurrency } from '../../lib/statistics';
 
@@ -67,6 +67,34 @@ export function StatisticsCards({ stats, title = 'Kombinierter Wert' }: Statisti
             </div>
           );
         })}
+      </div>
+
+      {/* Erklärung Mittelwert vs. Median */}
+      <div className="mt-4 bg-blue-50 rounded-lg p-4 border border-blue-200">
+        <div className="flex items-start space-x-2">
+          <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div>
+            <h4 className="font-medium text-blue-900 mb-2">Was ist der Unterschied zwischen Mittelwert und Median?</h4>
+            <div className="space-y-2 text-xs text-blue-800">
+              <p>
+                <strong>Mittelwert (Durchschnitt):</strong> Die Summe aller simulierten Werte geteilt durch deren Anzahl.
+                Er ist empfindlich gegenüber Ausreißern – einzelne sehr hohe oder sehr niedrige Werte können den
+                Mittelwert stark beeinflussen.
+              </p>
+              <p>
+                <strong>Median (Zentralwert):</strong> Der Wert, der genau in der Mitte liegt, wenn alle Ergebnisse
+                der Größe nach sortiert werden. Er ist robust gegenüber Ausreißern und zeigt den "typischen" Wert.
+              </p>
+              <p className="pt-1 border-t border-blue-200 mt-2">
+                <strong>Wann welchen Wert verwenden?</strong> Wenn Mittelwert und Median ähnlich sind, ist die Verteilung
+                symmetrisch und beide Werte sind aussagekräftig. Liegt der <strong>Mittelwert deutlich über dem Median</strong>,
+                gibt es einige hohe Ausreißer (rechtsschiefe Verteilung) – der Median ist dann der konservativere,
+                realistischere Schätzwert. Liegt der <strong>Mittelwert unter dem Median</strong>, gibt es niedrige
+                Ausreißer (linksschiefe Verteilung).
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Zusätzliche Statistiken */}

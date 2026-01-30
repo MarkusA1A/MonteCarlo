@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 import { HistogramBin, Statistics } from '../../types';
 import { formatCurrency } from '../../lib/statistics';
+import { Info } from 'lucide-react';
 
 interface HistogramChartProps {
   data: HistogramBin[];
@@ -132,6 +133,35 @@ export function HistogramChart({ data, stats, title = 'Verteilung der Immobilien
           <span className="text-gray-600">Über P90</span>
         </div>
       </div>
+
+      {/* Erklärung für Nicht-Fachkundige */}
+      {!exportMode && (
+        <div className="mt-6 bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <div className="flex items-start space-x-2">
+            <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <h4 className="font-medium text-blue-900 mb-2">So lesen Sie dieses Histogramm</h4>
+              <div className="space-y-2 text-xs text-blue-800">
+                <p>
+                  <strong>Was zeigt das Histogramm?</strong> Jeder Balken zeigt, wie oft ein bestimmter
+                  Wertebereich in den {stats.mean > 0 ? Math.round(stats.mean / stats.stdDev * 10000 / 10000).toLocaleString('de-DE') : ''} Simulationen vorkam.
+                  Die höchsten Balken zeigen die wahrscheinlichsten Immobilienwerte.
+                </p>
+                <p>
+                  <strong>Was ist die Median-Linie?</strong> Die blaue gestrichelte Linie markiert den Median –
+                  den Wert, bei dem genau die Hälfte der simulierten Werte darunter und die Hälfte darüber liegt.
+                  Der Median ist weniger empfindlich gegenüber Ausreißern als der Mittelwert.
+                </p>
+                <p>
+                  <strong>P10 und P90 Linien:</strong> P10 (orange) zeigt den pessimistischen Wert – nur 10% der
+                  Simulationen lagen darunter. P90 (grün) zeigt den optimistischen Wert – 90% lagen darunter.
+                  Der Bereich dazwischen enthält 80% aller wahrscheinlichen Werte.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

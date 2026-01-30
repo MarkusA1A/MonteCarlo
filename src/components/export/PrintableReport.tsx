@@ -73,6 +73,16 @@ export function PrintableReport({ results, showHeader = true }: PrintableReportP
           <StatBox label="Minimum" value={formatCurrency(combinedStats.min)} />
           <StatBox label="Maximum" value={formatCurrency(combinedStats.max)} />
         </div>
+
+        {/* Erklärung Mittelwert vs. Median */}
+        <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200" style={{ backgroundColor: '#F9FAFB' }}>
+          <p className="text-xs text-gray-600">
+            <strong className="text-gray-900">Mittelwert vs. Median:</strong> Der Mittelwert (Durchschnitt) kann durch Ausreißer
+            verzerrt werden. Der Median (Zentralwert) zeigt den "typischen" Wert – 50% der simulierten Ergebnisse liegen
+            darunter, 50% darüber. Liegen beide Werte nahe beieinander, ist die Verteilung symmetrisch.
+            Liegt der Mittelwert deutlich über dem Median, gibt es hohe Ausreißer – der Median ist dann der konservativere Schätzwert.
+          </p>
+        </div>
       </section>
 
       {/* Perzentile Übersicht */}
