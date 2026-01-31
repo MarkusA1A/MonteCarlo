@@ -13,25 +13,25 @@ export function InfoPanel() {
             </div>
             <div>
               <CardTitle>Was ist die Monte-Carlo-Simulation?</CardTitle>
-              <CardDescription>Eine einfache Erklarung fur Einsteiger</CardDescription>
+              <CardDescription>Eine einfache Erklärung für Einsteiger</CardDescription>
             </div>
           </div>
         </CardHeader>
 
         <div className="prose prose-sm max-w-none text-gray-600 space-y-4">
           <p>
-            Stellen Sie sich vor, Sie mochten den Wert einer Immobilie schatzen. Normalerweise wurde man
+            Stellen Sie sich vor, Sie möchten den Wert einer Immobilie schätzen. Normalerweise würde man
             einen einzelnen Wert berechnen - zum Beispiel 500.000 Euro. Aber wie sicher ist diese Zahl?
           </p>
           <p>
             Die <strong className="text-gray-900">Monte-Carlo-Simulation</strong> geht einen anderen Weg:
-            Statt einer einzigen Berechnung fuhrt sie <strong className="text-gray-900">tausende Berechnungen</strong> durch,
-            bei denen die Eingabewerte jeweils leicht variieren - so wie es auch in der Realitat der Fall ist.
+            Statt einer einzigen Berechnung führt sie <strong className="text-gray-900">tausende Berechnungen</strong> durch,
+            bei denen die Eingabewerte jeweils leicht variieren - so wie es auch in der Realität der Fall ist.
           </p>
           <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
             <p className="text-[#0066FF] font-medium mb-2">Das Ergebnis:</p>
             <p className="text-gray-700">
-              Sie erhalten nicht nur einen Wert, sondern eine <strong>Bandbreite moglicher Werte</strong> mit
+              Sie erhalten nicht nur einen Wert, sondern eine <strong>Bandbreite möglicher Werte</strong> mit
               Wahrscheinlichkeiten. So wissen Sie zum Beispiel: "Mit 80% Wahrscheinlichkeit liegt der Wert
               zwischen 450.000 und 550.000 Euro."
             </p>
@@ -50,9 +50,9 @@ export function InfoPanel() {
           </div>
         </CardHeader>
         <p className="text-gray-600 text-sm">
-          Der Name kommt vom beruhmten Casino in Monaco. Genau wie beim Glucksspiel spielt der
-          <strong className="text-gray-900"> Zufall</strong> eine zentrale Rolle - die Methode "wurfelt" sozusagen
-          tausende Male mit Ihren Eingabewerten, um alle moglichen Szenarien durchzuspielen.
+          Der Name kommt vom berühmten Casino in Monaco. Genau wie beim Glücksspiel spielt der
+          <strong className="text-gray-900"> Zufall</strong> eine zentrale Rolle - die Methode "würfelt" sozusagen
+          tausende Male mit Ihren Eingabewerten, um alle möglichen Szenarien durchzuspielen.
         </p>
       </Card>
 
@@ -73,10 +73,10 @@ export function InfoPanel() {
               <span className="text-sm font-semibold text-gray-600">1</span>
             </div>
             <div>
-              <p className="font-medium text-gray-900">Sie geben Ihre Schatzungen ein</p>
+              <p className="font-medium text-gray-900">Sie geben Ihre Schätzungen ein</p>
               <p className="text-sm text-gray-600">
-                Fur jeden Parameter (z.B. Mietpreis pro m2) geben Sie nicht nur einen Wert an,
-                sondern auch wie sicher Sie sich sind. Das passiert uber die Verteilung.
+                Für jeden Parameter (z.B. Mietpreis pro m²) geben Sie nicht nur einen Wert an,
+                sondern auch wie sicher Sie sich sind. Das passiert über die Verteilung.
               </p>
             </div>
           </div>
@@ -99,9 +99,9 @@ export function InfoPanel() {
               <span className="text-sm font-semibold text-gray-600">3</span>
             </div>
             <div>
-              <p className="font-medium text-gray-900">Sie erhalten eine fundierte Einschatzung</p>
+              <p className="font-medium text-gray-900">Sie erhalten eine fundierte Einschätzung</p>
               <p className="text-sm text-gray-600">
-                Das Ergebnis zeigt Ihnen den wahrscheinlichsten Wert und wie stark er schwanken konnte.
+                Das Ergebnis zeigt Ihnen den wahrscheinlichsten Wert und wie stark er schwanken könnte.
                 Je breiter die Streuung, desto unsicherer die Bewertung.
               </p>
             </div>
@@ -116,15 +116,15 @@ export function InfoPanel() {
             <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
               <Link2 className="w-5 h-5 text-indigo-600" />
             </div>
-            <CardTitle className="text-base">Warum hangen die Werte zusammen?</CardTitle>
+            <CardTitle className="text-base">Warum hängen die Werte zusammen?</CardTitle>
           </div>
         </CardHeader>
 
         <div className="space-y-4 text-sm text-gray-600">
           <p>
-            In der Realitat passieren gute und schlechte Dinge oft gemeinsam. Eine Immobilie in Top-Lage
-            hat nicht nur hohe Mieten, sondern auch wenig Leerstand. Diese App berucksichtigt solche
-            <strong className="text-gray-900"> Zusammenhange</strong> automatisch - das macht die Ergebnisse realistischer.
+            In der Realität passieren gute und schlechte Dinge oft gemeinsam. Eine Immobilie in Top-Lage
+            hat nicht nur hohe Mieten, sondern auch wenig Leerstand. Diese App berücksichtigt solche
+            <strong className="text-gray-900"> Zusammenhänge</strong> automatisch - das macht die Ergebnisse realistischer.
           </p>
 
           <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
@@ -133,16 +133,16 @@ export function InfoPanel() {
               <li>
                 <strong className="text-indigo-900">Gute Lage = wenig Leerstand:</strong> Wenn die Mieten hoch sind,
                 ist die Lage meist attraktiv - und attraktive Lagen haben wenig Leerstand.
-                Die Simulation berucksichtigt: Hohe Miete und hoher Leerstand gleichzeitig ist unwahrscheinlich.
+                Die Simulation berücksichtigt: Hohe Miete und hoher Leerstand gleichzeitig ist unwahrscheinlich.
               </li>
               <li>
-                <strong className="text-indigo-900">Risiko hangt zusammen:</strong> Wenn viele Wohnungen leer stehen,
-                sehen Kaufer mehr Risiko und erwarten hohere Renditen. Umgekehrt akzeptieren sie bei voll vermieteten
+                <strong className="text-indigo-900">Risiko hängt zusammen:</strong> Wenn viele Wohnungen leer stehen,
+                sehen Käufer mehr Risiko und erwarten höhere Renditen. Umgekehrt akzeptieren sie bei voll vermieteten
                 Objekten niedrigere Renditen.
               </li>
               <li>
-                <strong className="text-indigo-900">Vernachlassigung zeigt sich uberall:</strong> Ein Gebaude mit
-                hohem Leerstand hat oft auch hoheren Sanierungsbedarf - beides sind Zeichen von Vernachlassigung.
+                <strong className="text-indigo-900">Vernachlässigung zeigt sich überall:</strong> Ein Gebäude mit
+                hohem Leerstand hat oft auch höheren Sanierungsbedarf - beides sind Zeichen von Vernachlässigung.
               </li>
             </ul>
           </div>
@@ -150,18 +150,18 @@ export function InfoPanel() {
           <div className="bg-red-50 rounded-lg p-4 border border-red-200">
             <h4 className="font-medium text-red-900 mb-2">Was passiert in einer Krise?</h4>
             <p className="text-xs text-red-800">
-              Die Simulation berucksichtigt auch <strong>Extremszenarien</strong>: In den schlimmsten 5% der
-              simulierten Falle (sehr hohe Renditeerwartungen der Kaufer = Krisenstimmung) wird der Leerstand
-              zusatzlich erhoht. Das bildet ab, was in echten Krisen passiert: Mehrere negative Faktoren
-              treten gleichzeitig auf und verstarken sich gegenseitig.
+              Die Simulation berücksichtigt auch <strong>Extremszenarien</strong>: In den schlimmsten 5% der
+              simulierten Fälle (sehr hohe Renditeerwartungen der Käufer = Krisenstimmung) wird der Leerstand
+              zusätzlich erhöht. Das bildet ab, was in echten Krisen passiert: Mehrere negative Faktoren
+              treten gleichzeitig auf und verstärken sich gegenseitig.
             </p>
           </div>
 
           <div className="bg-green-50 rounded-lg p-3 border border-green-200">
             <p className="text-xs text-green-800">
-              <strong className="text-green-900">Was bedeutet das fur Sie?</strong> Die Ergebnisse dieser Simulation
-              sind realistischer als einfache Berechnungen, weil sie berucksichtigen, dass in guten Zeiten
-              vieles gut lauft - und in schlechten Zeiten vieles gleichzeitig schlecht wird.
+              <strong className="text-green-900">Was bedeutet das für Sie?</strong> Die Ergebnisse dieser Simulation
+              sind realistischer als einfache Berechnungen, weil sie berücksichtigen, dass in guten Zeiten
+              vieles gut läuft - und in schlechten Zeiten vieles gleichzeitig schlecht wird.
             </p>
           </div>
         </div>
@@ -189,22 +189,22 @@ export function InfoPanel() {
           <MethodExplanation
             color="purple"
             title="Vergleichswertverfahren"
-            description="Vergleicht mit ahnlichen Immobilien in der Umgebung. Frage: Was wurden andere fur eine vergleichbare Immobilie zahlen?"
-            example="Beispiel: Ahnliche Wohnungen kosten 5.000 Euro/m2. Bei 100 m2 und guter Lage (Faktor 1,1) = 550.000 Euro."
+            description="Vergleicht mit ähnlichen Immobilien in der Umgebung. Frage: Was würden andere für eine vergleichbare Immobilie zahlen?"
+            example="Beispiel: Ähnliche Wohnungen kosten 5.000 Euro/m². Bei 100 m² und guter Lage (Faktor 1,1) = 550.000 Euro."
           />
 
           <MethodExplanation
             color="green"
             title="DCF-Modell (Discounted Cash Flow)"
-            description="Betrachtet alle zukunftigen Einnahmen und rechnet sie auf heute zuruck. Frage: Was sind alle zukunftigen Mieten heute wert?"
-            example="Beispiel: 10 Jahre Mieteinnahmen abzuglich Kosten plus Verkaufserlos, auf den heutigen Wert abgezinst."
+            description="Betrachtet alle zukünftigen Einnahmen und rechnet sie auf heute zurück. Frage: Was sind alle zukünftigen Mieten heute wert?"
+            example="Beispiel: 10 Jahre Mieteinnahmen abzüglich Kosten plus Verkaufserlös, auf den heutigen Wert abgezinst."
           />
         </div>
 
         <div className="mt-4 p-3 bg-gray-50 rounded-lg">
           <p className="text-sm text-gray-600">
             <strong className="text-gray-900">Tipp:</strong> Diese App kombiniert alle aktivierten Methoden
-            zu einem Gesamtwert. So erhalten Sie eine ausgewogenere Schatzung als bei nur einer Methode.
+            zu einem Gesamtwert. So erhalten Sie eine ausgewogenere Schätzung als bei nur einer Methode.
           </p>
         </div>
       </Card>
@@ -227,15 +227,15 @@ export function InfoPanel() {
           />
           <ResultExplanation
             term="Median"
-            description="Der mittlere Wert, wenn alle Ergebnisse sortiert werden (50% darunter, 50% daruber). Robust gegenuber Ausreißern – zeigt den 'typischen' Wert."
+            description="Der mittlere Wert, wenn alle Ergebnisse sortiert werden (50% darunter, 50% darüber). Robust gegenüber Ausreißern – zeigt den 'typischen' Wert."
           />
           <div className="bg-purple-50 rounded-lg p-3 border border-purple-200 text-xs">
             <p className="font-medium text-purple-900 mb-1">Mittelwert vs. Median – wann welchen nutzen?</p>
             <p className="text-purple-800">
-              Sind beide ahnlich, ist die Verteilung symmetrisch und beide Werte aussagekraftig.
-              Liegt der <strong>Mittelwert uber dem Median</strong>, gibt es hohe Ausreißer – der Median ist dann konservativer.
+              Sind beide ähnlich, ist die Verteilung symmetrisch und beide Werte aussagekräftig.
+              Liegt der <strong>Mittelwert über dem Median</strong>, gibt es hohe Ausreißer – der Median ist dann konservativer.
               Liegt der <strong>Mittelwert unter dem Median</strong>, gibt es niedrige Ausreißer.
-              Fur eine <strong>vorsichtige Schatzung</strong> empfiehlt sich oft der Median.
+              Für eine <strong>vorsichtige Schätzung</strong> empfiehlt sich oft der Median.
             </p>
           </div>
           <ResultExplanation
@@ -248,15 +248,15 @@ export function InfoPanel() {
           />
           <ResultExplanation
             term="Variationskoeffizient"
-            description="Die relative Streuung in Prozent (Standardabweichung / Mittelwert). Unter 10% = geringe, 10-20% = moderate, uber 20% = hohe Unsicherheit."
+            description="Die relative Streuung in Prozent (Standardabweichung / Mittelwert). Unter 10% = geringe, 10-20% = moderate, über 20% = hohe Unsicherheit."
           />
           <ResultExplanation
             term="Histogramm"
-            description="Das Balkendiagramm zeigt, wie haufig welche Werte vorkommen. Die hochsten Balken zeigen die wahrscheinlichsten Werte."
+            description="Das Balkendiagramm zeigt, wie häufig welche Werte vorkommen. Die höchsten Balken zeigen die wahrscheinlichsten Werte."
           />
           <ResultExplanation
-            term="Sensitivitatsanalyse"
-            description="Zeigt, welche Eingabeparameter den grossten Einfluss auf das Ergebnis haben."
+            term="Sensitivitätsanalyse"
+            description="Zeigt, welche Eingabeparameter den größten Einfluss auf das Ergebnis haben."
           />
         </div>
       </Card>
@@ -264,13 +264,13 @@ export function InfoPanel() {
       {/* Tipps */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Tipps fur bessere Ergebnisse</CardTitle>
+          <CardTitle className="text-base">Tipps für bessere Ergebnisse</CardTitle>
         </CardHeader>
 
         <ul className="space-y-2 text-sm text-gray-600">
           <li className="flex items-start space-x-2">
             <ChevronRight className="w-4 h-4 text-[#0066FF] flex-shrink-0 mt-0.5" />
-            <span>Seien Sie bei den Bandbreiten realistisch - zu enge Bereiche unterschatzen das Risiko.</span>
+            <span>Seien Sie bei den Bandbreiten realistisch - zu enge Bereiche unterschätzen das Risiko.</span>
           </li>
           <li className="flex items-start space-x-2">
             <ChevronRight className="w-4 h-4 text-[#0066FF] flex-shrink-0 mt-0.5" />
@@ -282,7 +282,7 @@ export function InfoPanel() {
           </li>
           <li className="flex items-start space-x-2">
             <ChevronRight className="w-4 h-4 text-[#0066FF] flex-shrink-0 mt-0.5" />
-            <span>Aktivieren Sie mehrere Bewertungsmethoden fur eine robustere Schatzung.</span>
+            <span>Aktivieren Sie mehrere Bewertungsmethoden für eine robustere Schätzung.</span>
           </li>
         </ul>
       </Card>
@@ -296,7 +296,7 @@ export function InfoPanel() {
             </div>
             <div>
               <CardTitle className="text-base text-amber-900">Rechtlicher Hinweis (Disclaimer)</CardTitle>
-              <CardDescription className="text-amber-700">Bitte lesen Sie diese Hinweise sorgfaltig</CardDescription>
+              <CardDescription className="text-amber-700">Bitte lesen Sie diese Hinweise sorgfältig</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -309,10 +309,10 @@ export function InfoPanel() {
               <h4 className="font-semibold text-gray-900">Haftungsausschluss</h4>
             </div>
             <p className="text-gray-600">
-              Der Autor ubernimmt <strong className="text-gray-900">keine Gewahr</strong> fur die Richtigkeit,
-              Vollstandigkeit oder Aktualitat der Berechnungen. Die Nutzung dieser Software erfolgt auf
-              <strong className="text-gray-900"> eigenes Risiko</strong>. Es wird keine Haftung fur etwaige
-              Fehler in den Berechnungen oder daraus resultierende finanzielle Verluste ubernommen.
+              Der Autor übernimmt <strong className="text-gray-900">keine Gewähr</strong> für die Richtigkeit,
+              Vollständigkeit oder Aktualität der Berechnungen. Die Nutzung dieser Software erfolgt auf
+              <strong className="text-gray-900"> eigenes Risiko</strong>. Es wird keine Haftung für etwaige
+              Fehler in den Berechnungen oder daraus resultierende finanzielle Verluste übernommen.
             </p>
           </div>
 
@@ -324,13 +324,13 @@ export function InfoPanel() {
             </div>
             <p className="text-gray-600">
               Die Monte-Carlo-Simulation liefert <strong className="text-gray-900">statistische Wahrscheinlichkeiten</strong>,
-              keine garantierten Werte. Die Qualitat der Ergebnisse hangt massgeblich von der
-              <strong className="text-gray-900"> Qualitat der Eingabedaten</strong> ab. Unrealistische Annahmen
-              fuhren zu unrealistischen Ergebnissen ("Garbage In, Garbage Out").
+              keine garantierten Werte. Die Qualität der Ergebnisse hängt maßgeblich von der
+              <strong className="text-gray-900"> Qualität der Eingabedaten</strong> ab. Unrealistische Annahmen
+              führen zu unrealistischen Ergebnissen ("Garbage In, Garbage Out").
             </p>
             <p className="text-gray-600">
-              Die angezeigten Bandbreiten und Wahrscheinlichkeiten basieren auf den von Ihnen gewahlten
-              Verteilungen und stellen <strong className="text-gray-900">keine Prognose tatsachlicher Marktentwicklungen</strong> dar.
+              Die angezeigten Bandbreiten und Wahrscheinlichkeiten basieren auf den von Ihnen gewählten
+              Verteilungen und stellen <strong className="text-gray-900">keine Prognose tatsächlicher Marktentwicklungen</strong> dar.
             </p>
           </div>
 
@@ -338,17 +338,17 @@ export function InfoPanel() {
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <Scale className="w-4 h-4 text-amber-600" />
-              <h4 className="font-semibold text-gray-900">Keine Ersatz fur Sachverstandigengutachten</h4>
+              <h4 className="font-semibold text-gray-900">Kein Ersatz für Sachverständigengutachten</h4>
             </div>
             <p className="text-gray-600">
               Diese Software <strong className="text-gray-900">ersetzt kein professionelles Wertgutachten</strong>.
-              Fur rechtlich verbindliche Bewertungen (z.B. fur Finanzierungen, Erbschaften, Scheidungen oder
-              gerichtliche Verfahren) sollten Sie einen beeideten Sachverstandigen, Ziviltechniker oder
+              Für rechtlich verbindliche Bewertungen (z.B. für Finanzierungen, Erbschaften, Scheidungen oder
+              gerichtliche Verfahren) sollten Sie einen beeideten Sachverständigen, Ziviltechniker oder
               MRICS-zertifizierten Bewerter beauftragen.
             </p>
             <p className="text-gray-600">
               Die Anwendung dieser Software setzt <strong className="text-gray-900">grundlegende Kenntnisse</strong> der
-              Immobilienbewertung voraus. Der Anwender tragt die volle Verantwortung fur die Interpretation
+              Immobilienbewertung voraus. Der Anwender trägt die volle Verantwortung für die Interpretation
               und Verwendung der Ergebnisse.
             </p>
           </div>
@@ -356,14 +356,14 @@ export function InfoPanel() {
           {/* Rechtliches */}
           <div className="bg-amber-100/50 rounded-lg p-3 border border-amber-200">
             <p className="text-xs text-amber-800">
-              <strong>Anwendbares Recht:</strong> Osterreichisches Recht | <strong>Gerichtsstand:</strong> Graz |
-              <strong> Kontakt:</strong> Allgemein beeideter und gerichtlich zertifizierter Sachverstandiger Markus Thalhamer
+              <strong>Anwendbares Recht:</strong> Österreichisches Recht | <strong>Gerichtsstand:</strong> Graz |
+              <strong> Kontakt:</strong> Allgemein beeideter und gerichtlich zertifizierter Sachverständiger Markus Thalhamer
             </p>
           </div>
 
           {/* Zustimmung */}
           <p className="text-xs text-gray-500 italic">
-            Durch die Nutzung dieser Software erklaren Sie sich mit den oben genannten Bedingungen einverstanden.
+            Durch die Nutzung dieser Software erklären Sie sich mit den oben genannten Bedingungen einverstanden.
           </p>
         </div>
       </Card>
@@ -377,7 +377,7 @@ export function InfoPanel() {
             </div>
             <div>
               <CardTitle className="text-base">Impressum</CardTitle>
-              <CardDescription>Angaben gemaß § 5 ECG</CardDescription>
+              <CardDescription>Angaben gemäß § 5 ECG</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -392,7 +392,7 @@ export function InfoPanel() {
                 <User className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="font-medium text-gray-900">Markus Thalhamer, MSc MRICS</p>
-                  <p className="text-gray-500 text-xs">Allgemein beeideter und gerichtlich zertifizierter Sachverstandiger</p>
+                  <p className="text-gray-500 text-xs">Allgemein beeideter und gerichtlich zertifizierter Sachverständiger</p>
                 </div>
               </div>
 
@@ -401,7 +401,7 @@ export function InfoPanel() {
                 <div>
                   <p className="text-gray-600">Morellenfeldgasse 13</p>
                   <p className="text-gray-600">8010 Graz, Steiermark</p>
-                  <p className="text-gray-600">Osterreich</p>
+                  <p className="text-gray-600">Österreich</p>
                 </div>
               </div>
             </div>
@@ -449,10 +449,10 @@ export function InfoPanel() {
                 <Award className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-gray-600">
-                    <strong className="text-gray-900">Allgemein beeideter und gerichtlich zertifizierter Sachverstandiger</strong>
+                    <strong className="text-gray-900">Allgemein beeideter und gerichtlich zertifizierter Sachverständiger</strong>
                   </p>
                   <p className="text-gray-500 text-xs">Fachgebiet: Immobilienbewertung</p>
-                  <p className="text-gray-500 text-xs">Eintragung: Landesgericht fur Zivilrechtssachen Graz</p>
+                  <p className="text-gray-500 text-xs">Eintragung: Landesgericht für Zivilrechtssachen Graz</p>
                 </div>
               </div>
 
@@ -462,7 +462,7 @@ export function InfoPanel() {
                   <p className="text-gray-600">
                     <strong className="text-gray-900">MRICS</strong> - Member of the Royal Institution of Chartered Surveyors
                   </p>
-                  <p className="text-gray-500 text-xs">Internationale Berufsorganisation fur Immobilienfachleute</p>
+                  <p className="text-gray-500 text-xs">Internationale Berufsorganisation für Immobilienfachleute</p>
                 </div>
               </div>
             </div>
@@ -471,13 +471,13 @@ export function InfoPanel() {
           {/* Rechtliche Hinweise */}
           <div className="bg-gray-50 rounded-lg p-3 border border-gray-200 space-y-2">
             <p className="text-xs text-gray-600">
-              <strong className="text-gray-900">Anwendbares Recht:</strong> Osterreichisches Recht
+              <strong className="text-gray-900">Anwendbares Recht:</strong> Österreichisches Recht
             </p>
             <p className="text-xs text-gray-600">
               <strong className="text-gray-900">Gerichtsstand:</strong> Graz
             </p>
             <p className="text-xs text-gray-600">
-              <strong className="text-gray-900">Berufsrecht:</strong> Sachverstandigen- und Dolmetschergesetz (SDG)
+              <strong className="text-gray-900">Berufsrecht:</strong> Sachverständigen- und Dolmetschergesetz (SDG)
             </p>
           </div>
 
