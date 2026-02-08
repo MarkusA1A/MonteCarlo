@@ -77,21 +77,22 @@ export function MethodComparisonChart({
   const chartContent = (
     <BarChart
       data={chartData}
-      margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+      margin={{ top: 20, right: 10, left: 0, bottom: 10 }}
       width={exportMode ? 760 : undefined}
       height={exportMode ? 250 : undefined}
     >
       <XAxis
         dataKey="name"
-        tick={{ fontSize: 12, fill: '#6B7280' }}
+        tick={{ fontSize: 10, fill: '#6B7280' }}
         tickLine={false}
         axisLine={{ stroke: '#E5E7EB' }}
       />
       <YAxis
-        tick={{ fontSize: 11, fill: '#6B7280' }}
+        tick={{ fontSize: 10, fill: '#6B7280' }}
         tickLine={false}
         axisLine={{ stroke: '#E5E7EB' }}
         tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+        width={35}
       />
       <Tooltip
         content={({ active, payload }) => {
@@ -140,16 +141,16 @@ export function MethodComparisonChart({
   );
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+    <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">
         Methodenvergleich
       </h3>
-      <p className="text-sm text-gray-500 mb-4">
+      <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
         Mittelwerte mit 80% Konfidenzintervall (P10-P90)
       </p>
 
       <div
-        className={exportMode ? '' : 'h-48 sm:h-64'}
+        className={exportMode ? '' : 'h-52 sm:h-64'}
         role="img"
         aria-label={`Methodenvergleich: ${chartData.map(d => `${d.name} ${formatCurrency(d.value)}`).join(', ')}`}
       >
@@ -163,7 +164,7 @@ export function MethodComparisonChart({
       {/* Vergleichstabelle */}
       {!exportMode && (
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-xs sm:text-sm min-w-[340px]">
             <thead>
               <tr className="border-b border-gray-200">
                 <th scope="col" className="text-left py-2 text-gray-500 font-medium">Methode</th>

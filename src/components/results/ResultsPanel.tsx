@@ -34,25 +34,25 @@ export function ResultsPanel() {
     <div className="space-y-6">
       {/* Objekt-Info Header */}
       <Card padding="sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-primary-500/10 rounded-lg flex items-center justify-center">
-              <Building2 className="w-6 h-6 text-primary-500" />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-primary-500" />
             </div>
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">
+            <div className="min-w-0">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
                 {params.property.name}
               </h2>
-              <p className="text-sm text-gray-500">{params.property.address}</p>
+              <p className="text-xs sm:text-sm text-gray-500 truncate">{params.property.address}</p>
             </div>
           </div>
-          <div className="flex items-center space-x-6 text-sm">
-            <div className="flex items-center space-x-2 text-gray-500">
-              <Hash className="w-4 h-4" />
-              <span>{params.numberOfSimulations.toLocaleString('de-DE')} Simulationen</span>
+          <div className="flex items-center gap-4 text-xs sm:text-sm ml-13 sm:ml-0">
+            <div className="flex items-center space-x-1.5 text-gray-500">
+              <Hash className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>{params.numberOfSimulations.toLocaleString('de-DE')} Sim.</span>
             </div>
-            <div className="flex items-center space-x-2 text-gray-500">
-              <Calendar className="w-4 h-4" />
+            <div className="flex items-center space-x-1.5 text-gray-500">
+              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>{new Date(results.runDate).toLocaleDateString('de-DE')}</span>
             </div>
           </div>
@@ -214,16 +214,16 @@ function InterpretationCard({ results }: { results: import('../../types').Simula
               (Spanne: {rangePercent}% des Mittelwerts).
             </p>
 
-            <div className="flex flex-wrap gap-3">
-              <div className={`inline-flex items-center px-3 py-1.5 rounded-lg border ${uncertaintyBg}`}>
-                <span className="text-gray-600 mr-2">Bewertungsunsicherheit:</span>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3">
+              <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 px-3 py-1.5 rounded-lg border text-xs sm:text-sm ${uncertaintyBg}`}>
+                <span className="text-gray-600">Unsicherheit:</span>
                 <span className={`font-semibold ${uncertaintyColor}`}>{uncertaintyLevel}</span>
-                <span className="text-gray-500 ml-2">(Variationskoeffizient: {cv.toFixed(1)}%)</span>
+                <span className="text-gray-500">(CV: {cv.toFixed(1)}%)</span>
               </div>
-              <div className={`inline-flex items-center px-3 py-1.5 rounded-lg border ${stdDevBg}`}>
-                <span className="text-gray-600 mr-2">Standardabweichung:</span>
+              <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 px-3 py-1.5 rounded-lg border text-xs sm:text-sm ${stdDevBg}`}>
+                <span className="text-gray-600">Std.-Abw.:</span>
                 <span className={`font-semibold ${stdDevColor}`}>{formatCurrency(combinedStats.stdDev)}</span>
-                <span className="text-gray-500 ml-2">({stdDevPercent}% des Mittelwerts)</span>
+                <span className="text-gray-500">({stdDevPercent}%)</span>
               </div>
             </div>
 

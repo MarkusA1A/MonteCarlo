@@ -37,24 +37,24 @@ export function TornadoChart({ data, title = 'Sensitivitätsanalyse', exportMode
     <BarChart
       data={chartData}
       layout="vertical"
-      margin={{ top: 20, right: 30, left: 100, bottom: 20 }}
+      margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
       width={exportMode ? 760 : undefined}
       height={exportMode ? 300 : undefined}
     >
       <XAxis
         type="number"
-        tick={{ fontSize: 11, fill: '#6B7280' }}
+        tick={{ fontSize: 10, fill: '#6B7280' }}
         tickLine={false}
         axisLine={{ stroke: '#E5E7EB' }}
-        tickFormatter={(value) => `${(value / 1000).toFixed(0)}k €`}
+        tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
       />
       <YAxis
         type="category"
         dataKey="name"
-        tick={{ fontSize: 11, fill: '#6B7280' }}
+        tick={{ fontSize: 10, fill: '#6B7280' }}
         tickLine={false}
         axisLine={{ stroke: '#E5E7EB' }}
-        width={90}
+        width={75}
       />
       <Tooltip
         content={({ active, payload }) => {
@@ -104,14 +104,14 @@ export function TornadoChart({ data, title = 'Sensitivitätsanalyse', exportMode
   );
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-sm text-gray-500 mb-4">
+    <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">{title}</h3>
+      <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
         Einfluss der Parameter bei ±20% Variation
       </p>
 
       <div
-        className={exportMode ? '' : 'h-64 sm:h-80'}
+        className={exportMode ? '' : 'h-72 sm:h-80'}
         role="img"
         aria-label={ariaDescription}
       >
@@ -149,7 +149,7 @@ export function TornadoChart({ data, title = 'Sensitivitätsanalyse', exportMode
 
       {/* Legende */}
       {!exportMode && (
-        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 mt-4 text-xs">
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 mt-3 sm:mt-4 text-xs">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 rounded opacity-70" style={{ background: 'repeating-linear-gradient(45deg, #EF4444, #EF4444 2px, #FCA5A5 2px, #FCA5A5 4px)' }} />
             <span className="text-gray-600">-20% (Wertminderung)</span>
@@ -163,11 +163,11 @@ export function TornadoChart({ data, title = 'Sensitivitätsanalyse', exportMode
 
       {/* Erläuterung für Nicht-Fachkundige */}
       {!exportMode && (
-        <div className="mt-6 bg-blue-50 rounded-lg p-4 border border-blue-200">
+        <div className="mt-4 sm:mt-6 bg-blue-50 rounded-lg p-3 sm:p-4 border border-blue-200">
           <div className="flex items-start space-x-2">
             <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
             <div>
-              <h4 className="font-medium text-blue-900 mb-2">So lesen Sie diese Grafik</h4>
+              <h4 className="font-medium text-blue-900 mb-2 text-sm">So lesen Sie diese Grafik</h4>
               <div className="space-y-2 text-xs text-blue-800">
                 <p>
                   <strong>Was zeigt die Sensitivitätsanalyse?</strong> Sie zeigt, welche Eingabeparameter

@@ -46,21 +46,21 @@ export function StatisticsCards({ stats, title = 'Kombinierter Wert' }: Statisti
       {title && (
         <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
       )}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {cards.map((card) => {
           const Icon = card.icon;
           return (
             <div
               key={card.label}
-              className="bg-white rounded-xl border border-gray-200 p-4"
+              className="bg-white rounded-xl border border-gray-200 p-3 sm:p-4"
             >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-500">{card.label}</span>
-                <div className={`p-2 rounded-lg ${card.bgColor}`}>
-                  <Icon className={`w-4 h-4 ${card.color}`} />
+              <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                <span className="text-xs sm:text-sm text-gray-500">{card.label}</span>
+                <div className={`p-1.5 sm:p-2 rounded-lg ${card.bgColor}`}>
+                  <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${card.color}`} />
                 </div>
               </div>
-              <p className={`text-xl font-bold ${card.color}`}>{card.value}</p>
+              <p className={`text-base sm:text-xl font-bold ${card.color} truncate`}>{card.value}</p>
               {card.subtext && (
                 <p className="text-xs text-gray-500 mt-1">{card.subtext}</p>
               )}
@@ -98,7 +98,7 @@ export function StatisticsCards({ stats, title = 'Kombinierter Wert' }: Statisti
       </div>
 
       {/* Zusätzliche Statistiken */}
-      <div className="mt-4 grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="mt-3 sm:mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         <StatBox
           label="Standardabweichung"
           value={formatCurrency(stats.stdDev)}
