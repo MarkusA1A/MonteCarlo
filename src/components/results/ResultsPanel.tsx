@@ -4,7 +4,7 @@ import { HistogramChart } from './HistogramChart';
 import { TornadoChart } from './TornadoChart';
 import { MethodComparisonChart } from './MethodComparisonChart';
 import { Card } from '../ui/Card';
-import { Building2, Calendar, Hash, Lightbulb } from 'lucide-react';
+import { Building2, Calendar, Hash, Lightbulb, TrendingDown, TrendingUp } from 'lucide-react';
 import { formatCurrency } from '../../lib/statistics';
 
 export function ResultsPanel() {
@@ -239,10 +239,175 @@ function InterpretationCard({ results }: { results: import('../../types').Simula
                 <span className="font-medium">Wichtigste Einflussfaktoren:</span> {topFactors.join(', ')}.
               </p>
             )}
+
+            {/* Szenario-Analyse: Pessimistisch vs. Optimistisch */}
+            {sensitivityAnalysis && sensitivityAnalysis.length > 0 && (
+              <ScenarioAnalysis
+                sensitivityAnalysis={sensitivityAnalysis}
+                combinedStats={combinedStats}
+              />
+            )}
           </div>
         </div>
       </div>
     </Card>
+  );
+}
+
+// Mapping: Parameter → verständliche Erklärungen für pessimistisches/optimistisches Szenario
+const PARAMETER_EXPLANATIONS: Record<string, { pessimistic: string; optimistic: string }> = {
+  monthlyRentPerSqm: {
+    pessimistic: 'Niedrigere Mieteinnahmen pro m²',
+    optimistic: 'Höhere Mieteinnahmen pro m²',
+  },
+  capitalizationRate: {
+    pessimistic: 'Höherer Kapitalisierungszins (mehr Risiko)',
+    optimistic: 'Niedrigerer Kapitalisierungszins (weniger Risiko)',
+  },
+  basePricePerSqm: {
+    pessimistic: 'Niedrigere Vergleichspreise am Markt',
+    optimistic: 'Höhere Vergleichspreise am Markt',
+  },
+  locationAdjustment: {
+    pessimistic: 'Ungünstigere Lagebewertung',
+    optimistic: 'Bessere Lagebewertung',
+  },
+  conditionAdjustment: {
+    pessimistic: 'Schlechterer Gebäudezustand',
+    optimistic: 'Besserer Gebäudezustand',
+  },
+  equipmentAdjustment: {
+    pessimistic: 'Geringwertigere Ausstattung',
+    optimistic: 'Hochwertigere Ausstattung',
+  },
+  marketAdjustment: {
+    pessimistic: 'Ungünstigere Marktlage',
+    optimistic: 'Günstigere Marktlage',
+  },
+  discountRate: {
+    pessimistic: 'Höherer Diskontierungssatz',
+    optimistic: 'Niedrigerer Diskontierungssatz',
+  },
+  exitCapRate: {
+    pessimistic: 'Höhere Exit-Cap-Rate (geringerer Verkaufspreis)',
+    optimistic: 'Niedrigere Exit-Cap-Rate (höherer Verkaufspreis)',
+  },
+  vacancyRate: {
+    pessimistic: 'Höherer Leerstand',
+    optimistic: 'Niedrigerer Leerstand',
+  },
+  maintenanceCosts: {
+    pessimistic: 'Höhere Instandhaltungskosten',
+    optimistic: 'Niedrigere Instandhaltungskosten',
+  },
+  managementCosts: {
+    pessimistic: 'Höhere Verwaltungskosten',
+    optimistic: 'Niedrigere Verwaltungskosten',
+  },
+  initialMonthlyRent: {
+    pessimistic: 'Niedrigere Anfangsmiete',
+    optimistic: 'Höhere Anfangsmiete',
+  },
+  annualRentGrowth: {
+    pessimistic: 'Geringeres Mietwachstum',
+    optimistic: 'Stärkeres Mietwachstum',
+  },
+  operatingExpenseRatio: {
+    pessimistic: 'Höhere Betriebskosten',
+    optimistic: 'Niedrigere Betriebskosten',
+  },
+};
+
+function ScenarioAnalysis({
+  sensitivityAnalysis,
+  combinedStats,
+}: {
+  sensitivityAnalysis: import('../../types').SensitivityResult[];
+  combinedStats: import('../../types').Statistics;
+}) {
+  // Berechne pessimistische und optimistische Treiber
+  const drivers = sensitivityAnalysis.map((item) => {
+    const pessimisticValue = Math.min(item.lowValue, item.highValue);
+    const optimisticValue = Math.max(item.lowValue, item.highValue);
+    const pessimisticImpact = item.baseValue - pessimisticValue;
+    const optimisticImpact = optimisticValue - item.baseValue;
+
+    return {
+      parameter: item.parameter,
+      label: item.label,
+      pessimisticImpact,
+      optimisticImpact,
+      pessimisticPercent: ((pessimisticImpact / item.baseValue) * 100).toFixed(1),
+      optimisticPercent: ((optimisticImpact / item.baseValue) * 100).toFixed(1),
+    };
+  });
+
+  const topPessimistic = [...drivers]
+    .sort((a, b) => b.pessimisticImpact - a.pessimisticImpact)
+    .slice(0, 3);
+
+  const topOptimistic = [...drivers]
+    .sort((a, b) => b.optimisticImpact - a.optimisticImpact)
+    .slice(0, 3);
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+      {/* Pessimistisches Szenario */}
+      <div className="bg-orange-50 rounded-lg p-4 border border-orange-200">
+        <div className="flex items-center space-x-2 mb-3">
+          <TrendingDown className="w-4 h-4 text-orange-600" />
+          <h4 className="font-semibold text-orange-900 text-sm">Pessimistisches Szenario (P10)</h4>
+        </div>
+        <p className="text-lg font-bold text-orange-700 mb-3">
+          {formatCurrency(combinedStats.percentile10)}
+        </p>
+        <p className="text-xs text-orange-800 mb-2">
+          Diesen Wert unterschreiten nur 10% aller Szenarien. Die wichtigsten Faktoren, die den Wert nach unten treiben:
+        </p>
+        <ul className="space-y-1.5">
+          {topPessimistic.map((driver) => {
+            const explanation = PARAMETER_EXPLANATIONS[driver.parameter];
+            return (
+              <li key={driver.parameter} className="flex items-start space-x-2 text-xs">
+                <span className="text-orange-400 mt-0.5 flex-shrink-0">&#x25BC;</span>
+                <span className="text-orange-900">
+                  <strong>{explanation?.pessimistic || driver.label}</strong>
+                  <span className="text-orange-600"> (−{driver.pessimisticPercent}%)</span>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      {/* Optimistisches Szenario */}
+      <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+        <div className="flex items-center space-x-2 mb-3">
+          <TrendingUp className="w-4 h-4 text-green-600" />
+          <h4 className="font-semibold text-green-900 text-sm">Optimistisches Szenario (P90)</h4>
+        </div>
+        <p className="text-lg font-bold text-green-700 mb-3">
+          {formatCurrency(combinedStats.percentile90)}
+        </p>
+        <p className="text-xs text-green-800 mb-2">
+          90% aller Szenarien liegen unter diesem Wert. Die wichtigsten Faktoren, die den Wert nach oben treiben:
+        </p>
+        <ul className="space-y-1.5">
+          {topOptimistic.map((driver) => {
+            const explanation = PARAMETER_EXPLANATIONS[driver.parameter];
+            return (
+              <li key={driver.parameter} className="flex items-start space-x-2 text-xs">
+                <span className="text-green-400 mt-0.5 flex-shrink-0">&#x25B2;</span>
+                <span className="text-green-900">
+                  <strong>{explanation?.optimistic || driver.label}</strong>
+                  <span className="text-green-600"> (+{driver.optimisticPercent}%)</span>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
   );
 }
 
