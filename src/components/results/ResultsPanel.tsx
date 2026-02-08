@@ -227,12 +227,17 @@ function InterpretationCard({ results }: { results: import('../../types').Simula
               </div>
             </div>
 
-            {methods.length > 0 && (
-              <p>
-                Die Bewertung basiert auf {methods.length === 1 ? methods[0] : methods.length === 2 ? methods.join(' und ') : methods.slice(0, -1).join(', ') + ' und ' + methods[methods.length - 1]}.
-                {methodComparison && ` ${methodComparison}`}
-              </p>
-            )}
+            {/* CV-Interpretation */}
+            <CvInterpretation
+              cv={cv}
+              uncertaintyLevel={uncertaintyLevel}
+              uncertaintyBg={uncertaintyBg}
+              sensitivityAnalysis={sensitivityAnalysis}
+              methodStats={methodStats}
+              combinedStats={combinedStats}
+              methods={methods}
+              methodComparison={methodComparison}
+            />
 
             {topFactors.length > 0 && (
               <p>
@@ -251,6 +256,110 @@ function InterpretationCard({ results }: { results: import('../../types').Simula
         </div>
       </div>
     </Card>
+  );
+}
+
+function CvInterpretation({
+  cv,
+  uncertaintyLevel,
+  uncertaintyBg,
+  sensitivityAnalysis,
+  methodStats,
+  combinedStats,
+  methods,
+  methodComparison,
+}: {
+  cv: number;
+  uncertaintyLevel: string;
+  uncertaintyBg: string;
+  sensitivityAnalysis: import('../../types').SensitivityResult[];
+  methodStats: { name: string; stats: import('../../types').Statistics | null }[];
+  combinedStats: import('../../types').Statistics;
+  methods: string[];
+  methodComparison: string;
+}) {
+  // Bestimme die Hauptgründe für den CV-Wert
+  const reasons: string[] = [];
+
+  // 1. Top-Parameter mit größtem Einfluss identifizieren
+  if (sensitivityAnalysis && sensitivityAnalysis.length > 0) {
+    const topParam = sensitivityAnalysis[0];
+    const topImpactPercent = ((topParam.impact / topParam.baseValue) * 100).toFixed(0);
+    reasons.push(
+      `Der Parameter "${topParam.label}" hat mit ±${topImpactPercent}% den größten Einfluss auf das Ergebnis`
+    );
+
+    // Prüfe ob mehrere Parameter starken Einfluss haben
+    const significantParams = sensitivityAnalysis.filter(
+      (s) => s.impact > topParam.impact * 0.5
+    );
+    if (significantParams.length >= 3) {
+      reasons.push(
+        `${significantParams.length} Parameter haben einen erheblichen Einfluss – die Unsicherheit verteilt sich auf mehrere Stellschrauben`
+      );
+    }
+  }
+
+  // 2. Methodenabweichung als Grund
+  if (methodStats.length > 1) {
+    const means = methodStats.map((m) => m.stats!.mean);
+    const maxDiff = Math.max(...means) - Math.min(...means);
+    const maxDiffPercent = (maxDiff / combinedStats.mean) * 100;
+
+    if (maxDiffPercent > 20) {
+      const highest = methodStats.reduce((a, b) => (a.stats!.mean > b.stats!.mean ? a : b));
+      const lowest = methodStats.reduce((a, b) => (a.stats!.mean < b.stats!.mean ? a : b));
+      reasons.push(
+        `${highest.name} (${formatCurrency(highest.stats!.mean)}) und ${lowest.name} (${formatCurrency(lowest.stats!.mean)}) liefern deutlich unterschiedliche Werte, was die Streuung erhöht`
+      );
+    } else if (maxDiffPercent < 10) {
+      reasons.push(
+        'Die Bewertungsmethoden stimmen gut überein, was die Bewertung stützt'
+      );
+    }
+  }
+
+  // 3. Breite der P10-P90-Spanne
+  const rangeRatio = ((combinedStats.percentile90 - combinedStats.percentile10) / combinedStats.mean) * 100;
+  if (rangeRatio > 40) {
+    reasons.push(
+      `Die Spanne zwischen pessimistischem und optimistischem Szenario beträgt ${rangeRatio.toFixed(0)}% des Mittelwerts – ein Zeichen breiter Eingabebandbreiten`
+    );
+  }
+
+  // Erklärungstext je nach CV-Level
+  let explanation: string;
+  if (cv < 15) {
+    explanation = `Ein Variationskoeffizient von ${cv.toFixed(1)}% bedeutet eine geringe Bewertungsunsicherheit. Die Eingabeparameter sind relativ eng gefasst und die Simulation liefert konsistente Ergebnisse. Der geschätzte Marktwert ist gut abgesichert.`;
+  } else if (cv < 25) {
+    explanation = `Ein Variationskoeffizient von ${cv.toFixed(1)}% zeigt eine moderate Bewertungsunsicherheit. Einige Eingabeparameter haben eine nennenswerte Bandbreite, was zu einer spürbaren Streuung der Ergebnisse führt. Die Bewertung ist plausibel, aber mit Vorsicht zu interpretieren.`;
+  } else {
+    explanation = `Ein Variationskoeffizient von ${cv.toFixed(1)}% signalisiert eine hohe Bewertungsunsicherheit. Die Eingabeparameter weisen breite Bandbreiten auf, was zu stark schwankenden Ergebnissen führt. Bevor diese Bewertung als Grundlage dient, sollten die unsichersten Parameter genauer recherchiert werden.`;
+  }
+
+  return (
+    <div className={`rounded-lg p-4 border ${uncertaintyBg}`}>
+      <p className="text-sm text-gray-700 mb-2">{explanation}</p>
+      {reasons.length > 0 && (
+        <div className="mt-2">
+          <p className="text-xs font-medium text-gray-900 mb-1.5">Gründe für die {uncertaintyLevel}e Unsicherheit:</p>
+          <ul className="space-y-1">
+            {reasons.map((reason, i) => (
+              <li key={i} className="flex items-start space-x-2 text-xs text-gray-700">
+                <span className="text-gray-400 mt-0.5 flex-shrink-0">&#x2022;</span>
+                <span>{reason}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {methods.length > 0 && methodComparison && (
+        <p className="text-xs text-gray-600 mt-2">
+          Die Bewertung basiert auf {methods.length === 1 ? methods[0] : methods.length === 2 ? methods.join(' und ') : methods.slice(0, -1).join(', ') + ' und ' + methods[methods.length - 1]}.
+          {' '}{methodComparison}
+        </p>
+      )}
+    </div>
   );
 }
 
