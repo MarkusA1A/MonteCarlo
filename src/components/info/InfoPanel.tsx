@@ -1,4 +1,4 @@
-import { Lightbulb, TrendingUp, BarChart3, Target, HelpCircle, ChevronRight, AlertTriangle, Scale, Shield, User, Mail, Phone, MapPin, Globe, Award, Link2 } from 'lucide-react';
+import { Lightbulb, TrendingUp, BarChart3, Target, HelpCircle, ChevronRight, AlertTriangle, Scale, Shield, User, Mail, Phone, MapPin, Globe, Award, Link2, Code, History, Cpu, Layers, GitBranch } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 
 export function InfoPanel() {
@@ -287,6 +287,173 @@ export function InfoPanel() {
         </ul>
       </Card>
 
+      {/* Über diese App & Versionshistorie */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center">
+              <Code className="w-5 h-5 text-cyan-600" />
+            </div>
+            <div>
+              <CardTitle className="text-base">Über diese App</CardTitle>
+              <CardDescription>Technische Informationen & Versionshistorie</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+
+        <div className="space-y-5 text-sm">
+          {/* Technologie-Stack */}
+          <div>
+            <div className="flex items-center space-x-2 mb-3">
+              <Cpu className="w-4 h-4 text-cyan-600" />
+              <h4 className="font-semibold text-gray-900">Technologie</h4>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <p className="text-xs font-medium text-gray-900 mb-1">Frontend</p>
+                <p className="text-xs text-gray-600">React 19 mit TypeScript, Tailwind CSS, Zustand (State Management)</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <p className="text-xs font-medium text-gray-900 mb-1">Visualisierung</p>
+                <p className="text-xs text-gray-600">Recharts (Histogramme, Tornado-Charts, Vergleichsdiagramme)</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <p className="text-xs font-medium text-gray-900 mb-1">Simulation</p>
+                <p className="text-xs text-gray-600">Monte-Carlo-Engine mit Cholesky-Zerlegung für korrelierte Variablen</p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                <p className="text-xs font-medium text-gray-900 mb-1">Export</p>
+                <p className="text-xs text-gray-600">PDF (jsPDF), Excel (XLSX), Parameter-Import/Export (JSON)</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Architektur */}
+          <div>
+            <div className="flex items-center space-x-2 mb-3">
+              <Layers className="w-4 h-4 text-cyan-600" />
+              <h4 className="font-semibold text-gray-900">Architektur</h4>
+            </div>
+            <div className="bg-cyan-50 rounded-lg p-4 border border-cyan-200 text-xs text-cyan-800 space-y-2">
+              <p>
+                Die App läuft <strong className="text-cyan-900">vollständig im Browser</strong> – es werden keine Daten an einen Server gesendet.
+                Alle Berechnungen erfolgen lokal auf Ihrem Gerät.
+              </p>
+              <p>
+                <strong className="text-cyan-900">Drei unabhängige Bewertungsmodelle</strong> (Ertragswert, Vergleichswert, DCF) werden
+                über eine zentrale Monte-Carlo-Engine simuliert. Die Ergebnisse werden kombiniert und statistisch ausgewertet.
+              </p>
+              <p>
+                <strong className="text-cyan-900">Korrelationsmodell:</strong> Die Mieteinnahmen-Parameter werden über eine
+                Korrelationsmatrix mit Cholesky-Zerlegung verknüpft, um realistische Abhängigkeiten abzubilden.
+                Zusätzlich gibt es eine Fat-Tail-Logik für Extremszenarien.
+              </p>
+            </div>
+          </div>
+
+          {/* Versionshistorie */}
+          <div>
+            <div className="flex items-center space-x-2 mb-3">
+              <History className="w-4 h-4 text-cyan-600" />
+              <h4 className="font-semibold text-gray-900">Versionshistorie</h4>
+            </div>
+            <div className="space-y-3">
+
+              <VersionEntry
+                version="1.5"
+                date="08.02.2026"
+                title="Intelligente Ergebnisinterpretation"
+                changes={[
+                  'Szenario-Analyse: Erklärung welche Faktoren P10 (pessimistisch) und P90 (optimistisch) treiben',
+                  'CV-Interpretation: Dynamische Begründung des Variationskoeffizienten mit Haupttreibern',
+                  'Code-Qualität: Bereinigung duplizierter Funktionen',
+                ]}
+              />
+
+              <VersionEntry
+                version="1.4"
+                date="31.01.2026"
+                title="Korrelationsmodell & Textqualität"
+                changes={[
+                  'Korrelationsmatrix mit Cholesky-Zerlegung für realistische Parameterabhängigkeiten',
+                  'Fat-Tail-Logik: Verstärkte Korrelation in Extremszenarien (Krisensimulation)',
+                  'Verständliche Erklärung der Parameterkorrelationen im Info-Bereich',
+                  'Korrektur aller fehlenden deutschen Umlaute (ä, ö, ü, ß)',
+                ]}
+              />
+
+              <VersionEntry
+                version="1.3"
+                date="30.01.2026"
+                title="Fachliche Vertiefung & Nutzerführung"
+                changes={[
+                  'Vergleichswertverfahren: Umstellung auf ImmoWertV-konforme additive Anpassungsfaktoren',
+                  'Erklärungen für Mittelwert vs. Median in allen Ergebnisansichten',
+                  'Standardabweichungs-Erklärungen für alle Bewertungsmethoden',
+                  'Export/Import von Bewertungsparametern (JSON)',
+                  'Excel-Export mit XLSX-Paket',
+                  'Verteilungstyp-Erklärungen in allen Eingabeformularen',
+                ]}
+              />
+
+              <VersionEntry
+                version="1.2"
+                date="30.01.2026"
+                title="Erweiterte Analyse & Berechnungen"
+                changes={[
+                  'Sensitivitätsanalyse mit Tornado-Chart und Erklärung für Nicht-Fachkundige',
+                  'Variationskoeffizient als Unsicherheitsmaß',
+                  'Berechnete Miet- und Kostenübersichten im Ertragswertverfahren',
+                  'Min/Erwartet/Max-Bereiche für berechnete Werte',
+                  'Verteilungsempfehlungen und berechnete Preise beim Vergleichswert',
+                  'Umbenennung Wohnfläche → Nutzfläche für Gewerbeimmobilien',
+                ]}
+              />
+
+              <VersionEntry
+                version="1.1"
+                date="30.01.2026"
+                title="UX-Verbesserungen & Export"
+                changes={[
+                  'PDF-Export mit direkter jsPDF-Generierung (Druckansicht und PDF)',
+                  'Live-Feedback während der Simulation (Fortschrittsanzeige, Live-Statistiken)',
+                  'NumericInput-Komponente für bessere Eingabefeld-Bedienung',
+                  'localStorage-Persistenz: Eingaben bleiben beim Neuladen erhalten',
+                  'Toast-Benachrichtigungssystem für Benutzer-Feedback',
+                  'Eingabevalidierung und Code-Qualitätsverbesserungen',
+                  'Responsive Design für iPad/Tablet-Unterstützung',
+                  'Automatische Interpretation in der Druckausgabe',
+                ]}
+              />
+
+              <VersionEntry
+                version="1.0"
+                date="29.01.2026"
+                title="Erstveröffentlichung"
+                changes={[
+                  'Monte-Carlo-Simulation mit drei Bewertungsmethoden (Ertragswert, Vergleichswert, DCF)',
+                  'Konfigurierbare Wahrscheinlichkeitsverteilungen (Normal, Dreieck, Gleichverteilung, Log-Normal)',
+                  'Statistische Auswertung mit Histogramm, Perzentilen und Konfidenzintervallen',
+                  'Info-Seite mit Erklärungen, Disclaimer und Impressum',
+                  'GitHub Pages Deployment',
+                ]}
+              />
+            </div>
+          </div>
+
+          {/* Quellcode-Hinweis */}
+          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+            <div className="flex items-center space-x-2">
+              <GitBranch className="w-4 h-4 text-gray-500" />
+              <p className="text-xs text-gray-600">
+                <strong className="text-gray-900">Entwicklung:</strong> Diese App wird kontinuierlich weiterentwickelt.
+                Feedback und Verbesserungsvorschläge sind willkommen.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Card>
+
       {/* Disclaimer */}
       <Card className="border-amber-200 bg-amber-50/30">
         <CardHeader>
@@ -522,6 +689,38 @@ function ResultExplanation({ term, description }: { term: string; description: s
     <div className="flex">
       <span className="font-medium text-gray-900 w-40 flex-shrink-0">{term}:</span>
       <span className="text-gray-600">{description}</span>
+    </div>
+  );
+}
+
+function VersionEntry({
+  version,
+  date,
+  title,
+  changes,
+}: {
+  version: string;
+  date: string;
+  title: string;
+  changes: string[];
+}) {
+  return (
+    <div className="border-l-2 border-cyan-300 pl-4 pb-1">
+      <div className="flex items-baseline space-x-2 mb-1">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-cyan-100 text-cyan-800">
+          v{version}
+        </span>
+        <span className="text-xs text-gray-500">{date}</span>
+      </div>
+      <p className="text-sm font-medium text-gray-900 mb-1">{title}</p>
+      <ul className="space-y-0.5">
+        {changes.map((change, i) => (
+          <li key={i} className="flex items-start space-x-2 text-xs text-gray-600">
+            <span className="text-cyan-400 mt-0.5 flex-shrink-0">&#x2022;</span>
+            <span>{change}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
