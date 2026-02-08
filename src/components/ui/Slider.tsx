@@ -52,8 +52,8 @@ export const Slider = forwardRef<HTMLInputElement, SliderProps>(
         />
         {min !== undefined && max !== undefined && (
           <div className="flex justify-between mt-1">
-            <span className="text-xs text-gray-400">{min}</span>
-            <span className="text-xs text-gray-400">{max}</span>
+            <span className="text-xs text-gray-500">{min}</span>
+            <span className="text-xs text-gray-500">{max}</span>
           </div>
         )}
       </div>

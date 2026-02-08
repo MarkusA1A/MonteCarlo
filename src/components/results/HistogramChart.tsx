@@ -110,7 +110,11 @@ export function HistogramChart({ data, stats, title = 'Verteilung der Immobilien
     <div className="bg-white rounded-xl border border-gray-200 p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
 
-      <div className={exportMode ? '' : 'h-64 sm:h-80'}>
+      <div
+        className={exportMode ? '' : 'h-64 sm:h-80'}
+        role="img"
+        aria-label={`Häufigkeitsverteilung: Median ${formatCurrency(stats.median)}, P10 ${formatCurrency(stats.percentile10)}, P90 ${formatCurrency(stats.percentile90)}`}
+      >
         {exportMode ? chartContent : (
           <ResponsiveContainer width="100%" height="100%">
             {chartContent}

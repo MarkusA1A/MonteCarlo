@@ -62,7 +62,7 @@ export function StatisticsCards({ stats, title = 'Kombinierter Wert' }: Statisti
               </div>
               <p className={`text-xl font-bold ${card.color}`}>{card.value}</p>
               {card.subtext && (
-                <p className="text-xs text-gray-400 mt-1">{card.subtext}</p>
+                <p className="text-xs text-gray-500 mt-1">{card.subtext}</p>
               )}
             </div>
           );

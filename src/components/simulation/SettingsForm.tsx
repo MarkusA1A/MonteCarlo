@@ -71,8 +71,11 @@ export function SettingsForm() {
               <button
                 key={preset}
                 onClick={() => setNumberOfSimulations(preset)}
+                aria-label={`${preset.toLocaleString('de-DE')} Simulationen`}
+                aria-pressed={params.numberOfSimulations === preset}
                 className={`
                   px-3 py-1.5 text-xs font-medium rounded-md transition-colors
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
                   ${params.numberOfSimulations === preset
                     ? 'bg-primary-500 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -150,6 +153,8 @@ export function SettingsForm() {
             accept=".json"
             onChange={handleImport}
             className="hidden"
+            aria-label="JSON-Datei auswählen"
+            tabIndex={-1}
           />
         </div>
 

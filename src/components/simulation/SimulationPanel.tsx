@@ -51,7 +51,7 @@ export function SimulationPanel() {
       {/* Simulation starten */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         {isRunning ? (
-          <div className="space-y-4">
+          <div className="space-y-4" aria-live="polite" aria-atomic="true">
             {/* Phasen-Anzeige */}
             {currentPhase && (
               <div className="flex items-center justify-between mb-2">
@@ -150,7 +150,7 @@ export function SimulationPanel() {
               </Button>
             </div>
             {!hasActiveModel && (
-              <p className="text-xs text-red-600">
+              <p className="text-xs text-red-600" role="alert">
                 Bitte aktivieren Sie mindestens ein Bewertungsmodell.
               </p>
             )}

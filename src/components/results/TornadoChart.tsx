@@ -31,6 +31,8 @@ export function TornadoChart({ data, title = 'Sensitivitätsanalyse', exportMode
     impact: item.impact,
   }));
 
+  const ariaDescription = `Sensitivitätsanalyse: ${chartData.slice(0, 3).map(d => `${d.name} (Einfluss ${formatCurrency(d.impact)})`).join(', ')}`;
+
   const chartContent = (
     <BarChart
       data={chartData}
@@ -108,7 +110,11 @@ export function TornadoChart({ data, title = 'Sensitivitätsanalyse', exportMode
         Einfluss der Parameter bei ±20% Variation
       </p>
 
-      <div className={exportMode ? '' : 'h-64 sm:h-80'}>
+      <div
+        className={exportMode ? '' : 'h-64 sm:h-80'}
+        role="img"
+        aria-label={ariaDescription}
+      >
         {exportMode ? chartContent : (
           <ResponsiveContainer width="100%" height="100%">
             {chartContent}
@@ -116,16 +122,41 @@ export function TornadoChart({ data, title = 'Sensitivitätsanalyse', exportMode
         )}
       </div>
 
+      {/* Screen-reader accessible data table */}
+      <table className="sr-only">
+        <caption>Sensitivitätsanalyse – Einfluss bei ±20% Variation</caption>
+        <thead>
+          <tr>
+            <th scope="col">Parameter</th>
+            <th scope="col">Bei -20%</th>
+            <th scope="col">Basis</th>
+            <th scope="col">Bei +20%</th>
+            <th scope="col">Gesamteinfluss</th>
+          </tr>
+        </thead>
+        <tbody>
+          {chartData.map((d) => (
+            <tr key={d.parameter}>
+              <td>{d.name}</td>
+              <td>{formatCurrency(d.lowAbsolute)}</td>
+              <td>{formatCurrency(d.base)}</td>
+              <td>{formatCurrency(d.highAbsolute)}</td>
+              <td>{formatCurrency(d.impact)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
       {/* Legende */}
       {!exportMode && (
         <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 mt-4 text-xs">
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-red-500 rounded opacity-70" />
-            <span className="text-gray-600">-20%</span>
+            <div className="w-3 h-3 rounded opacity-70" style={{ background: 'repeating-linear-gradient(45deg, #EF4444, #EF4444 2px, #FCA5A5 2px, #FCA5A5 4px)' }} />
+            <span className="text-gray-600">-20% (Wertminderung)</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-green-500 rounded opacity-70" />
-            <span className="text-gray-600">+20%</span>
+            <span className="text-gray-600">+20% (Wertsteigerung)</span>
           </div>
         </div>
       )}

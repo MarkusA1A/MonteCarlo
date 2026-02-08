@@ -91,6 +91,7 @@ export function Toast({ toast, onRemove }: ToastProps) {
       </p>
       <button
         onClick={handleRemove}
+        aria-label="Benachrichtigung schließen"
         className={`
           ml-auto p-1 rounded-md transition-colors
           hover:bg-black/5 active:bg-black/10

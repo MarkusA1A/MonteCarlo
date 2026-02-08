@@ -1,3 +1,4 @@
+import { useEffect, useCallback } from 'react';
 import { Building2, Euro, Scale, TrendingUp, Settings2 } from 'lucide-react';
 import { useSimulationStore } from '../../store/simulationStore';
 import type { ActiveInputSection } from '../../types';
@@ -28,6 +29,18 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     if (onClose) onClose();
   };
 
+  // Close sidebar on Escape key
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape' && isOpen && onClose) {
+      onClose();
+    }
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
   return (
     <>
       {/* Mobile/Tablet Overlay */}
@@ -35,11 +48,13 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         <div
           className="fixed inset-0 bg-black/20 z-40 md:hidden"
           onClick={onClose}
+          aria-hidden="true"
         />
       )}
 
       {/* Sidebar */}
       <aside
+        aria-label="Bewertungsmodelle"
         className={`
           fixed md:relative inset-y-0 left-0 z-50 md:z-auto
           w-64 bg-white border-r border-gray-200
@@ -50,7 +65,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           h-[calc(100vh-56px)] sm:h-[calc(100vh-64px)] md:min-h-[calc(100vh-64px)]
         `}
       >
-        <nav className="p-4 space-y-1">
+        <nav className="p-4 space-y-1" aria-label="Bewertungsmodelle">
           {sections.map((section) => {
             const Icon = section.icon;
             const isActive = activeInputSection === section.id;
@@ -59,9 +74,11 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
               <button
                 key={section.id}
                 onClick={() => handleSectionClick(section.id)}
+                aria-current={isActive ? 'true' : undefined}
                 className={`
                   w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-sm font-medium
                   transition-all duration-200 min-h-[44px]
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2
                   ${isActive
                     ? 'bg-primary-500/10 text-primary-500'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100'

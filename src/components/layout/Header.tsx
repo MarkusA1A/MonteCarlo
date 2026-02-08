@@ -34,6 +34,7 @@ export function Header({ sidebarOpen, onToggleSidebar, showMenuButton }: HeaderP
             {showMenuButton && (
               <button
                 onClick={onToggleSidebar}
+                aria-label={sidebarOpen ? 'Navigation schließen' : 'Navigation öffnen'}
                 className="md:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 active:bg-gray-200 rounded-lg transition-colors"
               >
                 {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -48,7 +49,7 @@ export function Header({ sidebarOpen, onToggleSidebar, showMenuButton }: HeaderP
           </div>
 
           {/* Navigation Tabs - Mitte */}
-          <nav className="flex-1 flex justify-center">
+          <nav className="flex-1 flex justify-center" aria-label="Hauptnavigation">
             <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
@@ -60,6 +61,8 @@ export function Header({ sidebarOpen, onToggleSidebar, showMenuButton }: HeaderP
                     key={tab.id}
                     onClick={() => !isDisabled && setActiveTab(tab.id)}
                     disabled={isDisabled}
+                    aria-label={tab.label}
+                    aria-current={isActive ? 'page' : undefined}
                     className={`
                       flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 min-h-[44px]
                       ${isActive

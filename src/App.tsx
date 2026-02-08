@@ -29,6 +29,12 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[#F6F6F8]">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:bg-white focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg focus:text-primary-500 focus:font-medium"
+      >
+        Zum Inhalt springen
+      </a>
       <Header
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
@@ -41,7 +47,10 @@ function App() {
             onClose={() => setSidebarOpen(false)}
           />
         )}
-        <main className={`flex-1 p-4 sm:p-6 ${activeTab === 'input' ? 'md:ml-0' : 'max-w-7xl mx-auto'}`}>
+        <main
+          id="main-content"
+          className={`flex-1 p-4 sm:p-6 ${activeTab === 'input' ? 'md:ml-0' : 'max-w-7xl mx-auto'}`}
+        >
           {renderContent()}
         </main>
       </div>

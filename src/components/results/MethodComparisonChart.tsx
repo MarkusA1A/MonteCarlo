@@ -148,7 +148,11 @@ export function MethodComparisonChart({
         Mittelwerte mit 80% Konfidenzintervall (P10-P90)
       </p>
 
-      <div className={exportMode ? '' : 'h-48 sm:h-64'}>
+      <div
+        className={exportMode ? '' : 'h-48 sm:h-64'}
+        role="img"
+        aria-label={`Methodenvergleich: ${chartData.map(d => `${d.name} ${formatCurrency(d.value)}`).join(', ')}`}
+      >
         {exportMode ? chartContent : (
           <ResponsiveContainer width="100%" height="100%">
             {chartContent}
@@ -162,11 +166,11 @@ export function MethodComparisonChart({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left py-2 text-gray-500 font-medium">Methode</th>
-                <th className="text-right py-2 text-gray-500 font-medium">Mittelwert</th>
-                <th className="text-right py-2 text-gray-500 font-medium">P10</th>
-                <th className="text-right py-2 text-gray-500 font-medium">P90</th>
-                <th className="text-right py-2 text-gray-500 font-medium">Spanne</th>
+                <th scope="col" className="text-left py-2 text-gray-500 font-medium">Methode</th>
+                <th scope="col" className="text-right py-2 text-gray-500 font-medium">Mittelwert</th>
+                <th scope="col" className="text-right py-2 text-gray-500 font-medium">P10</th>
+                <th scope="col" className="text-right py-2 text-gray-500 font-medium">P90</th>
+                <th scope="col" className="text-right py-2 text-gray-500 font-medium">Spanne</th>
               </tr>
             </thead>
             <tbody>

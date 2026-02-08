@@ -11,6 +11,9 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className = '', label, error, hint, suffix, prefix, id, ...props }, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
+    const errorId = error && inputId ? `${inputId}-error` : undefined;
+    const hintId = hint && !error && inputId ? `${inputId}-hint` : undefined;
+    const describedBy = errorId || hintId || undefined;
 
     return (
       <div className="w-full">
@@ -29,6 +32,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             autoComplete="off"
+            aria-invalid={error ? true : undefined}
+            aria-describedby={describedBy}
             className={`
               w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900
               placeholder:text-gray-400
@@ -48,10 +53,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         {hint && !error && (
-          <p className="mt-1.5 text-xs text-gray-500">{hint}</p>
+          <p id={hintId} className="mt-1.5 text-xs text-gray-500">{hint}</p>
         )}
         {error && (
-          <p className="mt-1.5 text-xs text-red-600">{error}</p>
+          <p id={errorId} className="mt-1.5 text-xs text-red-600" role="alert">{error}</p>
         )}
       </div>
     );
