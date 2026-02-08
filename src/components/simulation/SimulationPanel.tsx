@@ -56,12 +56,12 @@ export function SimulationPanel() {
             {currentPhase && (
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-2">
-                  <Loader2 className="w-4 h-4 text-[#0066FF] animate-spin" />
+                  <Loader2 className="w-4 h-4 text-primary-500 animate-spin" />
                   <span className="text-sm font-medium text-gray-900">
                     Phase {currentPhase.current}/{currentPhase.total}: {currentPhase.name}
                   </span>
                 </div>
-                <span className="text-sm text-[#0066FF] font-medium">
+                <span className="text-sm text-primary-500 font-medium">
                   {progress.toFixed(0)}%
                 </span>
               </div>
@@ -117,7 +117,7 @@ export function SimulationPanel() {
                     {model.status === 'completed' ? (
                       <CheckCircle className="w-3.5 h-3.5 text-green-500" />
                     ) : (
-                      <Loader2 className="w-3.5 h-3.5 text-[#0066FF] animate-spin" />
+                      <Loader2 className="w-3.5 h-3.5 text-primary-500 animate-spin" />
                     )}
                     <span className={`text-xs ${model.status === 'completed' ? 'text-green-600' : 'text-gray-600'}`}>
                       {model.name}

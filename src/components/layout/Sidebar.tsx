@@ -63,19 +63,20 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
                   w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-sm font-medium
                   transition-all duration-200 min-h-[44px]
                   ${isActive
-                    ? 'bg-[#0066FF]/10 text-[#0066FF]'
+                    ? 'bg-primary-500/10 text-primary-500'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100'
                   }
                 `}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-[#0066FF]' : 'text-gray-400'}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-primary-500' : 'text-gray-400'}`} />
                 <span>{section.label}</span>
                 {section.id !== 'property' && section.id !== 'settings' && (
                   <span
                     className={`
-                      ml-auto w-2 h-2 rounded-full
+                      ml-auto w-3 h-3 rounded-full
                       ${section.enabled ? 'bg-green-500' : 'bg-gray-300'}
                     `}
+                    aria-label={section.enabled ? 'Aktiv' : 'Inaktiv'}
                   />
                 )}
               </button>

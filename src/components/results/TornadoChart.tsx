@@ -76,7 +76,7 @@ export function TornadoChart({ data, title = 'Sensitivitätsanalyse', exportMode
                   </div>
                   <div className="pt-2 mt-2 border-t border-gray-100 flex justify-between space-x-4">
                     <span className="text-gray-500">Gesamteinfluss:</span>
-                    <span className="font-medium text-[#0066FF]">{formatCurrency(data.impact)}</span>
+                    <span className="font-medium text-primary-500">{formatCurrency(data.impact)}</span>
                   </div>
                 </div>
               </div>

@@ -36,8 +36,8 @@ export function ResultsPanel() {
       <Card padding="sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-[#0066FF]/10 rounded-lg flex items-center justify-center">
-              <Building2 className="w-6 h-6 text-[#0066FF]" />
+            <div className="w-12 h-12 bg-primary-500/10 rounded-lg flex items-center justify-center">
+              <Building2 className="w-6 h-6 text-primary-500" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900">
@@ -205,7 +205,7 @@ function InterpretationCard({ results }: { results: import('../../types').Simula
           <div className="space-y-3 text-sm text-gray-600">
             <p>
               Basierend auf {params.numberOfSimulations.toLocaleString('de-DE')} Monte-Carlo-Simulationen wird der
-              Marktwert der Immobilie auf <span className="font-semibold text-[#0066FF]">{formatCurrency(combinedStats.mean)}</span> geschätzt.
+              Marktwert der Immobilie auf <span className="font-semibold text-primary-500">{formatCurrency(combinedStats.mean)}</span> geschätzt.
             </p>
 
             <p>
@@ -530,7 +530,7 @@ function MethodCard({
   color: 'blue' | 'purple' | 'green';
 }) {
   const colors = {
-    blue: 'border-l-[#0066FF] bg-blue-50/50',
+    blue: 'border-l-primary-500 bg-blue-50/50',
     purple: 'border-l-purple-500 bg-purple-50/50',
     green: 'border-l-green-500 bg-green-50/50',
   };

@@ -74,7 +74,7 @@ export function SettingsForm() {
                 className={`
                   px-3 py-1.5 text-xs font-medium rounded-md transition-colors
                   ${params.numberOfSimulations === preset
-                    ? 'bg-[#0066FF] text-white'
+                    ? 'bg-primary-500 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }
                 `}

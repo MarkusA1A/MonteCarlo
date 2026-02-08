@@ -8,8 +8,8 @@ export function InfoPanel() {
       <Card>
         <CardHeader>
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-[#0066FF]/10 rounded-xl flex items-center justify-center">
-              <Lightbulb className="w-6 h-6 text-[#0066FF]" />
+            <div className="w-12 h-12 bg-primary-500/10 rounded-xl flex items-center justify-center">
+              <Lightbulb className="w-6 h-6 text-primary-500" />
             </div>
             <div>
               <CardTitle>Was ist die Monte-Carlo-Simulation?</CardTitle>
@@ -29,7 +29,7 @@ export function InfoPanel() {
             bei denen die Eingabewerte jeweils leicht variieren - so wie es auch in der Realität der Fall ist.
           </p>
           <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-            <p className="text-[#0066FF] font-medium mb-2">Das Ergebnis:</p>
+            <p className="text-primary-500 font-medium mb-2">Das Ergebnis:</p>
             <p className="text-gray-700">
               Sie erhalten nicht nur einen Wert, sondern eine <strong>Bandbreite möglicher Werte</strong> mit
               Wahrscheinlichkeiten. So wissen Sie zum Beispiel: "Mit 80% Wahrscheinlichkeit liegt der Wert
@@ -269,19 +269,19 @@ export function InfoPanel() {
 
         <ul className="space-y-2 text-sm text-gray-600">
           <li className="flex items-start space-x-2">
-            <ChevronRight className="w-4 h-4 text-[#0066FF] flex-shrink-0 mt-0.5" />
+            <ChevronRight className="w-4 h-4 text-primary-500 flex-shrink-0 mt-0.5" />
             <span>Seien Sie bei den Bandbreiten realistisch - zu enge Bereiche unterschätzen das Risiko.</span>
           </li>
           <li className="flex items-start space-x-2">
-            <ChevronRight className="w-4 h-4 text-[#0066FF] flex-shrink-0 mt-0.5" />
+            <ChevronRight className="w-4 h-4 text-primary-500 flex-shrink-0 mt-0.5" />
             <span>Nutzen Sie verschiedene Verteilungstypen: "Dreieck" wenn Sie Min/Max/Wahrscheinlichstes kennen, "Normal" bei symmetrischer Unsicherheit.</span>
           </li>
           <li className="flex items-start space-x-2">
-            <ChevronRight className="w-4 h-4 text-[#0066FF] flex-shrink-0 mt-0.5" />
+            <ChevronRight className="w-4 h-4 text-primary-500 flex-shrink-0 mt-0.5" />
             <span>10.000 Simulationen sind ein guter Kompromiss zwischen Genauigkeit und Geschwindigkeit.</span>
           </li>
           <li className="flex items-start space-x-2">
-            <ChevronRight className="w-4 h-4 text-[#0066FF] flex-shrink-0 mt-0.5" />
+            <ChevronRight className="w-4 h-4 text-primary-500 flex-shrink-0 mt-0.5" />
             <span>Aktivieren Sie mehrere Bewertungsmethoden für eine robustere Schätzung.</span>
           </li>
         </ul>
@@ -581,7 +581,7 @@ export function InfoPanel() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <a
                 href="tel:+436643021083"
-                className="flex items-center space-x-2 text-gray-600 hover:text-[#0066FF] transition-colors"
+                className="flex items-center space-x-2 text-gray-600 hover:text-primary-500 transition-colors"
               >
                 <Phone className="w-4 h-4 text-gray-400" />
                 <span>+43 664 302 10 83</span>
@@ -589,7 +589,7 @@ export function InfoPanel() {
 
               <a
                 href="mailto:mthalhamer@thalhamer.com"
-                className="flex items-center space-x-2 text-gray-600 hover:text-[#0066FF] transition-colors"
+                className="flex items-center space-x-2 text-gray-600 hover:text-primary-500 transition-colors"
               >
                 <Mail className="w-4 h-4 text-gray-400" />
                 <span>mthalhamer@thalhamer.com</span>
@@ -599,7 +599,7 @@ export function InfoPanel() {
                 href="https://www.immobilienwerte.at"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-gray-600 hover:text-[#0066FF] transition-colors"
+                className="flex items-center space-x-2 text-gray-600 hover:text-primary-500 transition-colors"
               >
                 <Globe className="w-4 h-4 text-gray-400" />
                 <span>www.immobilienwerte.at</span>
@@ -670,7 +670,7 @@ function MethodExplanation({
   example: string;
 }) {
   const colors = {
-    blue: 'border-[#0066FF] bg-blue-50',
+    blue: 'border-primary-500 bg-blue-50',
     purple: 'border-purple-500 bg-purple-50',
     green: 'border-green-500 bg-green-50',
   };

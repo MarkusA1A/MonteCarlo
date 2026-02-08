@@ -777,11 +777,11 @@ export function ExportPanel() {
             wurde mit <strong>{params.numberOfSimulations.toLocaleString('de-DE')}</strong> Durchläufen durchgeführt.
           </p>
 
-          <div className="bg-[#0066FF]/5 rounded-lg p-4 my-4">
+          <div className="bg-primary-500/5 rounded-lg p-4 my-4">
             <p className="text-lg font-semibold text-gray-900 mb-1">
               Geschätzter Immobilienwert
             </p>
-            <p className="text-3xl font-bold text-[#0066FF]">
+            <p className="text-3xl font-bold text-primary-500">
               {formatCurrency(combinedStats.mean)}
             </p>
             <p className="text-sm text-gray-500 mt-2">
@@ -1035,7 +1035,7 @@ function ExportOption({
   isLoading?: boolean;
 }) {
   return (
-    <div className="border border-gray-200 rounded-lg p-4 hover:border-[#0066FF] transition-colors">
+    <div className="border border-gray-200 rounded-lg p-4 hover:border-primary-500 transition-colors">
       <div className="flex items-start space-x-3">
         <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
           <Icon className="w-5 h-5 text-gray-600" />

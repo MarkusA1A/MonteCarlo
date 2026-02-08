@@ -39,7 +39,7 @@ export function Header({ sidebarOpen, onToggleSidebar, showMenuButton }: HeaderP
                 {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             )}
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#0066FF] rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary-500 rounded-lg flex items-center justify-center">
               <Building2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <div className="hidden sm:block">
@@ -81,9 +81,10 @@ export function Header({ sidebarOpen, onToggleSidebar, showMenuButton }: HeaderP
           {/* Settings - Rechts */}
           <button
             onClick={handleSettingsClick}
-            className={`flex-shrink-0 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors ${
+            aria-label="Einstellungen öffnen"
+            className={`flex-shrink-0 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
               isSettingsActive
-                ? 'text-[#0066FF] bg-blue-50'
+                ? 'text-primary-500 bg-primary-50'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 active:bg-gray-200'
             }`}
           >

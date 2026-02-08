@@ -26,12 +26,19 @@ export function Progress({
       {showLabel && (
         <div className="flex justify-between mb-1">
           <span className="text-sm font-medium text-gray-700">Fortschritt</span>
-          <span className="text-sm font-medium text-[#0066FF]">{percentage.toFixed(0)}%</span>
+          <span className="text-sm font-medium text-primary-500">{percentage.toFixed(0)}%</span>
         </div>
       )}
-      <div className={`w-full bg-gray-200 rounded-full overflow-hidden ${sizes[size]}`}>
+      <div
+        className={`w-full bg-gray-200 rounded-full overflow-hidden ${sizes[size]}`}
+        role="progressbar"
+        aria-valuenow={Math.round(percentage)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Fortschritt"
+      >
         <div
-          className="bg-[#0066FF] h-full rounded-full transition-all duration-300 ease-out"
+          className="bg-primary-500 h-full rounded-full transition-all duration-300 ease-out"
           style={{ width: `${percentage}%` }}
         />
       </div>

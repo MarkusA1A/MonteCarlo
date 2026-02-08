@@ -64,7 +64,7 @@ export function HistogramChart({ data, stats, title = 'Verteilung der Immobilien
                       </p>
                       <div className="mt-2 pt-2 border-t border-gray-100">
                         <p className="text-xs text-gray-500">Häufigkeit</p>
-                        <p className="text-sm font-medium text-[#0066FF]">
+                        <p className="text-sm font-medium text-primary-500">
                           {data.count} ({data.percentage.toFixed(1)}%)
                         </p>
                       </div>

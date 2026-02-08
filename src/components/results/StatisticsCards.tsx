@@ -13,7 +13,7 @@ export function StatisticsCards({ stats, title = 'Kombinierter Wert' }: Statisti
       label: 'Mittelwert',
       value: formatCurrency(stats.mean),
       icon: Target,
-      color: 'text-[#0066FF]',
+      color: 'text-primary-500',
       bgColor: 'bg-blue-50',
     },
     {
