@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useSimulationStore } from './store/simulationStore';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
-import { SimulationPanel } from './components/simulation/SimulationPanel';
-import { ResultsPanel } from './components/results/ResultsPanel';
-import { ExportPanel } from './components/export/ExportPanel';
-import { InfoPanel } from './components/info/InfoPanel';
 import { ToastContainer } from './components/ui/ToastContainer';
+
+const SimulationPanel = lazy(() => import('./components/simulation/SimulationPanel').then(m => ({ default: m.SimulationPanel })));
+const ResultsPanel = lazy(() => import('./components/results/ResultsPanel').then(m => ({ default: m.ResultsPanel })));
+const ExportPanel = lazy(() => import('./components/export/ExportPanel').then(m => ({ default: m.ExportPanel })));
+const InfoPanel = lazy(() => import('./components/info/InfoPanel').then(m => ({ default: m.InfoPanel })));
 
 function App() {
   const { activeTab } = useSimulationStore();
@@ -51,7 +52,13 @@ function App() {
           id="main-content"
           className={`flex-1 p-4 sm:p-6 ${activeTab === 'input' ? 'md:ml-0' : 'max-w-7xl mx-auto'}`}
         >
-          {renderContent()}
+          <Suspense fallback={
+            <div className="flex items-center justify-center h-64">
+              <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          }>
+            {renderContent()}
+          </Suspense>
         </main>
       </div>
       <ToastContainer />

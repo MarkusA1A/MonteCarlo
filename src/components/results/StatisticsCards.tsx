@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import { TrendingUp, TrendingDown, Target, BarChart3, Info } from 'lucide-react';
 import { Statistics } from '../../types';
 import { formatCurrency } from '../../lib/statistics';
@@ -7,8 +8,8 @@ interface StatisticsCardsProps {
   title?: string;
 }
 
-export function StatisticsCards({ stats, title = 'Kombinierter Wert' }: StatisticsCardsProps) {
-  const cards = [
+export const StatisticsCards = memo(function StatisticsCards({ stats, title = 'Kombinierter Wert' }: StatisticsCardsProps) {
+  const cards = useMemo(() => [
     {
       label: 'Mittelwert',
       value: formatCurrency(stats.mean),
@@ -39,7 +40,7 @@ export function StatisticsCards({ stats, title = 'Kombinierter Wert' }: Statisti
       bgColor: 'bg-green-50',
       subtext: 'Optimistisch',
     },
-  ];
+  ], [stats]);
 
   return (
     <div>
@@ -123,7 +124,7 @@ export function StatisticsCards({ stats, title = 'Kombinierter Wert' }: Statisti
       </div>
     </div>
   );
-}
+});
 
 function StatBox({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
   return (

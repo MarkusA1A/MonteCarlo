@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import {
   BarChart,
   Bar,
@@ -28,14 +29,14 @@ interface MethodComparisonChartProps {
   exportMode?: boolean;
 }
 
-export function MethodComparisonChart({
+export const MethodComparisonChart = memo(function MethodComparisonChart({
   mieteinnahmenStats,
   vergleichswertStats,
   dcfStats,
   combinedStats,
   exportMode = false,
 }: MethodComparisonChartProps) {
-  const chartData = [
+  const chartData = useMemo(() => [
     mieteinnahmenStats && {
       name: 'Ertragswert',
       value: mieteinnahmenStats.mean,
@@ -72,7 +73,7 @@ export function MethodComparisonChart({
       p10: combinedStats.percentile10,
       p90: combinedStats.percentile90,
     },
-  ].filter((item): item is ChartDataItem => Boolean(item));
+  ].filter((item): item is ChartDataItem => Boolean(item)), [mieteinnahmenStats, vergleichswertStats, dcfStats, combinedStats]);
 
   const chartContent = (
     <BarChart
@@ -192,4 +193,4 @@ export function MethodComparisonChart({
       )}
     </div>
   );
-}
+});

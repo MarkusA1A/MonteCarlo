@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import {
   BarChart,
   Bar,
@@ -18,9 +19,9 @@ interface TornadoChartProps {
   exportMode?: boolean;
 }
 
-export function TornadoChart({ data, title = 'Sensitivitätsanalyse', exportMode = false }: TornadoChartProps) {
+export const TornadoChart = memo(function TornadoChart({ data, title = 'Sensitivitätsanalyse', exportMode = false }: TornadoChartProps) {
   // Daten für Tornado-Darstellung aufbereiten
-  const chartData = data.slice(0, 8).map((item) => ({
+  const chartData = useMemo(() => data.slice(0, 8).map((item) => ({
     name: item.label,
     parameter: item.parameter,
     low: item.lowValue - item.baseValue,
@@ -29,9 +30,9 @@ export function TornadoChart({ data, title = 'Sensitivitätsanalyse', exportMode
     highAbsolute: item.highValue,
     base: item.baseValue,
     impact: item.impact,
-  }));
+  })), [data]);
 
-  const ariaDescription = `Sensitivitätsanalyse: ${chartData.slice(0, 3).map(d => `${d.name} (Einfluss ${formatCurrency(d.impact)})`).join(', ')}`;
+  const ariaDescription = useMemo(() => `Sensitivitätsanalyse: ${chartData.slice(0, 3).map(d => `${d.name} (Einfluss ${formatCurrency(d.impact)})`).join(', ')}`, [chartData]);
 
   const chartContent = (
     <BarChart
@@ -194,4 +195,4 @@ export function TornadoChart({ data, title = 'Sensitivitätsanalyse', exportMode
       )}
     </div>
   );
-}
+});

@@ -1,5 +1,6 @@
 import { Play, TrendingUp, TrendingDown, Minus, CheckCircle, Loader2 } from 'lucide-react';
 import { useSimulationStore } from '../../store/simulationStore';
+import { useShallow } from 'zustand/react/shallow';
 import { Button } from '../ui/Button';
 import { Progress } from '../ui/Progress';
 import { PropertyForm } from './PropertyForm';
@@ -18,7 +19,15 @@ export function SimulationPanel() {
     runSimulation,
     currentPhase,
     liveStats,
-  } = useSimulationStore();
+  } = useSimulationStore(useShallow(s => ({
+    activeInputSection: s.activeInputSection,
+    status: s.status,
+    progress: s.progress,
+    params: s.params,
+    runSimulation: s.runSimulation,
+    currentPhase: s.currentPhase,
+    liveStats: s.liveStats,
+  })));
 
   const isRunning = status === 'running';
   const hasActiveModel =

@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { Building2, Euro, Scale, TrendingUp, Settings2 } from 'lucide-react';
 import { useSimulationStore } from '../../store/simulationStore';
+import { useShallow } from 'zustand/react/shallow';
 import type { ActiveInputSection } from '../../types';
 
 interface SidebarProps {
@@ -9,7 +10,11 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
-  const { activeInputSection, setActiveInputSection, params } = useSimulationStore();
+  const { activeInputSection, setActiveInputSection, params } = useSimulationStore(useShallow(s => ({
+    activeInputSection: s.activeInputSection,
+    setActiveInputSection: s.setActiveInputSection,
+    params: s.params,
+  })));
 
   const sections: {
     id: ActiveInputSection;

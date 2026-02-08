@@ -1,5 +1,6 @@
 import { Building2, BarChart3, FileText, Settings, Menu, X, HelpCircle } from 'lucide-react';
 import { useSimulationStore } from '../../store/simulationStore';
+import { useShallow } from 'zustand/react/shallow';
 import type { ActiveTab } from '../../types';
 
 interface HeaderProps {
@@ -9,7 +10,13 @@ interface HeaderProps {
 }
 
 export function Header({ sidebarOpen, onToggleSidebar, showMenuButton }: HeaderProps) {
-  const { activeTab, activeInputSection, setActiveTab, setActiveInputSection, status } = useSimulationStore();
+  const { activeTab, activeInputSection, setActiveTab, setActiveInputSection, status } = useSimulationStore(useShallow(s => ({
+    activeTab: s.activeTab,
+    activeInputSection: s.activeInputSection,
+    setActiveTab: s.setActiveTab,
+    setActiveInputSection: s.setActiveInputSection,
+    status: s.status,
+  })));
 
   const handleSettingsClick = () => {
     setActiveTab('input');

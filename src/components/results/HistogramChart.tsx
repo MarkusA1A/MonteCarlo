@@ -1,3 +1,4 @@
+import { memo, useMemo, useCallback } from 'react';
 import {
   BarChart,
   Bar,
@@ -19,23 +20,23 @@ interface HistogramChartProps {
   exportMode?: boolean;
 }
 
-export function HistogramChart({ data, stats, title = 'Verteilung der Immobilienwerte', exportMode = false }: HistogramChartProps) {
-  const chartData = data.map((bin) => ({
+export const HistogramChart = memo(function HistogramChart({ data, stats, title = 'Verteilung der Immobilienwerte', exportMode = false }: HistogramChartProps) {
+  const chartData = useMemo(() => data.map((bin) => ({
     range: `${(bin.rangeStart / 1000).toFixed(0)}k`,
     rangeStart: bin.rangeStart,
     rangeEnd: bin.rangeEnd,
     count: bin.count,
     percentage: bin.percentage,
-  }));
+  })), [data]);
 
-  const getBarColor = (rangeStart: number, rangeEnd: number) => {
+  const getBarColor = useCallback((rangeStart: number, rangeEnd: number) => {
     const midpoint = (rangeStart + rangeEnd) / 2;
     if (midpoint < stats.percentile10) return '#FED7AA'; // orange-200
     if (midpoint < stats.percentile25) return '#FDE68A'; // yellow-200
     if (midpoint <= stats.percentile75) return '#93C5FD'; // blue-300
     if (midpoint <= stats.percentile90) return '#86EFAC'; // green-300
     return '#A7F3D0'; // emerald-200
-  };
+  }, [stats.percentile10, stats.percentile25, stats.percentile75, stats.percentile90]);
 
   const chartContent = (
     <BarChart
@@ -177,4 +178,4 @@ export function HistogramChart({ data, stats, title = 'Verteilung der Immobilien
       )}
     </div>
   );
-}
+});

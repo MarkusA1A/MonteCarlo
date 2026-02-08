@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useSimulationStore } from '../../store/simulationStore';
 import { StatisticsCards } from './StatisticsCards';
 import { HistogramChart } from './HistogramChart';
@@ -126,7 +127,7 @@ export function ResultsPanel() {
   );
 }
 
-function InterpretationCard({ results }: { results: import('../../types').SimulationResults }) {
+const InterpretationCard = memo(function InterpretationCard({ results }: { results: import('../../types').SimulationResults }) {
   const { params, combinedStats, sensitivityAnalysis, mieteinnahmenStats, vergleichswertStats, dcfStats } = results;
   const cv = combinedStats.coefficientOfVariation;
   const range = combinedStats.percentile90 - combinedStats.percentile10;
@@ -257,9 +258,9 @@ function InterpretationCard({ results }: { results: import('../../types').Simula
       </div>
     </Card>
   );
-}
+});
 
-function CvInterpretation({
+const CvInterpretation = memo(function CvInterpretation({
   cv,
   uncertaintyLevel,
   uncertaintyBg,
@@ -361,7 +362,7 @@ function CvInterpretation({
       )}
     </div>
   );
-}
+});
 
 // Mapping: Parameter → verständliche Erklärungen für pessimistisches/optimistisches Szenario
 const PARAMETER_EXPLANATIONS: Record<string, { pessimistic: string; optimistic: string }> = {
@@ -427,7 +428,7 @@ const PARAMETER_EXPLANATIONS: Record<string, { pessimistic: string; optimistic: 
   },
 };
 
-function ScenarioAnalysis({
+const ScenarioAnalysis = memo(function ScenarioAnalysis({
   sensitivityAnalysis,
   combinedStats,
 }: {
@@ -518,9 +519,9 @@ function ScenarioAnalysis({
       </div>
     </div>
   );
-}
+});
 
-function MethodCard({
+const MethodCard = memo(function MethodCard({
   title,
   stats,
   color,
@@ -562,4 +563,4 @@ function MethodCard({
       </div>
     </div>
   );
-}
+});

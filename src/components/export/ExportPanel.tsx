@@ -7,8 +7,7 @@ import { Button } from '../ui/Button';
 import { formatCurrency } from '../../lib/statistics';
 import { PrintableReport } from './PrintableReport';
 import { Statistics, HistogramBin, SensitivityResult, SimulationResults, SimulationParams } from '../../types';
-import jsPDF from 'jspdf';
-import * as XLSX from 'xlsx';
+
 
 // Build-Information
 const BUILD_INFO = {
@@ -24,7 +23,7 @@ export function ExportPanel() {
   const printRef = useRef<HTMLDivElement>(null);
 
   // PDF direkt mit jsPDF generieren (ohne html2canvas wegen Tailwind v4 oklch() Farben)
-  const exportToPDF = useCallback(() => {
+  const exportToPDF = useCallback(async () => {
     if (!results) {
       toast.error('Keine Daten für PDF-Export verfügbar');
       return;
@@ -35,6 +34,7 @@ export function ExportPanel() {
     toast.info('PDF wird erstellt...');
 
     try {
+      const { default: jsPDF } = await import('jspdf');
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
@@ -196,11 +196,12 @@ export function ExportPanel() {
     }
   }, [results]);
 
-  const exportToExcel = useCallback(() => {
+  const exportToExcel = useCallback(async () => {
     if (!results) return;
     const { params, combinedStats } = results;
 
     // Erstelle Workbook
+    const XLSX = await import('xlsx');
     const wb = XLSX.utils.book_new();
 
     // Blatt 1: Zusammenfassung
