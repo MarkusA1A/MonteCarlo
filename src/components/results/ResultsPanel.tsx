@@ -535,14 +535,6 @@ function MethodCard({
     green: 'border-l-green-500 bg-green-50/50',
   };
 
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat('de-DE', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-
   return (
     <div className={`border-l-4 ${colors[color]} rounded-lg p-4`}>
       <h4 className="font-medium text-gray-900 mb-3">{title}</h4>
