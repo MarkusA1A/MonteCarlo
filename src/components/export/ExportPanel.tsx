@@ -4,6 +4,7 @@ import { useSimulationStore } from '../../store/simulationStore';
 import { toast } from '../../store/toastStore';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import { Button } from '../ui/Button';
+import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { formatCurrency } from '../../lib/statistics';
 import { PrintableReport } from './PrintableReport';
 import { Statistics, HistogramBin, SensitivityResult, SimulationResults, SimulationParams } from '../../types';
@@ -829,7 +830,9 @@ export function ExportPanel() {
         className={showPreview ? 'border border-gray-300 rounded-lg overflow-hidden' : 'w-[800px] bg-white'}
         style={showPreview ? {} : { position: 'absolute', left: '-9999px', top: 0, visibility: 'hidden' }}
       >
-        <PrintableReport results={results} />
+        <ErrorBoundary variant="compact" fallbackTitle="Druckvorschau konnte nicht erstellt werden">
+          <PrintableReport results={results} />
+        </ErrorBoundary>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { HistogramChart } from './HistogramChart';
 import { TornadoChart } from './TornadoChart';
 import { MethodComparisonChart } from './MethodComparisonChart';
 import { Card } from '../ui/Card';
+import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { Building2, Calendar, Hash, Lightbulb, TrendingDown, TrendingUp } from 'lucide-react';
 import { formatCurrency } from '../../lib/statistics';
 
@@ -70,25 +71,31 @@ export function ResultsPanel() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Histogramm */}
         <div className="lg:col-span-2" id="chart-histogram">
-          <HistogramChart
-            data={results.histogram}
-            stats={results.combinedStats}
-          />
+          <ErrorBoundary variant="compact" fallbackTitle="Histogramm konnte nicht dargestellt werden">
+            <HistogramChart
+              data={results.histogram}
+              stats={results.combinedStats}
+            />
+          </ErrorBoundary>
         </div>
 
         {/* Methodenvergleich */}
         <div id="chart-method-comparison">
-          <MethodComparisonChart
-            mieteinnahmenStats={results.mieteinnahmenStats}
-            vergleichswertStats={results.vergleichswertStats}
-            dcfStats={results.dcfStats}
-            combinedStats={results.combinedStats}
-          />
+          <ErrorBoundary variant="compact" fallbackTitle="Methodenvergleich konnte nicht dargestellt werden">
+            <MethodComparisonChart
+              mieteinnahmenStats={results.mieteinnahmenStats}
+              vergleichswertStats={results.vergleichswertStats}
+              dcfStats={results.dcfStats}
+              combinedStats={results.combinedStats}
+            />
+          </ErrorBoundary>
         </div>
 
         {/* Tornado-Diagramm */}
         <div id="chart-tornado">
-          <TornadoChart data={results.sensitivityAnalysis} />
+          <ErrorBoundary variant="compact" fallbackTitle="Sensitivitätsanalyse konnte nicht dargestellt werden">
+            <TornadoChart data={results.sensitivityAnalysis} />
+          </ErrorBoundary>
         </div>
       </div>
 

@@ -3,6 +3,7 @@ import { useSimulationStore } from './store/simulationStore';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { ToastContainer } from './components/ui/ToastContainer';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 
 const SimulationPanel = lazy(() => import('./components/simulation/SimulationPanel').then(m => ({ default: m.SimulationPanel })));
 const ResultsPanel = lazy(() => import('./components/results/ResultsPanel').then(m => ({ default: m.ResultsPanel })));
@@ -52,13 +53,15 @@ function App() {
           id="main-content"
           className={`flex-1 p-4 sm:p-6 ${activeTab === 'input' ? 'md:ml-0' : 'max-w-7xl mx-auto'}`}
         >
-          <Suspense fallback={
-            <div className="flex items-center justify-center h-64">
-              <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-          }>
-            {renderContent()}
-          </Suspense>
+          <ErrorBoundary fallbackTitle="Panel konnte nicht geladen werden">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+              </div>
+            }>
+              {renderContent()}
+            </Suspense>
+          </ErrorBoundary>
         </main>
       </div>
       <ToastContainer />
